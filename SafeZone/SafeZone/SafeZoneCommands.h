@@ -27,6 +27,7 @@ void Dist(AShooterPlayerController* player, FString* message, int mode)
 		return;
 	}
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Distance: %d", (int)FVector::Distance(player->DefaultActorLocationField()(), szSetPos));
+	Log::GetLog()->info("Distance: {}", (int)FVector::Distance(player->DefaultActorLocationField()(), szSetPos));
 }
 
 void TPCoord(AShooterPlayerController* player, FString* message, int mode)

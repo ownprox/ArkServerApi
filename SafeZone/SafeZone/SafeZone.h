@@ -55,5 +55,4 @@ std::vector<SafeZonePlayerData>::iterator FindPlayer(const long long PlayerID, b
 void RemovePlayer(const long long PlayerID)
 {
 	SafeZonePlayerDataMap.erase(std::remove_if(SafeZonePlayerDataMap.begin(), SafeZonePlayerDataMap.end(), [PlayerID](SafeZonePlayerData& SZD) -> bool { return SZD.IsOfPlayerID(PlayerID); }));
-	printf("SafeZonePlayerDataMap Size: %d\n", SafeZonePlayerDataMap.size());
 }

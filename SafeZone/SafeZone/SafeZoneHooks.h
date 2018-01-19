@@ -119,7 +119,6 @@ bool PrimalStructureDamageCheckSafeZone(APrimalTargetableActor* structure, ACont
 	if (structure)
 	{
 		FVector Pos = structure->DefaultActorLocationField()();
-		printf("%0.f %0.f %0.f\n", Pos.X, Pos.Y, Pos.Z);
 	}
 	return false;
 }
@@ -129,7 +128,6 @@ float _cdecl Hook_APrimalStructure_TakeDamage(APrimalTargetableActor* _this, flo
 	if (_this)
 	{
 		FVector Pos = _this->DefaultActorLocationField()();
-		printf("%0.f %0.f %0.f\n", Pos.X, Pos.Y, Pos.Z);
 	}
 	return (PrimalStructureDamageCheckSafeZone(_this, EventInstigator, DamageCauser) ? 0 : APrimalStructure_TakeDamage_original(_this, Damage, DamageEvent, EventInstigator, DamageCauser));
 }*/

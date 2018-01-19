@@ -1,0 +1,37 @@
+{  
+   "SafeZones":{  
+      "SafeZoneNotifications":true,
+      "SafeZoneNotificationCheckSeconds":4,
+      "SafeZoneEnterNotifcation":"You have entered a Safe Zone",
+      "SafeZoneLeaveNotification":"You have left a Safe Zone",
+      "SafeZoneKillAgressiveDino":true,
+      "DistanceSafeZones":[  
+         {  
+            "Name":"Zone1",
+            "Distance":10000,
+            "PreventBuilding":true,
+            "PreventPVP":true,
+            "Position":[  
+               -389508,
+               -417001,
+               -14285.6
+            ],
+            "NoBuildMessage":"This is a Community trade center you can not build here.",
+            "NoPVPMessage":"This is a Community trade center you can not pvp here."
+         },
+         {  
+            "Name":"Zone2",
+            "Distance":10000,
+            "PreventBuilding":true,
+            "PreventPVP":false,
+            "Position":[  
+               -389508,
+               -417001,
+               -14285.6
+            ],
+            "NoBuildMessage":"This is a Event Zone you can not build here.",
+            "NoPVPMessage":""
+         }
+      ]
+   }
+}
