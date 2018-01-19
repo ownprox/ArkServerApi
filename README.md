@@ -1,2 +1,2 @@
 # ArkServerApi
-Plugins for Michidu Ark Server API: https://github.com/Michidu/ARK-Server-Beyond-API/
+Plugins for Michidu Ark Server API: https://github.com/Michidu/ARK-Server-API/
