@@ -2,7 +2,7 @@
 
 void ChangeDinoColour(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()->bIsServerAdminField()()) return;
+	if (!player || !player->PlayerStateField()() || (RequiresAdmin && !player->GetPlayerCharacter()->bIsServerAdminField()())) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (Parsed.Num() < 3)
