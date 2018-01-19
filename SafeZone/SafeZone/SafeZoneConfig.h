@@ -2,18 +2,10 @@
 #include <fstream>
 #include "json.hpp"
 
-std::string GetCurrentDir()
-{
-	char buffer[MAX_PATH];
-	GetModuleFileNameA(nullptr, buffer, MAX_PATH);
-	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	return std::string(buffer).substr(0, pos);
-}
-
 void InitConfig()
 {
 	Log::GetLog()->info("Loading SafeZones.");
-	std::ifstream file(GetCurrentDir() + "/ArkApi/Plugins/SafeZone/config.json");
+	std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/SafeZone/config.json");
 	if (!file.is_open())
 	{
 		Log::GetLog()->info("Could not open file config.json");
