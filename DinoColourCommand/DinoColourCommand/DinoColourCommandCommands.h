@@ -47,7 +47,7 @@ void ChangeDinoColour(AShooterPlayerController* player, FString* message, int mo
 				if (Func) Dino->ProcessEvent(Func, Args);
 				FString DinoName = Dino->TamedNameField()();
 				if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Colour updated.", DinoName.ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Colour updated.", DinoName.ToString().c_str());
 			}
 		}
 	}
