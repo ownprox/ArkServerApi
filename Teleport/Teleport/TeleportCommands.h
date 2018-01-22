@@ -19,18 +19,18 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 		{
 			if (!Players[0]->GetPlayerCharacter() || Players[0]->GetPlayerCharacter()->IsDead())
 			{
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "%s Is Dead.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "{} Is Dead.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 				return;
 			}
 			PlayerS* o;
 			if ((o = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]))) != NULL)
 			{
 				o->LastTPRID = p->SteamID;
-				ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(0, 255, 0), "%s Would Like to teleport to you, /tpa", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str());
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Teleport Request sent to: %s", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(0, 255, 0), "{} Would Like to teleport to you, /tpa", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Teleport Request sent to: {}", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 			}
 		}
-		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", PlayerName.ToString().c_str());
+		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", PlayerName.ToString().c_str());
 	}
 }
 
@@ -45,12 +45,12 @@ void TeleportAccept(AShooterPlayerController* player, FString* message, int mode
 		{
 			if (!other->GetPlayerCharacter() || other->GetPlayerCharacter()->IsDead())
 			{
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "%s Is Dead.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "{} Is Dead.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
 				return;
 			}
 			p->LastTPRID = -1;
-			ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(0, 255, 0), "You will Teleport to %s in %d Seconds.", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), TeleportDelay);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Is Teleporting to you in %d Seconds.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), TeleportDelay);
+			ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(0, 255, 0), "You will Teleport to %s in {} Seconds.", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), TeleportDelay);
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Is Teleporting to you in {} Seconds.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), TeleportDelay);
 			Timer(TeleportDelay, true, ArkApi::GetApiUtils().TeleportToPlayer, other, player, AllowDinoTeleport, MaxDistance);
 		}
 	}
@@ -75,7 +75,7 @@ void AdminTP(AShooterPlayerController* player, FString* message, int mode)
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
 	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())	ArkApi::GetApiUtils().TeleportToPlayer(player, Players[0], false);
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
@@ -97,7 +97,7 @@ void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
 	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(Players[0], player, false);
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 
@@ -130,7 +130,7 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
 		}
 }
 
@@ -173,10 +173,10 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
 		}
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 void AdminTPCoord(AShooterPlayerController* player, FString* message, int mode)
@@ -214,7 +214,7 @@ void AdminPos(AShooterPlayerController* player, FString* message, int mode)
 		return;
 	}
 	FVector Pos = player->DefaultActorLocationField()();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%.0f %.0f %.0f", Pos.X, Pos.Y, Pos.Z);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Pos: {0:.0f}, {1:.0f}, {2:.0f}", Pos.X, Pos.Y, Pos.Z);
 }
 
 void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
@@ -235,7 +235,7 @@ void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
 		}
 	}
 }

@@ -9,7 +9,7 @@ void SetPos(AShooterPlayerController* player, FString* message, int mode)
 		return;
 	}
 	szSetPos = player->DefaultActorLocationField()();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Pos: %.0f, %.0f, %.0f", szSetPos.X, szSetPos.Y, szSetPos.Z);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Pos: {0:.0f}, {1:.0f}, {2:.0f}", szSetPos.X, szSetPos.Y, szSetPos.Z);
 	Log::GetLog()->info("Position: {}, {}, {}", szSetPos.X, szSetPos.Y, szSetPos.Z);
 }
 
@@ -26,7 +26,7 @@ void Dist(AShooterPlayerController* player, FString* message, int mode)
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please use /szsetpos first");
 		return;
 	}
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Distance: %d", (int)FVector::Distance(player->DefaultActorLocationField()(), szSetPos));
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Distance: {}", (int)FVector::Distance(player->DefaultActorLocationField()(), szSetPos));
 	Log::GetLog()->info("Distance: {}", (int)FVector::Distance(player->DefaultActorLocationField()(), szSetPos));
 }
 
@@ -75,7 +75,6 @@ void InitCommands()
 	ArkApi::GetCommands().AddChatCommand("/szdist", &Dist);
 	ArkApi::GetCommands().AddChatCommand("/sztp", &TPCoord);
 	ArkApi::GetCommands().AddChatCommand("/szreload", &ReloadConfig);
-	Log::GetLog()->info("SafeZone: InitCommands()");
 }
 
 void RemoveCommands()
@@ -84,5 +83,4 @@ void RemoveCommands()
 	ArkApi::GetCommands().RemoveChatCommand("/szdist");
 	ArkApi::GetCommands().RemoveChatCommand("/sztp");
 	ArkApi::GetCommands().RemoveChatCommand("/szreload");
-	Log::GetLog()->info("EpidemicArk: RemoveCommands() Done");
 }
