@@ -19,5 +19,5 @@ void InitConfig()
 	TPREnabled = TeleportConfig["Teleport"]["TPREnabled"];
 	TeleportDelay = TeleportConfig["Teleport"]["TPRDelaySeconds"];
 	MaxDistance = TeleportConfig["Teleport"]["TPRMaxDistance"];
-	AllowDinoTeleport = TeleportConfig["Teleport"]["TPRAllowDinoTeleport"];
+	AllowDinoTeleport = !(bool)TeleportConfig["Teleport"]["TPRAllowDinoTeleport"];
 }

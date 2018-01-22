@@ -120,7 +120,7 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 		}
 		catch (...) {}
 	}
-	if (TamedDist <= 0 || TamedDist > 8000) TamedDist = 1000;
+	if (TamedDist <= 0 || TamedDist > 8000) TamedDist = 8000;
 	TArray<TWeakObjectPtr<APrimalDinoCharacter>> Dinos;
 	player->GetTamedDinosNearBy(&Dinos, TamedDist);
 	APrimalDinoCharacter* Dino;
