@@ -10,11 +10,13 @@ void InitConfig()
 		TeleportDelay = 60;
 		MaxDistance = -1.f;
 		AllowDinoTeleport = false;
+		TPREnabled = true;
 		return;
 	}
 	nlohmann::json TeleportConfig;
 	file >> TeleportConfig;
 	file.close();
+	TPREnabled = TeleportConfig["Teleport"]["TPREnabled"];
 	TeleportDelay = TeleportConfig["Teleport"]["TPRDelaySeconds"];
 	MaxDistance = TeleportConfig["Teleport"]["TPRMaxDistance"];
 	AllowDinoTeleport = TeleportConfig["Teleport"]["TPRAllowDinoTeleport"];

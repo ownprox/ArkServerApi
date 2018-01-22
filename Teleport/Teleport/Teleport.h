@@ -3,7 +3,7 @@
 #include "API\ARK\Ark.h"
 int TeleportDelay;
 float MaxDistance;
-bool AllowDinoTeleport;
+bool AllowDinoTeleport, TPREnabled;
 
 struct PlayerS
 {

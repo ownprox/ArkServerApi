@@ -242,8 +242,11 @@ void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 
 void InitCommands()
 {
-	ArkApi::GetCommands().AddChatCommand("/tpr", &TeleportRequest);
-	ArkApi::GetCommands().AddChatCommand("/tpa", &TeleportAccept);
+	if (TPREnabled)
+	{
+		ArkApi::GetCommands().AddChatCommand("/tpr", &TeleportRequest);
+		ArkApi::GetCommands().AddChatCommand("/tpa", &TeleportAccept);
+	}
 	ArkApi::GetCommands().AddChatCommand("/tp", &AdminTP);
 	ArkApi::GetCommands().AddChatCommand("/tpm", &AdminTPM);
 	ArkApi::GetCommands().AddChatCommand("/tpd", &AdminTeleTamedToMe);
@@ -255,8 +258,11 @@ void InitCommands()
 
 void RemoveCommands()
 {
-	ArkApi::GetCommands().RemoveChatCommand("/tpr");
-	ArkApi::GetCommands().RemoveChatCommand("/tpa");
+	if (TPREnabled)
+	{
+		ArkApi::GetCommands().RemoveChatCommand("/tpr");
+		ArkApi::GetCommands().RemoveChatCommand("/tpa");
+	}
 	ArkApi::GetCommands().RemoveChatCommand("/tp");
 	ArkApi::GetCommands().RemoveChatCommand("/tpm");
 	ArkApi::GetCommands().RemoveChatCommand("/tpd");

@@ -1,5 +1,6 @@
 {  
    "Teleport":{  
+	  "TPREnabled":true,
       "TPRDelaySeconds":60,
       "TPRMaxDistance":-1,
       "TPRAllowDinoTeleport":false
