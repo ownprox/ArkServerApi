@@ -16,8 +16,8 @@ void AdminMute(AShooterPlayerController* player, FString* message, int mode)
 	}
 	FString PlayerName = "";
 	for (int i = 3; i < Parsed.Num(); i++)	PlayerName += (i == 3 ? Parsed[i] : FString(" ") + Parsed[i]);
-	AShooterPlayerController* other = nullptr;
-	if ((other = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName)) != nullptr && other->PlayerStateField()())
+	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
+	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
 	{
 		int Min = 0, Hour = 0;
 		try
@@ -31,10 +31,11 @@ void AdminMute(AShooterPlayerController* player, FString* message, int mode)
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /mute <min> <hour> <PlayerName>");
 			return;
 		}
-		AddMute(ArkApi::GetApiUtils().GetSteamId(other), Min, Hour, false);
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Has been muted from global.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
+		AddMute(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]), Min, Hour, false);
+		SaveConfig();
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Has been muted from global.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 void AdminIPMute(AShooterPlayerController* player, FString* message, int mode)
@@ -54,8 +55,8 @@ void AdminIPMute(AShooterPlayerController* player, FString* message, int mode)
 	}
 	FString PlayerName = "";
 	for (int i = 3; i < Parsed.Num(); i++)	PlayerName += (i == 3 ? Parsed[i] : FString(" ") + Parsed[i]);
-	AShooterPlayerController* other = nullptr;
-	if ((other = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName)) != nullptr && other->PlayerStateField()())
+	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
+	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
 	{
 		int Min = 0, Hour = 0;
 		try
@@ -69,11 +70,12 @@ void AdminIPMute(AShooterPlayerController* player, FString* message, int mode)
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /ipmute <min> <hour> <PlayerName>");
 			return;
 		}
-		const FString& IPAddress = GetIPAddress(player);
-		AddMute(ArkApi::GetApiUtils().GetSteamId(other), Min, Hour, true, IPAddress);
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s (%s) Has been ip muted from global.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), IPAddress.ToString().c_str());
+		const FString& IPAddress = ArkApi::GetApiUtils().GetIPAddress(player);
+		AddMute(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]), Min, Hour, true, IPAddress);
+		SaveConfig();
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} ({}) Has been ip muted from global.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str(), IPAddress.ToString().c_str());
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 void AdminUnMute(AShooterPlayerController* player, FString* message, int mode)
@@ -93,13 +95,14 @@ void AdminUnMute(AShooterPlayerController* player, FString* message, int mode)
 	}
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-	AShooterPlayerController* other = nullptr;
-	if ((other = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName)) != nullptr && other->PlayerStateField()())
+	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
+	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
 	{
-		RemoveMute(ArkApi::GetApiUtils().GetSteamId(other));
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "%s Has been unmuted from global.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
+		RemoveMute(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]));
+		SaveConfig();
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Has been unmuted from global.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: %s", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
 }
 
 void AdminUnMuteALL(AShooterPlayerController* player, FString* message, int mode)
@@ -111,6 +114,7 @@ void AdminUnMuteALL(AShooterPlayerController* player, FString* message, int mode
 		return;
 	}
 	ClearMutes();
+	SaveConfig();
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "All mutes removed.");
 }
 

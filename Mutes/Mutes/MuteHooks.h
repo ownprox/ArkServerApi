@@ -34,14 +34,13 @@ void CleanUpLoggedOutPlayerPassedMutes()
 
 void _cdecl Hook_AShooterPlayerController_ServerSendChatMessage_Impl(AShooterPlayerController* _this, FString* Message, EChatSendMode::Type Mode)
 {
-	const uint64& SteamID = ArkApi::GetApiUtils().GetSteamId(_this);
-	const int& Muted = IsMuted(SteamID, GetIPAddress(_this));
-	printf("%d %llu\n", Muted, SteamID);
+	const uint64 SteamID = ArkApi::GetApiUtils().GetSteamIdFromController(_this);
+	const int Muted = IsMuted(SteamID, ArkApi::GetApiUtils().GetIPAddress(_this));
 	if (Mode == EChatSendMode::Type::GlobalChat && Muted != 0)
 	{
-		const int& hours = (Muted > 3600 ? (Muted / 3600) : 0), &mins((hours > 0 && (Muted - (hours * 3600)) > 60) ? ((Muted - (hours * 3600)) / 60) : (Muted > 60 ? (Muted / 60) : 0));
-		if (mins != 0 || hours != 0) ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: %d hours, %d mins.", hours, mins);
-		else ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: %d seconds.", Muted);
+		const int hours = (Muted > 3600 ? (Muted / 3600) : 0), mins((hours > 0 && (Muted - (hours * 3600)) > 60) ? ((Muted - (hours * 3600)) / 60) : (Muted > 60 ? (Muted / 60) : 0));
+		if (mins != 0 || hours != 0) ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: {} hours, {} mins.", hours, mins);
+		else ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: {Muted} seconds.");
 		return;
 	}
 	AShooterPlayerController_ServerSendChatMessage_Impl_original(_this, Message, Mode);

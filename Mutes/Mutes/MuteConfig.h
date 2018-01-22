@@ -9,6 +9,7 @@ std::string GetCurrentDir()
 	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
 	return std::string(buffer).substr(0, pos);
 }
+
 void InitConfig()
 {
 	std::ifstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/config.json");
@@ -31,7 +32,11 @@ void SaveConfig()
 	const DWORD64 NowTime = timeGetTime();
 	std::stringstream MutedPlayerStream;
 	MutedPlayerStream << "{\"Mutes\": {\"MutedPlayers\":[";
-	for (const auto& MutedPlayer : muteData) if (MutedPlayer.MutedTill > NowTime) MutedPlayerStream << (First ? "" : ", ") << "{ \"SteamID\":" << MutedPlayer.SteamID  << ",\"MutedTill\":" << MutedPlayer.MutedTill << ",\"IPMute\":" << (MutedPlayer.IsIP ? "true" : "false") << ",\"IP\":\"" << MutedPlayer.IPAddress.ToString() << "\" }";
+	for (const auto& MutedPlayer : muteData)
+	{
+		if (MutedPlayer.MutedTill > NowTime) MutedPlayerStream << (First ? "" : ", ") << "{ \"SteamID\":" << MutedPlayer.SteamID << ",\"MutedTill\":" << MutedPlayer.MutedTill << ",\"IPMute\":" << (MutedPlayer.IsIP ? "true" : "false") << ",\"IP\":\"" << MutedPlayer.IPAddress.ToString() << "\" }";
+		First = false;
+	}
 	MutedPlayerStream << "]}}";
 	std::ofstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/config.json");
 	if (!file.is_open()) return;

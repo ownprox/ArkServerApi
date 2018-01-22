@@ -1,15 +1,4 @@
 #pragma once
-FString GetIPAddress(AShooterPlayerController* player)
-{
-	FString IPAddress = "";
-	if (player->PlayerStateField()()->IsA(AShooterPlayerState::StaticClass()))
-	{
-		AShooterPlayerState* ASPS = static_cast<AShooterPlayerState*>(player->PlayerStateField()());
-		if (ASPS && ASPS->MyPlayerDataStructField()()) IPAddress = ASPS->MyPlayerDataStructField()()->SavedNetworkAddressField()();
-	}
-	return IPAddress;
-}
-
 struct MuteData
 {
 	uint64 SteamID;
@@ -17,7 +6,7 @@ struct MuteData
 	bool IsIP;
 	FString IPAddress;
 
-	MuteData(const uint64 SteamID, const int MuteMins, const int MuteHours, const bool IPBan, const FString& IPAddress)
+	MuteData(const uint64 SteamID, const int MuteMins, const int MuteHours, const bool IsIP, const FString& IPAddress)
 	{
 		this->SteamID = SteamID;
 		this->IsIP = IsIP;
@@ -25,14 +14,14 @@ struct MuteData
 		UpdateMuteTime(MuteMins, MuteHours);
 	}
 
-	MuteData(const uint64 SteamID, const DWORD64 MutedTill, const bool IPBan, const FString& IPAddress)
+	MuteData(const uint64 SteamID, const DWORD64 MutedTill, const bool IsIP, const FString& IPAddress)
 	{
 		this->SteamID = SteamID;
 		this->MutedTill = MutedTill;
 		this->IsIP = IsIP;
 		this->IPAddress = IPAddress;
 	}
-	void UpdateMuteTime(const int& MuteMins, const int& MuteHours) { MutedTill = timeGetTime() + ((MuteMins * 60000) + (MuteHours * 3600000)); }
+	void UpdateMuteTime(const int MuteMins, const int MuteHours) { this->MutedTill = timeGetTime() + ((MuteMins * 60000) + (MuteHours * 3600000)); }
 	bool HasMutePassed() { return timeGetTime() > MutedTill; }
 };
 std::vector<MuteData> muteData;
@@ -66,10 +55,8 @@ int IsMuted(const uint64 SteamID, const FString& IPAddress)
 	auto iter = GetMuteData(SteamID, IPAddress);
 	if (iter != muteData.end())
 	{
-		printf("Mute DAta Found!");
 		if (iter->HasMutePassed())
 		{
-			printf("Mute Time Passed!");
 			muteData.erase(iter);
 			return 0;
 		}
