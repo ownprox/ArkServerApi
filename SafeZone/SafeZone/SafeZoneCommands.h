@@ -56,11 +56,25 @@ void TPCoord(AShooterPlayerController* player, FString* message, int mode)
 	player->SetPlayerPos(X, Y, Z);
 }
 
+void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
+	{
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		return;
+	}
+	SafeZoneDistanceMap.clear();
+	InitConfig();
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Config Reloaded!");
+}
+
 void InitCommands()
 {
 	ArkApi::GetCommands().AddChatCommand("/szsetpos", &SetPos);
 	ArkApi::GetCommands().AddChatCommand("/szdist", &Dist);
 	ArkApi::GetCommands().AddChatCommand("/sztp", &TPCoord);
+	ArkApi::GetCommands().AddChatCommand("/szreload", &ReloadConfig);
 	Log::GetLog()->info("SafeZone: InitCommands()");
 }
 
@@ -69,5 +83,6 @@ void RemoveCommands()
 	ArkApi::GetCommands().RemoveChatCommand("/szsetpos");
 	ArkApi::GetCommands().RemoveChatCommand("/szdist");
 	ArkApi::GetCommands().RemoveChatCommand("/sztp");
+	ArkApi::GetCommands().RemoveChatCommand("/szreload");
 	Log::GetLog()->info("EpidemicArk: RemoveCommands() Done");
 }

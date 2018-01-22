@@ -1,6 +1,5 @@
 #pragma once
 #include <fstream>
-#include "json.hpp"
 
 void InitConfig()
 {
@@ -11,7 +10,6 @@ void InitConfig()
 		Log::GetLog()->info("Could not open file config.json");
 		throw;
 	}
-	nlohmann::json SafeZoneConfig;
 	file >> SafeZoneConfig;
 	file.close();
 	std::string Name;

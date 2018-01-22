@@ -1,9 +1,11 @@
 #pragma once
 #include <Windows.h>
 #include "API\ARK\Ark.h"
+#include "json.hpp"
 int NotificationCheckSeconds;
 std::string SafeZoneEnterNotifcation, SafeZoneLeaveNotification;
 bool DestroyAggressiveDinos, SafeZoneNotifications;
+nlohmann::json SafeZoneConfig;
 
 struct SafeZoneDistanceS
 {
