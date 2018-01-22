@@ -1,0 +1,7 @@
+{  
+   "Teleport":{  
+      "TPRDelaySeconds":60,
+      "TPRMaxDistance":-1,
+      "TPRAllowDinoTeleport":false
+   }
+}
