@@ -1,7 +1,7 @@
 #pragma once
 void TeleportRequest(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr)
 	{
@@ -36,7 +36,7 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 
 void TeleportAccept(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr && p->LastTPRID != -1)
 	{
@@ -58,7 +58,7 @@ void TeleportAccept(AShooterPlayerController* player, FString* message, int mode
 
 void AdminTP(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -80,7 +80,7 @@ void AdminTP(AShooterPlayerController* player, FString* message, int mode)
 
 void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -103,7 +103,7 @@ void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
 
 void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -136,7 +136,7 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 
 void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -181,7 +181,7 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 
 void AdminTPCoord(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -207,7 +207,7 @@ void AdminTPCoord(AShooterPlayerController* player, FString* message, int mode)
 
 void AdminPos(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
@@ -219,7 +219,7 @@ void AdminPos(AShooterPlayerController* player, FString* message, int mode)
 
 void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
