@@ -124,10 +124,13 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 	TArray<TWeakObjectPtr<APrimalDinoCharacter>> Dinos;
 	player->GetTamedDinosNearBy(&Dinos, TamedDist);
 	APrimalDinoCharacter* Dino;
+	FVector Pos;
+	FRotator Rot{ 0, 0, 0 };
 	for (int i = 0; i < Dinos.Num(); i++)
 		if ((Dino = Dinos[i].Get()) != nullptr)
 		{
-			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
+			Pos = ArkApi::GetApiUtils().GetPosition(player);
+			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
@@ -168,9 +171,12 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 		TArray<TWeakObjectPtr<APrimalDinoCharacter>> Dinos;
 		Players[0]->GetTamedDinosNearBy(&Dinos, TamedDist);
 		APrimalDinoCharacter* Dino;
+		FVector Pos;
+		FRotator Rot{ 0, 0, 0 };
 		for (int i = 0; i < Dinos.Num(); i++) if ((Dino = Dinos[i].Get()) != nullptr)
 		{
-			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
+			Pos = ArkApi::GetApiUtils().GetPosition(player);
+			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
@@ -232,7 +238,9 @@ void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 		APrimalDinoCharacter* Dino = static_cast<APrimalDinoCharacter*>(Actor);
 		if (Dino && !Dino->IsDead())
 		{
-			Dino->TeleportTo(&ArkApi::GetApiUtils().GetPosition(player), &FRotator(0, 0, 0), true, false);
+			FVector Pos = ArkApi::GetApiUtils().GetPosition(player);
+			FRotator Rot{ 0, 0, 0 };
+			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
