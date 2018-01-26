@@ -31,5 +31,6 @@ PlayerS* GetPlayer(__int64 SteamID)
 
 void RemovePlayer(__int64 SteamID)
 {
-	Players.erase(std::remove_if(Players.begin(), Players.end(), [SteamID](const PlayerS & ps) -> bool { return ps.SteamID == SteamID; }));
+	PlayerArrayItr player = std::find_if(Players.begin(), Players.end(), [SteamID](const PlayerS & ps) -> bool { return ps.SteamID == SteamID; });
+	if (player != Players.end()) Players.erase(player);
 }
