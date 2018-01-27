@@ -4,6 +4,8 @@
 int TeleportDelay;
 float MaxDistance;
 bool AllowDinoTeleport, TPREnabled;
+FString TPR, TPA, TP, TPM, TPD, TPDP, TPP, TT, POS;
+std::wstring Messages[13];
 
 struct PlayerS
 {

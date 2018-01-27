@@ -9,7 +9,7 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 		message->ParseIntoArray(Parsed, L" ", true);
 		if (Parsed.Num() < 2)
 		{
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /tpr <PlayerName>");
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[0].c_str());
 			return;
 		}
 		FString PlayerName = "";
@@ -19,18 +19,18 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 		{
 			if (!Players[0]->GetPlayerCharacter() || Players[0]->GetPlayerCharacter()->IsDead())
 			{
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "{} Is Dead.", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[1].c_str(), ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 				return;
 			}
 			PlayerS* o;
 			if ((o = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]))) != NULL)
 			{
 				o->LastTPRID = p->SteamID;
-				ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(0, 255, 0), "{} Would Like to teleport to you, /tpa", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str());
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Teleport Request sent to: {}", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(0, 255, 0), Messages[2].c_str(), ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[3].c_str(), ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str());
 			}
 		}
-		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", PlayerName.ToString().c_str());
+		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[4].c_str(), PlayerName.ToString().c_str());
 	}
 }
 
@@ -45,12 +45,12 @@ void TeleportAccept(AShooterPlayerController* player, FString* message, int mode
 		{
 			if (!other->GetPlayerCharacter() || other->GetPlayerCharacter()->IsDead())
 			{
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "{} Is Dead.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[1].c_str(), ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str());
 				return;
 			}
 			p->LastTPRID = -1;
-			ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(0, 255, 0), "You will Teleport to %s in {} Seconds.", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), TeleportDelay);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Is Teleporting to you in {} Seconds.", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), TeleportDelay);
+			ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(0, 255, 0), Messages[5].c_str(), ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), TeleportDelay);
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[6].c_str(), ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), TeleportDelay);
 			Timer(TeleportDelay, true, ArkApi::GetApiUtils().TeleportToPlayer, other, player, AllowDinoTeleport, MaxDistance);
 		}
 	}
@@ -61,21 +61,21 @@ void AdminTP(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(1))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /tp <PlayerName>");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[8].c_str());
 		return;
 	}
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
 	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())	ArkApi::GetApiUtils().TeleportToPlayer(player, Players[0], false);
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[4].c_str(), Parsed[1].ToString().c_str());
 }
 
 void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
@@ -83,21 +83,21 @@ void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(1))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /tp <PlayerName>");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[8].c_str());
 		return;
 	}
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
 	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(Players[0], player, false);
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[4].c_str(), Parsed[1].ToString().c_str());
 }
 
 
@@ -106,7 +106,7 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	TArray<FString> Parsed;
@@ -133,7 +133,7 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[9].c_str(), DinoName.ToString().c_str());
 		}
 }
 
@@ -142,7 +142,7 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	TArray<FString> Parsed;
@@ -150,7 +150,7 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 	int TamedDist = 500;
 	if (!Parsed.IsValidIndex(2))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /tpdp <Dist> <PlayerName>");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[10].c_str());
 		return;
 	}
 	else
@@ -179,10 +179,10 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[9].c_str(), DinoName.ToString().c_str());
 		}
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[4].c_str(), Parsed[1].ToString().c_str());
 }
 
 void AdminTPCoord(AShooterPlayerController* player, FString* message, int mode)
@@ -190,14 +190,14 @@ void AdminTPCoord(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(3))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /tpp <x> <y> <z>");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[11].c_str());
 		return;
 	}
 	float X = 0, Y = 0, Z = 0;
@@ -216,11 +216,11 @@ void AdminPos(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	FVector Pos = player->DefaultActorLocationField()();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Pos: {0:.0f}, {1:.0f}, {2:.0f}", Pos.X, Pos.Y, Pos.Z);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[12].c_str(), Pos.X, Pos.Y, Pos.Z);
 }
 
 void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
@@ -228,7 +228,7 @@ void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), Messages[7].c_str());
 		return;
 	}
 	AActor* Actor = player->GetPlayerCharacter()->GetAimedActor(ECollisionChannel::ECC_GameTraceChannel1, nullptr, 0.0f, 0.0f, nullptr, nullptr, false, false);
@@ -243,7 +243,7 @@ void AdminTPTarget(AShooterPlayerController* player, FString* message, int mode)
 			Dino->TeleportTo(&Pos, &Rot, true, false);
 			FString DinoName = Dino->TamedNameField()();
 			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Teleported to you.", DinoName.ToString().c_str());
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), Messages[9].c_str(), DinoName.ToString().c_str());
 		}
 	}
 }
@@ -252,30 +252,30 @@ void InitCommands()
 {
 	if (TPREnabled)
 	{
-		ArkApi::GetCommands().AddChatCommand("/tpr", &TeleportRequest);
-		ArkApi::GetCommands().AddChatCommand("/tpa", &TeleportAccept);
+		ArkApi::GetCommands().AddChatCommand(TPR, &TeleportRequest);
+		ArkApi::GetCommands().AddChatCommand(TPA, &TeleportAccept);
 	}
-	ArkApi::GetCommands().AddChatCommand("/tp", &AdminTP);
-	ArkApi::GetCommands().AddChatCommand("/tpm", &AdminTPM);
-	ArkApi::GetCommands().AddChatCommand("/tpd", &AdminTeleTamedToMe);
-	ArkApi::GetCommands().AddChatCommand("/tpdp", &AdminTeleTamedToPlayer);
-	ArkApi::GetCommands().AddChatCommand("/tpp", &AdminTPCoord);
-	ArkApi::GetCommands().AddChatCommand("/tt", &AdminTPTarget);
-	ArkApi::GetCommands().AddChatCommand("/pos", &AdminPos);
+	ArkApi::GetCommands().AddChatCommand(TP, &AdminTP);
+	ArkApi::GetCommands().AddChatCommand(TPM, &AdminTPM);
+	ArkApi::GetCommands().AddChatCommand(TPD, &AdminTeleTamedToMe);
+	ArkApi::GetCommands().AddChatCommand(TPDP, &AdminTeleTamedToPlayer);
+	ArkApi::GetCommands().AddChatCommand(TPP, &AdminTPCoord);
+	ArkApi::GetCommands().AddChatCommand(TT, &AdminTPTarget);
+	ArkApi::GetCommands().AddChatCommand(POS, &AdminPos);
 }
 
 void RemoveCommands()
 {
 	if (TPREnabled)
 	{
-		ArkApi::GetCommands().RemoveChatCommand("/tpr");
-		ArkApi::GetCommands().RemoveChatCommand("/tpa");
+		ArkApi::GetCommands().RemoveChatCommand(TPR);
+		ArkApi::GetCommands().RemoveChatCommand(TPA);
 	}
-	ArkApi::GetCommands().RemoveChatCommand("/tp");
-	ArkApi::GetCommands().RemoveChatCommand("/tpm");
-	ArkApi::GetCommands().RemoveChatCommand("/tpd");
-	ArkApi::GetCommands().RemoveChatCommand("/tpdp");
-	ArkApi::GetCommands().RemoveChatCommand("/tpp");
-	ArkApi::GetCommands().RemoveChatCommand("/tt");
-	ArkApi::GetCommands().RemoveChatCommand("/pos");
+	ArkApi::GetCommands().RemoveChatCommand(TP);
+	ArkApi::GetCommands().RemoveChatCommand(TPM);
+	ArkApi::GetCommands().RemoveChatCommand(TPD);
+	ArkApi::GetCommands().RemoveChatCommand(TPDP);
+	ArkApi::GetCommands().RemoveChatCommand(TPP);
+	ArkApi::GetCommands().RemoveChatCommand(TT);
+	ArkApi::GetCommands().RemoveChatCommand(POS);
 }
