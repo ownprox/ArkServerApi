@@ -28,7 +28,6 @@ void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mod
 	}
 	FString DinoName = "", TempDinoName;
 	for (int i = 1; i < Parsed.Num(); i++)	DinoName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-
 	TArray<AActor*> AllDinos;
 	UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()), APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
 	const int player_team = player->TargetingTeamField()();
@@ -36,8 +35,8 @@ void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mod
 	bool Found = false;
 	for (AActor* DinoActor : AllDinos)
 	{
-		Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
-		if (Dino && Dino->TargetingTeamField()() == player_team)
+		if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;		
+		if((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))
 		{
 			if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName))
 			{
@@ -89,8 +88,7 @@ void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, in
 	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
 	{
 		FString DinoName = "", TempDinoName;
-		for (int i = 1; i < Parsed.Num(); i++)	DinoName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-
+		for (int i = 2; i < Parsed.Num(); i++)	DinoName += (i == 2 ? Parsed[i] : FString(" ") + Parsed[i]);
 		TArray<AActor*> AllDinos;
 		UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()), APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
 		const int player_team = Players[0]->TargetingTeamField()();
@@ -98,8 +96,8 @@ void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, in
 		bool Found = false;
 		for (AActor* DinoActor : AllDinos)
 		{
-			Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
-			if (Dino && Dino->TargetingTeamField()() == player_team)
+			if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;
+			if ((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))
 			{
 				if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName))
 				{
