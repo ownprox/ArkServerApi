@@ -4,7 +4,7 @@
       "TamedDinoKillsEnabled":true,
       "DisplayType":0,
       "DisplayScale":1.0,
-      "DisplayDelay":5,
+      "DisplayDelay":10,
       "DisplayColour":[  
          0.0,
          0.8,
@@ -15,8 +15,8 @@
       "Messages":[  
          "{}{} Killed {}{} with a {} at {}m",
          "{}{} Killed Dino: {}{} with a {} at {}m",
-         "{}{} Killed {}{} at {}m",
-         "{}{} Killed Dino: {}{} at {}m"
+         "{}{}{} Killed {}{} at {}m",
+         "{}{}{} Killed Dino: {}{} at {}m"
       ]
    }
 }

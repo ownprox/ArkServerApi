@@ -16,6 +16,7 @@ UTexture2D* GetWeaponIcon(FString WeaponName)
 		if (!WeaponName.Equals("Fist_"))
 		{
 			WeaponName = "/Game/PrimalEarth/CoreBlueprints/Weapons/Icons/" + WeaponName + "Icon." + WeaponName + "Icon";
+			//Log::GetLog()->info("Icon: {}", WeaponName.ToString().c_str());
 			WeaponIcon = reinterpret_cast<UTexture2D*>(Globals::StaticLoadObject(UTexture2D::StaticClass(), nullptr, *WeaponName, nullptr, 0, 0, true));
 		}
 	}
