@@ -1,0 +1,22 @@
+{  
+   "KillFeed":{  
+      "PlayerKillsEnabled":true,
+      "TamedDinoKillsEnabled":true,
+      "DisplayType":0,
+      "DisplayScale":1.0,
+      "DisplayDelay":5,
+      "DisplayColour":[  
+         0.0,
+         0.8,
+         0.8,
+         1.0
+      ],
+      "DisplayInChatbox":false,
+      "Messages":[  
+         "{}{} Killed {}{} with a {} at {}m",
+         "{}{} Killed Dino: {}{} with a {} at {}m",
+         "{}{} Killed {}{} at {}m",
+         "{}{} Killed Dino: {}{} at {}m"
+      ]
+   }
+}
