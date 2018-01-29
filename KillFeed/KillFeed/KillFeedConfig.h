@@ -16,6 +16,7 @@ void InitConfig()
 	nlohmann::json TeleportConfig, TempConfig;
 	file >> TeleportConfig;
 	file.close();
+	ServerName = FString(ArkApi::Tools::Utf8Decode(TeleportConfig["KillFeed"]["ServerName"]).c_str());
 	PlayerKillsEnabled = TeleportConfig["KillFeed"]["PlayerKillsEnabled"];
 	DinoKillsEnabled = TeleportConfig["KillFeed"]["TamedDinoKillsEnabled"];
 	DisplayType = TeleportConfig["KillFeed"]["DisplayType"];

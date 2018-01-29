@@ -5,6 +5,7 @@ bool PlayerKillsEnabled, DinoKillsEnabled, DisplayInChatbox;
 int DisplayType;
 float DisplayScale, DisplayDelay;
 FLinearColor DisplayColour;
+FString ServerName;
 std::wstring Messages[4];
 
 const float trunc_decs(const float& f, int decs)

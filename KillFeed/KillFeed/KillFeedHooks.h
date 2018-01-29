@@ -33,8 +33,14 @@ void NotifyDeath(const FString& KillerName, const FString& KillerTribe, const FS
 	}
 	if (DisplayInChatbox)
 	{
-		if(isKillerDino) ArkApi::GetApiUtils().SendServerMessageToAll(DisplayColour, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
-		else ArkApi::GetApiUtils().SendServerMessageToAll(DisplayColour, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, *WeaponName, trunc_decs(Distance, 2));
+		if (isKillerDino)
+		{
+			ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str())).c_str(), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
+		}
+		else
+		{
+			ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str())).c_str(), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, *WeaponName, trunc_decs(Distance, 2));
+		}
 	}
 }
 
