@@ -53,7 +53,7 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 			}
 			
 			float Distance = (FVector::Distance((_this->RootComponentField()() ? _this->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), KillerShooterController->DefaultActorLocationField()()) / 220);
-			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), ArkApi::GetApiUtils().GetCharacterName(_this->GetSpawnedForController()), _this->TribeNameField()(), WeaponName, WeaponIcon, Distance, false);
+			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), ArkApi::GetApiUtils().GetCharacterName(_this->GetSpawnedForController()), _this->TribeNameField()(), WeaponName, WeaponIcon, Distance, true);
 		}
 	}
 	return AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
