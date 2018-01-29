@@ -14,6 +14,9 @@ bool InitConfig()
 	file >> TeleportConfig;
 	file.close();
 	TPREnabled = TeleportConfig["Teleport"]["TPREnabled"];
+	TPRCoolDownEnabled = TeleportConfig["Teleport"]["TPRCoolDownEnabled"];
+	TPRCoolDownForPlayerTeleportedTo = TeleportConfig["Teleport"]["TPRCoolDownForPlayerTeleportedTo"];
+	TPRCoolDownSeconds = TeleportConfig["Teleport"]["TPRCoolDownSeconds"];
 	TeleportDelay = TeleportConfig["Teleport"]["TPRDelaySeconds"];
 	MaxDistance = TeleportConfig["Teleport"]["TPRMaxDistance"];
 	AllowDinoTeleport = !(bool)TeleportConfig["Teleport"]["TPRAllowDinoTeleport"];

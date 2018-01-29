@@ -1,6 +1,9 @@
 {  
    "Teleport":{  
       "TPREnabled":true,
+      "TPRCoolDownEnabled":true,
+      "TPRCoolDownForPlayerTeleportedTo":false,
+      "TPRCoolDownSeconds":120,
       "TPRDelaySeconds":60,
       "TPRMaxDistance":-1,
       "TPRAllowDinoTeleport":false,
@@ -28,7 +31,14 @@
          "{} Teleported to you.",
          "Incorrect Syntax: /tpdp <Dist> <PlayerName>",
          "Incorrect Syntax: /tpp <x> <y> <z>",
-         "Pos: {0:.0f}, {1:.0f}, {2:.0f}"
+         "Pos: {0:.0f}, {1:.0f}, {2:.0f}",
+         "Teleport Cooldown: {} mins, {} secs.",
+         "Teleport Cooldown: {} seconds.",
+         "{} is riding a Dino.",
+         "Teleport Canceled, You are riding a Dino",
+         "Teleport Distance is too far.",
+         "You are already waiting for a Teleport.",
+         "{} Is Teleporting to someone else."
       ]
    }
 }
