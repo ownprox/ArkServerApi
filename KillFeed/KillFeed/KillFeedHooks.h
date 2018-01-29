@@ -46,7 +46,7 @@ void NotifyDeath(const FString& KillerName, const FString& KillerTribe, const FS
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (_this && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (_this && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
 		if (KillerShooterController && KillerShooterController->GetPlayerCharacter())
@@ -72,7 +72,7 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 
 bool _cdecl Hook_APrimalDinoCharacter_Die(APrimalDinoCharacter* Dino, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (Dino->TamingTeamIDField()() != 0 && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (Dino && Dino->TamingTeamIDField()() != 0 && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
 		if (KillerShooterController && KillerShooterController->GetPlayerCharacter())
