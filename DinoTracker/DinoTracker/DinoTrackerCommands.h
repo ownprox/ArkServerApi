@@ -58,14 +58,14 @@ void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mod
 	if (Found && Dino)
 	{
 		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
-		if(Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", Dino->TamedNameField()().ToString().c_str(), MapCoords.X, MapCoords.Y);
+		if(Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *Dino->TamedNameField()(), MapCoords.X, MapCoords.Y);
 		else
 		{
 			Dino->DinoNameTagField()().ToString(&TempDinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", TempDinoName.ToString().c_str(), MapCoords.X, MapCoords.Y);
+			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *TempDinoName, MapCoords.X, MapCoords.Y);
 		}
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), "{} not found.", DinoName.ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *DinoName);
 }
 
 void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
@@ -99,7 +99,7 @@ void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, in
 			if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;
 			if ((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))
 			{
-				if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName))
+				if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName, ESearchCase::IgnoreCase))
 				{
 					Found = true;
 					break;
@@ -119,16 +119,16 @@ void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, in
 		if (Found && Dino)
 		{
 			const FVector2D& MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
-			if (Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", Dino->TamedNameField()().ToString().c_str(), MapCoords.X, MapCoords.Y);
+			if (Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *Dino->TamedNameField()(), MapCoords.X, MapCoords.Y);
 			else
 			{
 				Dino->DinoNameTagField()().ToString(&TempDinoName);
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", TempDinoName.ToString().c_str(), MapCoords.X, MapCoords.Y);
+				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *TempDinoName, MapCoords.X, MapCoords.Y);
 			}
 		}
-		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), "{} not found.", DinoName.ToString().c_str());
+		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *DinoName);
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), "{} not found.", Parsed[1].ToString().c_str());
+	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *Parsed[1]);
 }
 
 void InitCommands()

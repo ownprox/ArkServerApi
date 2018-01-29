@@ -24,17 +24,17 @@ void PM(AShooterPlayerController* player, FString* message, int mode)
 				p->LastPmSteamID = o->SteamID;
 				if (ServerMessage)
 				{
-					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), "[{}->{}] {}", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str(), Msg.ToString().c_str());
-					ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), "[{}->{}] {}", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str(), Msg.ToString().c_str());
+					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
 				}
 				else
 				{
-					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), "[PM:{}] {}", ArkApi::GetApiUtils().GetCharacterName(Players[0]).ToString().c_str(), Msg.ToString().c_str());
-					ArkApi::GetApiUtils().SendChatMessage(Players[0], ArkApi::GetApiUtils().GetCharacterName(player), "[PM] {}", Msg.ToString().c_str());
+					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM:{}] {}", *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(Players[0], ArkApi::GetApiUtils().GetCharacterName(player), L"[PM] {}", *Msg);
 				}
 			}
 		}
-		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Cant Find: {}", Parsed[1].ToString().c_str());
+		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), L"Cant Find: {}", *Parsed[1]);
 	}
 }
 
@@ -64,13 +64,13 @@ void Reply(AShooterPlayerController* player, FString* message, int mode)
 				p->LastPmSteamID = o->SteamID;
 				if(ServerMessage)
 				{
-					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), "[{}->{}] {}", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), Msg.ToString().c_str());
-					ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), "[{}->{}] {}", ArkApi::GetApiUtils().GetCharacterName(player).ToString().c_str(), ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), Msg.ToString().c_str());
+					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
 				}
 				else
 				{
-					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), "[PM:{}] {}", ArkApi::GetApiUtils().GetCharacterName(other).ToString().c_str(), Msg.ToString().c_str());
-					ArkApi::GetApiUtils().SendChatMessage(other, ArkApi::GetApiUtils().GetCharacterName(player), "[PM] {}", Msg.ToString().c_str());
+					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM:{}] {}", *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(other, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM] {}", *Msg);
 				}
 			}
 		}
