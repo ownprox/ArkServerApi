@@ -33,7 +33,7 @@ void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mod
 	const int player_team = player->TargetingTeamField()();
 	APrimalDinoCharacter* Dino;
 	bool Found = false;
-	for (AActor* DinoActor : AllDinos)
+	for (AActor* DinoActor : AllDinos)  
 	{
 		if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;		
 		if((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))

@@ -50,11 +50,7 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 
 			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()())
 			{
-				if (DisplayType != 2)
-				{
-					KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->GetHumanReadableName(&WeaponName);
-					WeaponIcon = GetWeaponIcon(WeaponName);
-				}
+				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->ItemIconField()();
 
 				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
 			}
@@ -78,16 +74,12 @@ bool _cdecl Hook_APrimalDinoCharacter_Die(APrimalDinoCharacter* Dino, float Kill
 			FString DinoName, KillerDinoName, WeaponName = "Punch";
 			UTexture2D* WeaponIcon = nullptr;
 
-			if (Dino->TamedNameField()().Len() > 0) DinoName = Dino->TamedNameField()();
+			if (!Dino->TamedNameField()().IsEmpty()) DinoName = Dino->TamedNameField()();
 			else Dino->DinoNameTagField()().ToString(&DinoName);
 
 			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()())
 			{
-				if (DisplayType != 2)
-				{
-					KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->GetHumanReadableName(&WeaponName);
-					WeaponIcon = GetWeaponIcon(WeaponName);
-				}
+				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->ItemIconField()();
 
 				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
 			}
