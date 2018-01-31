@@ -1,144 +1,177 @@
 #pragma once
-const float trunc_decs(const float& f, int decs)
+
+inline float trunc_decs(float f, int decs)
 {
-	int i1 = floor(f);
+	float i1 = floor(f);
 	float rmnd = f - i1;
-	int i2 = static_cast<int> (rmnd * pow(10, decs));
-	float f1 = i2 / pow(10, decs);
+	float i2 = static_cast<float>(rmnd * pow(10, decs));
+	float f1 = static_cast<float>(i2 / pow(10, decs));
 	return i1 + f1;
 }
 
-const FVector2D GetMapCoordsFromLocation(const FVector Pos)
+inline FVector2D GetMapCoordsFromLocation(const FVector& Pos)
 {
 	FString Map;
 	ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
-	int Divider = (Map.Equals("Ragnarok") ? 13100 : 8000);
-	return FVector2D(Pos.X > -1 ? trunc_decs(50 + (Pos.X / Divider), 1) : trunc_decs(50 - (-Pos.X / Divider), 1), Pos.Y > -1 ? trunc_decs(50 + (Pos.Y / Divider), 1) : trunc_decs(50 - (-Pos.Y / Divider), 1));
+	int Divider = Map.Equals("Ragnarok") ? 13100 : 8000;
+	return FVector2D(Pos.X > -1 ? trunc_decs(50 + Pos.X / Divider, 1) : trunc_decs(50 + Pos.X / Divider, 1),
+	                 Pos.Y > -1 ? trunc_decs(50 + Pos.Y / Divider, 1) : trunc_decs(50 + Pos.Y / Divider, 1));
 }
 
-void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
+/**
+ * \brief Finds all dinos owned by team
+ */
+inline TArray<APrimalDinoCharacter*> FindDinos(int team, const FString& DinoName,
+                                               AShooterPlayerController* player = nullptr)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	TArray<AActor*> AllDinos;
+	UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()),
+	                                      APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
+
+	TArray<APrimalDinoCharacter*> FoundDinos;
+
+	for (AActor* DinoActor : AllDinos)
+	{
+		if (!DinoActor || DinoActor->TargetingTeamField()() != team)
+			continue;
+
+		APrimalDinoCharacter* Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
+		if (player && FVector::Distance(ArkApi::IApiUtils::GetPosition(player),
+		                                Dino->RootComponentField()()->RelativeLocationField()()) < MinDistance)
+			continue;
+
+		const FString DinoTamedName = Dino->TamedNameField()();
+		if (DinoTamedName == DinoName)
+		{
+			FoundDinos.Add(Dino);
+			continue;
+		}
+
+		FString DinoTag;
+		Dino->DinoNameTagField()().ToString(&DinoTag);
+
+		if (DinoTag == DinoName)
+		{
+			FoundDinos.Add(Dino);
+		}
+	}
+
+	return FoundDinos;
+}
+
+inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter())
+		return;
+
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(1))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /track <DinoName>");
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[1]);
 		return;
 	}
-	FString DinoName = "", TempDinoName;
-	for (int i = 1; i < Parsed.Num(); i++)	DinoName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-	TArray<AActor*> AllDinos;
-	UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()), APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
-	const int player_team = player->TargetingTeamField()();
-	APrimalDinoCharacter* Dino;
-	bool Found = false;
-	for (AActor* DinoActor : AllDinos)  
+
+	FString DinoName;
+	for (int i = 1; i < Parsed.Num(); i++)
+		DinoName += i == 1 ? Parsed[i] : FString(" ") + Parsed[i];
+
+	TArray<APrimalDinoCharacter*> FoundDinos = FindDinos(player->TargetingTeamField()(), DinoName, player);
+	if (FoundDinos.Num() < 1)
 	{
-		if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;		
-		if((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))
-		{
-			if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName))
-			{
-				Found = true;
-				break;
-			}
-			else
-			{
-				Dino->DinoNameTagField()().ToString(&TempDinoName);
-				if (TempDinoName.Contains(DinoName))
-				{
-					Found = true;
-					break;
-				}
-			}
-		}
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), Messages[2].c_str(), *DinoName);
+		return;
 	}
 
-	if (Found && Dino)
+	FString Text;
+
+	int i = 0;
+
+	for (APrimalDinoCharacter* Dino : FoundDinos)
 	{
 		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
-		if(Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *Dino->TamedNameField()(), MapCoords.X, MapCoords.Y);
-		else
+
+		FString CurrentDinoName = Dino->TamedNameField()();
+		if (CurrentDinoName.IsEmpty())
 		{
-			Dino->DinoNameTagField()().ToString(&TempDinoName);
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *TempDinoName, MapCoords.X, MapCoords.Y);
+			Dino->DinoNameTagField()().ToString(&CurrentDinoName);
 		}
+
+		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *DinoName);
+
+	ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", *Text);
 }
 
-void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
+inline void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter())
+		return;
+
 	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Please login as admin to use this command");
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[6]);
 		return;
 	}
+
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(2))
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /atrack <PlayerName> <DinoName>");
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[7]);
 		return;
 	}
 
-	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(Parsed[1]);
-	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
+	int TeamId;
+
+	try
 	{
-		FString DinoName = "", TempDinoName;
-		for (int i = 2; i < Parsed.Num(); i++)	DinoName += (i == 2 ? Parsed[i] : FString(" ") + Parsed[i]);
-		TArray<AActor*> AllDinos;
-		UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()), APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
-		const int player_team = Players[0]->TargetingTeamField()();
-		APrimalDinoCharacter* Dino;
-		bool Found = false;
-		for (AActor* DinoActor : AllDinos)
-		{
-			if (!DinoActor || DinoActor->TargetingTeamField()() != player_team) continue;
-			if ((Dino = static_cast<APrimalDinoCharacter*>(DinoActor)))
-			{
-				if (Dino->TamedNameField()().Len() > 0 && Dino->TamedNameField()().Equals(DinoName, ESearchCase::IgnoreCase))
-				{
-					Found = true;
-					break;
-				}
-				else
-				{
-					Dino->DinoNameTagField()().ToString(&TempDinoName);
-					if (TempDinoName.Contains(DinoName))
-					{
-						Found = true;
-						break;
-					}
-				}
-			}
-		}
-
-		if (Found && Dino)
-		{
-			const FVector2D& MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
-			if (Dino->TamedNameField()().Len() > 0) ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *Dino->TamedNameField()(), MapCoords.X, MapCoords.Y);
-			else
-			{
-				Dino->DinoNameTagField()().ToString(&TempDinoName);
-				ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), L"{} Is Located At Long: {1:.1f}, Lat: {2:.1f}", *TempDinoName, MapCoords.X, MapCoords.Y);
-			}
-		}
-		else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *DinoName);
+		TeamId = std::stoi(*Parsed[1]);
 	}
-	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"{} not found.", *Parsed[1]);
+	catch (const std::exception&)
+	{
+		return;
+	}
+
+	FString DinoName;
+	for (int i = 2; i < Parsed.Num(); i++)
+		DinoName += i == 2 ? Parsed[i] : FString(" ") + Parsed[i];
+
+	TArray<APrimalDinoCharacter*> FoundDinos = FindDinos(TeamId, DinoName);
+	if (FoundDinos.Num() < 1)
+	{
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), Messages[2].c_str(), *DinoName);
+		return;
+	}
+
+	FString Text;
+
+	int i = 0;
+
+	for (APrimalDinoCharacter* Dino : FoundDinos)
+	{
+		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
+
+		FString CurrentDinoName = Dino->TamedNameField()();
+		if (CurrentDinoName.IsEmpty())
+		{
+			Dino->DinoNameTagField()().ToString(&CurrentDinoName);
+		}
+
+		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
+	}
+
+	ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", *Text);
 }
 
-void InitCommands()
+inline void InitCommands()
 {
-	if (PlayerCanTrack) ArkApi::GetCommands().AddChatCommand("/track", &PlayerTrackDino);
-	ArkApi::GetCommands().AddChatCommand("/atrack", &AdminPlayerTrackDino);
+	if (PlayerCanTrack) ArkApi::GetCommands().AddChatCommand(Messages[4].c_str(), &PlayerTrackDino);
+	ArkApi::GetCommands().AddChatCommand(Messages[5].c_str(), &AdminPlayerTrackDino);
 }
 
-void RemoveCommands()
+inline void RemoveCommands()
 {
-	if (PlayerCanTrack) ArkApi::GetCommands().RemoveChatCommand("/track");
-	ArkApi::GetCommands().RemoveChatCommand("/atrack");
+	if (PlayerCanTrack) ArkApi::GetCommands().RemoveChatCommand(Messages[4].c_str());
+	ArkApi::GetCommands().RemoveChatCommand(Messages[5].c_str());
 }
