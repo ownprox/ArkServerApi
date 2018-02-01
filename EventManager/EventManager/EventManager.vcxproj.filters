@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Public">
+      <UniqueIdentifier>{d0e77c45-0ae5-4784-b839-bf0c4d2d43de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private">
+      <UniqueIdentifier>{0fd0f479-0cf9-4225-9c55-ebd9c5bcba10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Private\Events">
+      <UniqueIdentifier>{429bfe84-368a-4e34-8d81-b93f3c87acfa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Private\json.hpp">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\EventManager.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\EventMan.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\Event.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Private\EventManager.cpp" />
+    <ClCompile Include="EventMan.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
