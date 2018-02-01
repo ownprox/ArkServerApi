@@ -1,5 +1,5 @@
-#include "Private\EventMan.h"
-#include "Private\Event.h"
+#include "EventMan.h"
+#include "..\Public\Event.h"
 
 //swap for chrono
 int timeGetTimea()

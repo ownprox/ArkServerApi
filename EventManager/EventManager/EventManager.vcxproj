@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Private\Event.h" />
     <ClInclude Include="Private\EventMan.h" />
     <ClInclude Include="Private\json.hpp" />
+    <ClInclude Include="Public\Event.h" />
     <ClInclude Include="Public\EventManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EventMan.cpp" />
+    <ClCompile Include="Private\EventMan.cpp" />
     <ClCompile Include="Private\EventManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

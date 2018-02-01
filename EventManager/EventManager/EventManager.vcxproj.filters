@@ -21,13 +21,13 @@
     <ClInclude Include="Private\EventMan.h">
       <Filter>Private</Filter>
     </ClInclude>
-    <ClInclude Include="Private\Event.h">
+    <ClInclude Include="Public\Event.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Private\EventManager.cpp" />
-    <ClCompile Include="EventMan.cpp">
+    <ClCompile Include="Private\EventMan.cpp">
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>

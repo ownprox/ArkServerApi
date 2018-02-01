@@ -1,6 +1,6 @@
 #pragma once
 #include "API\ARK\Ark.h"
-#include "Event.h"
+#include "..\Public\Event.h"
 
 enum EventTeam
 {
