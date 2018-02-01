@@ -5,13 +5,13 @@ void CleanUpLoggedOutPlayerPassedMutes();
 void InitHooks()
 {
 	ArkApi::GetHooks().SetHook("AShooterPlayerController.ServerSendChatMessage_Implementation", &Hook_AShooterPlayerController_ServerSendChatMessage_Impl, reinterpret_cast<LPVOID*>(&AShooterPlayerController_ServerSendChatMessage_Impl_original));
-	ArkApi::GetCommands().AddOnTimerCallback("0", &CleanUpLoggedOutPlayerPassedMutes);
+	ArkApi::GetCommands().AddOnTimerCallback("CleanUpLoggedOutPlayerPassedMutes", &CleanUpLoggedOutPlayerPassedMutes);
 }
 
 void RemoveHooks()
 {
 	ArkApi::GetHooks().DisableHook("AShooterPlayerController.ServerSendChatMessage_Implementation", &Hook_AShooterPlayerController_ServerSendChatMessage_Impl);
-	ArkApi::GetCommands().RemoveOnTimerCallback("0");
+	ArkApi::GetCommands().RemoveOnTimerCallback("CleanUpLoggedOutPlayerPassedMutes");
 }
 
 std::vector<MuteData>::iterator MuteItr;
@@ -40,7 +40,7 @@ void _cdecl Hook_AShooterPlayerController_ServerSendChatMessage_Impl(AShooterPla
 	{
 		const int hours = (Muted > 3600 ? (Muted / 3600) : 0), mins((hours > 0 && (Muted - (hours * 3600)) > 60) ? ((Muted - (hours * 3600)) / 60) : (Muted > 60 ? (Muted / 60) : 0));
 		if (mins != 0 || hours != 0) ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: {} hours, {} mins.", hours, mins);
-		else ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: {Muted} seconds.");
+		else ArkApi::GetApiUtils().SendServerMessage(_this, FLinearColor(255, 0, 0), "Muted For: {} seconds.", Muted);
 		return;
 	}
 	AShooterPlayerController_ServerSendChatMessage_Impl_original(_this, Message, Mode);
