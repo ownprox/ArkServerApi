@@ -69,12 +69,25 @@ void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 255, 0), "Config Reloaded!");
 }
 
+void ClaimItems(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || player->GetPlayerCharacter()->IsDead()) return;
+	const FVector Position = player->DefaultActorLocationField()();
+	std::vector<SafeZoneDistanceS>::iterator it = std::find_if(SafeZoneDistanceMap.begin(), SafeZoneDistanceMap.end(), [Position](SafeZoneDistanceS& SZ) -> bool { return SZ.IsInArea(Position); });
+	if (it != SafeZoneDistanceMap.end() && it->Items.size() != 0)
+	{
+		for (ItemS items : it->Items) player->GiveItem(&items.Blueprint, items.Quantity, items.Quailty, items.IsBlueprint);
+		ArkApi::GetApiUtils().SendChatMessage(player, ServerName, *it->Messages[5]);
+	}
+}
+
 void InitCommands()
 {
 	ArkApi::GetCommands().AddChatCommand("/szsetpos", &SetPos);
 	ArkApi::GetCommands().AddChatCommand("/szdist", &Dist);
 	ArkApi::GetCommands().AddChatCommand("/sztp", &TPCoord);
 	ArkApi::GetCommands().AddChatCommand("/szreload", &ReloadConfig);
+	ArkApi::GetCommands().AddChatCommand(ClaimItemsCommand.c_str(), &ClaimItems);
 }
 
 void RemoveCommands()
@@ -83,4 +96,5 @@ void RemoveCommands()
 	ArkApi::GetCommands().RemoveChatCommand("/szdist");
 	ArkApi::GetCommands().RemoveChatCommand("/sztp");
 	ArkApi::GetCommands().RemoveChatCommand("/szreload");
+	ArkApi::GetCommands().RemoveChatCommand(ClaimItemsCommand.c_str());
 }

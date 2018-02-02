@@ -1,9 +1,10 @@
 {  
    "SafeZones":{  
+      "ServerName":"ServerNameHere",
+      "ClaimItemsCommand":"/claim",
+      "AdminIgnoreChecks":false,
       "SafeZoneNotifications":true,
       "SafeZoneNotificationCheckSeconds":4,
-      "SafeZoneEnterNotifcation":"You have entered a Safe Zone",
-      "SafeZoneLeaveNotification":"You have left a Safe Zone",
       "SafeZoneKillAgressiveDino":true,
       "DistanceSafeZones":[  
          {  
@@ -11,26 +12,57 @@
             "Distance":10000,
             "PreventBuilding":true,
             "PreventPVP":true,
+            "PreventStructureDamage":true,
             "Position":[  
                -389508,
                -417001,
                -14285.6
             ],
-            "NoBuildMessage":"This is a Community trade center you can not build here.",
-            "NoPVPMessage":"This is a Community trade center you can not pvp here."
+            "Messages":[  
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
+               "<RichColor Color=\"0, 1, 0, 1\">You have entered {}</>",
+               "<RichColor Color=\"1, 0, 0, 1\">You have left {}</>",
+               "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
+            ],
+            "Items":[  
+               {  
+                  "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
+                  "Quantity":1,
+                  "Quality":0.0,
+                  "IsBlueprint":false
+               },
+               {  
+                  "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStonePick.PrimalItem_WeaponStonePick'",
+                  "Quantity":1,
+                  "Quality":0.0,
+                  "IsBlueprint":false
+               }
+            ]
          },
          {  
             "Name":"Zone2",
             "Distance":10000,
             "PreventBuilding":true,
             "PreventPVP":false,
+            "PreventStructureDamage":true,
             "Position":[  
                -389508,
                -417001,
                -14285.6
             ],
-            "NoBuildMessage":"This is a Event Zone you can not build here.",
-            "NoPVPMessage":""
+            "Messages":[  
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
+               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
+               "<RichColor Color=\"0, 1, 0, 1\">You have entered {}</>",
+               "<RichColor Color=\"1, 0, 0, 1\">You have left {}</>",
+               "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
+            ],
+            "Items":[  
+
+            ]
          }
       ]
    }
