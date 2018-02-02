@@ -21,38 +21,28 @@ inline FVector2D GetMapCoordsFromLocation(const FVector& Pos)
 /**
  * \brief Finds all dinos owned by team
  */
-inline TArray<APrimalDinoCharacter*> FindDinos(int team, const FString& DinoName,
+inline TArray<APrimalDinoCharacter*> FindDinos(const int team, const FString& DinoName,
                                                AShooterPlayerController* player = nullptr)
 {
 	TArray<AActor*> AllDinos;
-	UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()),
-	                                      APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
+	UGameplayStatics::GetAllActorsOfClass(reinterpret_cast<UObject*>(ArkApi::GetApiUtils().GetWorld()), APrimalDinoCharacter::GetPrivateStaticClass(), &AllDinos);
 
 	TArray<APrimalDinoCharacter*> FoundDinos;
+	FVector PlayerPos = ArkApi::IApiUtils::GetPosition(player);
+	APrimalDinoCharacter* Dino;
+	FString DinoTag;
 
 	for (AActor* DinoActor : AllDinos)
 	{
-		if (!DinoActor || DinoActor->TargetingTeamField()() != team)
-			continue;
-
-		APrimalDinoCharacter* Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
-		if (player && FVector::Distance(ArkApi::IApiUtils::GetPosition(player),
-		                                Dino->RootComponentField()()->RelativeLocationField()()) < MinDistance)
-			continue;
-
-		const FString DinoTamedName = Dino->TamedNameField()();
-		if (DinoTamedName == DinoName)
+		if (!DinoActor || DinoActor->TargetingTeamField()() != team) continue;
+		Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
+		if (MaxDistance != -1 && FVector::Distance(PlayerPos, Dino->RootComponentField()()->RelativeLocationField()()) < MaxDistance) continue;
+		DinoTag = Dino->TamedNameField()();
+		if (DinoTag == DinoName) FoundDinos.Add(Dino);
+		else
 		{
-			FoundDinos.Add(Dino);
-			continue;
-		}
-
-		FString DinoTag;
-		Dino->DinoNameTagField()().ToString(&DinoTag);
-
-		if (DinoTag == DinoName)
-		{
-			FoundDinos.Add(Dino);
+			Dino->DinoNameTagField()().ToString(&DinoTag);
+			if (DinoTag == DinoName) FoundDinos.Add(Dino);
 		}
 	}
 
@@ -92,10 +82,7 @@ inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, 
 		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
 
 		FString CurrentDinoName = Dino->TamedNameField()();
-		if (CurrentDinoName.IsEmpty())
-		{
-			Dino->DinoNameTagField()().ToString(&CurrentDinoName);
-		}
+		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField()().ToString(&CurrentDinoName);
 
 		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
 	}
@@ -153,25 +140,48 @@ inline void AdminPlayerTrackDino(AShooterPlayerController* player, FString* mess
 		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
 
 		FString CurrentDinoName = Dino->TamedNameField()();
-		if (CurrentDinoName.IsEmpty())
-		{
-			Dino->DinoNameTagField()().ToString(&CurrentDinoName);
-		}
-
+		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField()().ToString(&CurrentDinoName);
 		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
 	}
 
 	ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", *Text);
 }
 
+inline void AdminGetPlayerTeamID(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
+	{
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[6]);
+		return;
+	}
+
+	TArray<FString> Parsed;
+	message->ParseIntoArray(Parsed, L" ", true);
+	if (!Parsed.IsValidIndex(1))
+	{
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[9]);
+		return;
+	}
+
+	FString PlayerName;
+	for (int i = 1; i < Parsed.Num(); i++)
+		PlayerName += i == 1 ? Parsed[i] : FString(" ") + Parsed[i];
+	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
+	for(auto player : Players)
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}->TeamID: {}", *ArkApi::GetApiUtils().GetCharacterName(player), player->TargetingTeamField()());
+}
+
 inline void InitCommands()
 {
 	if (PlayerCanTrack) ArkApi::GetCommands().AddChatCommand(Messages[4].c_str(), &PlayerTrackDino);
 	ArkApi::GetCommands().AddChatCommand(Messages[5].c_str(), &AdminPlayerTrackDino);
+	ArkApi::GetCommands().AddChatCommand(Messages[8].c_str(), &AdminGetPlayerTeamID);
 }
 
 inline void RemoveCommands()
 {
 	if (PlayerCanTrack) ArkApi::GetCommands().RemoveChatCommand(Messages[4].c_str());
 	ArkApi::GetCommands().RemoveChatCommand(Messages[5].c_str());
+	ArkApi::GetCommands().RemoveChatCommand(Messages[8].c_str());
 }

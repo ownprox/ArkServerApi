@@ -29,7 +29,7 @@ inline void InitConfig()
 	file.close();
 
 	PlayerCanTrack = Config["DinoTracker"]["PlayersCanTrack"];
-	MinDistance = Config["DinoTracker"]["MinDistance"];
+	MaxDistance = Config["DinoTracker"]["MaxDistance"];
 
 	int i = 0;
 
