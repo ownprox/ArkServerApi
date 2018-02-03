@@ -18,6 +18,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Private\json.hpp" />
+    <ClInclude Include="Private\Main.h" />
+    <ClInclude Include="Private\SZManager.h" />
+    <ClInclude Include="Public\SafeZone.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Private\Main.cpp" />
+    <ClCompile Include="Private\SafeZone.cpp" />
+    <ClCompile Include="Private\SZManager.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{19177CA6-4863-4678-92FC-0B634C4F706F}</ProjectGuid>
@@ -146,7 +157,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ARK_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>E:\ArkServerModding\ARK-Server-Beyond-API-2.0\version\Core\Public\;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -164,16 +175,6 @@
       <ManifestFile>$(IntDir)$(TargetName)$(TargetExt).intermediate.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="SafeZone.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SafeZoneCommands.h" />
-    <ClInclude Include="SafeZoneHooks.h" />
-    <ClInclude Include="json.hpp" />
-    <ClInclude Include="SafeZone.h" />
-    <ClInclude Include="SafeZoneConfig.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

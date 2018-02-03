@@ -5,6 +5,10 @@
       "AdminIgnoreChecks":false,
       "SafeZoneNotifications":true,
       "SafeZoneNotificationCheckSeconds":4,
+      "InstantNotifications":true,
+      "NotificationScale":1.0,
+      "NotificationShowDelay":10.0,
+      "DisplayType":0,
       "SafeZoneKillAgressiveDino":true,
       "DistanceSafeZones":[  
          {  
@@ -22,9 +26,21 @@
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
-               "<RichColor Color=\"0, 1, 0, 1\">You have entered {}</>",
-               "<RichColor Color=\"1, 0, 0, 1\">You have left {}</>",
+               "You have entered {}",
+               "You have left {}",
                "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
+            ],
+            "EnterNotificationColour":[  
+               0,
+               1,
+               0,
+               1
+            ],
+            "LeaveNotificationColour":[  
+               1,
+               0,
+               0,
+               1
             ],
             "Items":[  
                {  
@@ -56,9 +72,21 @@
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
                "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
-               "<RichColor Color=\"0, 1, 0, 1\">You have entered {}</>",
-               "<RichColor Color=\"1, 0, 0, 1\">You have left {}</>",
+               "You have entered {}",
+               "You have left {}",
                "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
+            ],
+            "EnterNotificationColour":[  
+               0,
+               1,
+               0,
+               1
+            ],
+            "LeaveNotificationColour":[  
+               1,
+               0,
+               0,
+               1
             ],
             "Items":[  
 
