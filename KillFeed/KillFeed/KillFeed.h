@@ -17,11 +17,9 @@ const float trunc_decs(const float& f, int decs)
 	return i1 + f1;
 }
 
-static FString GetTribeName(AShooterPlayerController* player_controller)
+const FString GetTribeName(AShooterPlayerController* player_controller)
 {
 	AShooterPlayerState* player_state = static_cast<AShooterPlayerState*>(player_controller->PlayerStateField()());
-	if (player_state && player_state->MyPlayerDataStructField()())
-		return player_state->MyTribeDataField()().TribeName;
-
+	if (player_state && player_state->MyPlayerDataStructField()()) return player_state->MyTribeDataField()().TribeName;
 	return FString("");
 }

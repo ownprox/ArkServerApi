@@ -1,0 +1,16 @@
+{
+  "DinoTracker":{
+    "PlayersCanTrack":true,
+    "MinDistance":5000.0
+  },
+  "Messages":[
+    "DinoTracker",
+    "<RichColor Color=\"1, 0, 0, 1\">Incorrect Syntax: /track <DinoName></>",
+    "<RichColor Color=\"1, 0, 0, 1\">{} wasn't found</>",
+    "{0} Is Located At Long: {1:.1f}, Lat: {2:.1f}",
+    "/track",
+    "/atrack",
+    "Please, login as admin to use this command",
+    "<RichColor Color=\"1, 0, 0, 1\">Incorrect Syntax: /atrack <TeamID> <DinoName></>"
+  ]
+}
