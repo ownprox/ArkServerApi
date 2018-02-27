@@ -1,12 +1,12 @@
 #pragma once
 #include <Windows.h>
 #include "API\ARK\Ark.h"
-bool PlayerKillsEnabled, DinoKillsEnabled, DisplayInChatbox, DisplaySameTribeKills;
+bool PlayerKillsEnabled, DinoKillsEnabled, DisplayInChatbox, DisplaySameTribeKills, DisplayDistance;
 int DisplayType;
 float DisplayScale, DisplayDelay;
 FLinearColor DisplayColour;
 FString ServerName;
-std::wstring Messages[4];
+std::wstring Messages[8];
 
 const float trunc_decs(const float& f, int decs)
 {

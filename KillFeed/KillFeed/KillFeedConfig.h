@@ -10,7 +10,7 @@ void InitConfig()
 		Log::GetLog()->error("Failed to load config.json");
 		DisplayType = 0;
 		DisplayDelay = 5;
-		DinoKillsEnabled = PlayerKillsEnabled = true;
+		DisplayDistance = DinoKillsEnabled = PlayerKillsEnabled = true;
 		return;
 	}
 	nlohmann::json TeleportConfig, TempConfig;
@@ -25,6 +25,7 @@ void InitConfig()
 	DisplayDelay = TeleportConfig["KillFeed"]["DisplayDelay"];
 	TempConfig = TeleportConfig["KillFeed"]["DisplayColour"];
 	DisplayColour = FLinearColor(TempConfig[0], TempConfig[1], TempConfig[2], TempConfig[3]);
+	DisplayDistance = TeleportConfig["KillFeed"]["DisplayDistance"];
 	DisplayInChatbox = TeleportConfig["KillFeed"]["DisplayInChatbox"];
 
 	TempConfig = TeleportConfig["KillFeed"]["Messages"];

@@ -3,6 +3,7 @@
       "ServerName":"ServerNameHere",
       "PlayerKillsEnabled":true,
       "TamedDinoKillsEnabled":true,
+	  "DisplaySameTribeKills":false,
       "DisplayType":0,
       "DisplayScale":1.0,
       "DisplayDelay":10,
@@ -12,12 +13,17 @@
          0.8,
          1.0
       ],
+      "DisplayDistance":false,
       "DisplayInChatbox":true,
       "Messages":[  
-         "{}{} Killed {}{} with a {} at {}m",
-         "{}{} Killed Dino: {}{} with a {} at {}m",
-         "{}{}{} Killed {}{} at {}m",
-         "{}{}{} Killed Dino: {}{} at {}m"
+         "{KillerTribe}{KillerName} Killed {VictimTribe}{VictimName} with a {WeaponName}",
+         "{KillerTribe}{KillerName} Killed Dino: {VictimTribe}{VictimName} with a {WeaponName}",
+         "{KillerTribe}{KillerName}{KillerDinoName} Killed {VictimTribe}{VictimName}",
+         "{KillerTribe}{KillerName}{KillerDinoName} Killed Dino: {VictimTribe}{VictimName}",
+		 "{KillerTribe}{KillerName} Killed {VictimTribe}{VictimName} with a {WeaponName} at {Distance}m",
+         "{KillerTribe}{KillerName} Killed Dino: {VictimTribe}{VictimName} with a {WeaponName} at {Distance}m",
+         "{KillerTribe}{KillerName}{KillerDinoName} Killed {VictimTribe}{VictimName} at {Distance}m",
+         "{KillerTribe}{KillerName}{KillerDinoName} Killed Dino: {VictimTribe}{VictimName} at {Distance}m"
       ]
    }
 }
