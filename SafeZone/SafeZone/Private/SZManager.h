@@ -26,19 +26,21 @@ namespace SafeZoneManager
 	{
 		FString Name;
 		FVector Postion;
-		bool isPVP, PreventStructureDamage, isBuilding;
+		bool isPVP, PreventStructureDamage, isBuilding, CanClaimItems, GiveItemsOnSpawn;
 		FString Messages[8];
 		int Distance;
 		ItemArray Items;
 		FLinearColor EnterNotificationColour, LeaveNotificationColour;
 
-		SafeZoneDistanceS(const FString Name, const FVector Postion, const bool isPVP, const bool PreventStructureDamage, const bool isBuilding, const int Distance, const FString Messages[6], const ItemArray Items, const FLinearColor EnterNotificationColour, const FLinearColor LeaveNotificationColour)
+		SafeZoneDistanceS(const FString Name, const FVector Postion, const bool isPVP, const bool PreventStructureDamage, const bool isBuilding, const bool CanClaimItems, const bool GiveItemsOnSpawn, const int Distance, const FString Messages[6], const ItemArray Items, const FLinearColor EnterNotificationColour, const FLinearColor LeaveNotificationColour)
 		{
 			this->Name = Name;
 			this->Postion = Postion;
 			this->isPVP = isPVP;
 			this->PreventStructureDamage = PreventStructureDamage;
 			this->isBuilding = isBuilding;
+			this->CanClaimItems = CanClaimItems;
+			this->GiveItemsOnSpawn = GiveItemsOnSpawn;
 			this->Distance = Distance;
 			for (int i = 0; i < 6; i++) this->Messages[i] = Messages[i];
 			this->Items = Items;
@@ -50,14 +52,14 @@ namespace SafeZoneManager
 	
 	struct SafeZonePlayerData
 	{
-		bool IsInSafeArea;
+		bool IsInSafeArea, HasSawned;
 		long long PlayerID;
 		FString Name, LeaveMessage;
 		FLinearColor LeaveNotificationColour;
 		SafeZonePlayerData(const long long PlayerID)
 		{
 			this->PlayerID = PlayerID;
-			this->IsInSafeArea = false;
+			this->HasSawned = this->IsInSafeArea = false;
 		}
 		const bool IsSafeArea() { return IsInSafeArea; }
 		const bool IsOfPlayerID(const long long PlayerID) { return PlayerID == this->PlayerID; }

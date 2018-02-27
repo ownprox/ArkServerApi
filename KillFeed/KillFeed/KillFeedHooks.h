@@ -14,42 +14,83 @@ void RemoveHooks()
 	if (PlayerKillsEnabled) ArkApi::GetHooks().DisableHook("AShooterCharacter.Die", &Hook_AShooterCharacter_Die);
 }
 
+const FString GetDinoName(APrimalDinoCharacter* Dino)
+{
+	FString DinoName;
+	Dino->GetDinoDescriptiveName(&DinoName);
+	int32 Index = 0;
+	if (DinoName.FindLastChar('-', Index))
+	{
+		DinoName = DinoName.RightChop(Index + 2);
+		if (DinoName.FindLastChar('(', Index)) DinoName.RemoveAt(Index);
+		if (DinoName.FindLastChar(')', Index)) DinoName.RemoveAt(Index);
+	}
+	return DinoName;
+}
+
+template <typename T, typename... Args>
+void SendChatMessageToAllL(const T* msg, Args&&... args)
+{
+	FChatMessage chat_message = FChatMessage();
+	chat_message.SenderName = ServerName;
+	chat_message.Message = FString::Format(msg, std::forward<Args>(args)...);
+	const auto& player_controllers = ArkApi::GetApiUtils().GetWorld()->PlayerControllerListField()();
+	for (TWeakObjectPtr<APlayerController> player_controller : player_controllers)
+	{
+		AShooterPlayerController* shooter_pc = static_cast<AShooterPlayerController*>(player_controller.Get());
+		if(shooter_pc) shooter_pc->ClientChatMessage(chat_message);
+	}
+}
+
+template <typename T, typename... Args>
+void SendNotificationToAllL(FLinearColor color, float display_scale,
+	float display_time, UTexture2D* icon, const T* msg, Args&&... args)
+{
+	FString text(FString::Format(msg, std::forward<Args>(args)...));
+	const auto& player_controllers = ArkApi::GetApiUtils().GetWorld()->PlayerControllerListField()();
+	for (TWeakObjectPtr<APlayerController> player_controller : player_controllers)
+	{
+		AShooterPlayerController* shooter_pc = static_cast<AShooterPlayerController*>(player_controller.Get());
+		if(shooter_pc) shooter_pc->ClientServerSOTFNotificationCustom(&text, color, display_scale, display_time, icon, nullptr);
+	}
+}
+
 void NotifyDeath(const FString& KillerName, const FString& KillerTribe, const FString& KillerDinoName, const FString& VictimName, const FString& VictimTribe, const FString& WeaponName, UTexture2D* WeaponIcon, float Distance, bool IsPlayer)
 {
 	const bool isKillerDino = !KillerDinoName.IsEmpty();
 	switch (DisplayType)
 	{
 	case 0:
-		if(isKillerDino) ArkApi::GetApiUtils().SendNotificationToAll(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
-		else ArkApi::GetApiUtils().SendNotificationToAll(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, *WeaponName, trunc_decs(Distance, 2));
+		if (isKillerDino) SendNotificationToAllL(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"KillerDinoName", *FString("(" + KillerDinoName + ")")), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
+		else SendNotificationToAllL(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str()), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName), fmt::arg(L"WeaponName", *WeaponName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
 		break;
 	case 1:
-		ArkApi::GetApiUtils().SendNotificationToAll(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *(isKillerDino ? FString("(" + KillerDinoName + ")") : FString("")), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
+		SendNotificationToAllL(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"KillerDinoName", *(isKillerDino ? FString("(" + KillerDinoName + ")") : FString(""))), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
 		break;
 	case 2:
-		if (isKillerDino)ArkApi::GetApiUtils().SendNotificationToAll(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
-		else ArkApi::GetApiUtils().SendNotificationToAll(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str()), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, *WeaponName, trunc_decs(Distance, 2));
+		if (isKillerDino) SendNotificationToAllL(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str()), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"KillerDinoName", *FString("(" + KillerDinoName + ")")), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
+		else SendNotificationToAllL(DisplayColour, DisplayScale, DisplayDelay, WeaponIcon, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str()), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName), fmt::arg(L"WeaponName", *WeaponName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
 		break;
 	}
 	if (DisplayInChatbox)
 	{
 		if (isKillerDino)
 		{
-			ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str())).c_str(), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *KillerName, *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, trunc_decs(Distance, 2));
+			SendChatMessageToAllL(fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str())).c_str(), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"KillerDinoName", *FString("(" + KillerDinoName + ")")), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
 		}
 		else
 		{
-			ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[2].c_str() : Messages[3].c_str())).c_str(), *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]")), *FString("(" + KillerDinoName + ")"), *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]")), *VictimName, *WeaponName, trunc_decs(Distance, 2));
+			SendChatMessageToAllL(fmt::format(L"<RichColor Color=\"{}, {}, {}, {}\">{}</>", DisplayColour.R, DisplayColour.G, DisplayColour.B, DisplayColour.A, (IsPlayer ? Messages[0].c_str() : Messages[1].c_str())).c_str(), fmt::arg(L"KillerTribe", *(KillerTribe.IsEmpty() ? FString("") : FString("[" + KillerTribe + "]"))), fmt::arg(L"KillerName", *KillerName), fmt::arg(L"VictimTribe", *(VictimTribe.IsEmpty() ? FString("") : FString("[" + VictimTribe + "]"))), fmt::arg(L"VictimName", *VictimName), fmt::arg(L"WeaponName", *WeaponName));//, fmt::arg(L"Distance", trunc_decs(Distance, 2)));
 		}
 	}
 }
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (_this && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (_this && _this->PlayerStateField()() && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
-		if (KillerShooterController && KillerShooterController->GetPlayerCharacter())
+		if (KillerShooterController && KillerShooterController->PlayerStateField()() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || _this->TargetingTeamField()() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()()))
 		{ 
 			FString KillerDinoName, WeaponName = "Punch";
 			UTexture2D* WeaponIcon = nullptr;
@@ -60,11 +101,12 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 
 				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
 			}
-			APrimalDinoCharacter* KillerDino = KillerShooterController->GetPlayerCharacter()->GetRidingDino();
-			if (KillerDino != nullptr) KillerDino->DinoNameTagField()().ToString(&KillerDinoName);
+			
+			if (KillerShooterController->GetPlayerCharacter()->GetRidingDino())
+				KillerDinoName = GetDinoName(KillerShooterController->GetPlayerCharacter()->GetRidingDino());
 
-			float Distance = (FVector::Distance((_this->RootComponentField()() ? _this->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), KillerShooterController->DefaultActorLocationField()()) / 220);
-			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, _this->PlayerNameField()(), _this->TribeNameField()(), WeaponName, WeaponIcon, Distance, true);
+			//float Distance = (FVector::Distance((_this->RootComponentField()() ? _this->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField()() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0))) / 220);
+			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, _this->PlayerNameField()(), _this->TribeNameField()(), WeaponName, WeaponIcon, 0/*Distance*/, true);
 		}
 	}
 	return AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
@@ -72,16 +114,15 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 
 bool _cdecl Hook_APrimalDinoCharacter_Die(APrimalDinoCharacter* Dino, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (Dino && Dino->TamingTeamIDField()() != 0 && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (Dino && Dino->TargetingTeamField()() > 49999 && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
-		if (KillerShooterController && KillerShooterController->GetPlayerCharacter())
+		if (KillerShooterController && KillerShooterController->PlayerStateField()() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || Dino->TargetingTeamField()() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()()))
 		{
 			FString DinoName, KillerDinoName, WeaponName = "Punch";
 			UTexture2D* WeaponIcon = nullptr;
 
-			if (!Dino->TamedNameField()().IsEmpty()) DinoName = Dino->TamedNameField()();
-			else Dino->DinoNameTagField()().ToString(&DinoName);
+			DinoName = GetDinoName(Dino);
 
 			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()())
 			{
@@ -90,11 +131,11 @@ bool _cdecl Hook_APrimalDinoCharacter_Die(APrimalDinoCharacter* Dino, float Kill
 				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
 			}
 
-			APrimalDinoCharacter* KillerDino = KillerShooterController->GetPlayerCharacter()->GetRidingDino();
-			if (KillerDino != nullptr) KillerDino->DinoNameTagField()().ToString(&KillerDinoName);
+			if (KillerShooterController->GetPlayerCharacter()->GetRidingDino())
+				KillerDinoName = GetDinoName(KillerShooterController->GetPlayerCharacter()->GetRidingDino());
 
-			float Distance = (FVector::Distance((Dino->RootComponentField()() ? Dino->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), KillerShooterController->DefaultActorLocationField()()) / 220);
-			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, DinoName, Dino->TribeNameField()(), WeaponName, WeaponIcon, Distance, false);
+			//float Distance = (FVector::Distance((Dino->RootComponentField()() ? Dino->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField()() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0))) / 220);
+			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, DinoName, Dino->TribeNameField()(), WeaponName, WeaponIcon, 0/*Distance*/, false);
 		}
 	}
 	return APrimalDinoCharacter_Die_original(Dino, KillingDamage, DamageEvent, Killer, DamageCauser);

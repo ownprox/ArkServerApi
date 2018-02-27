@@ -99,7 +99,7 @@ bool IsOnCoolDown(AShooterPlayerController* Player)
 			CoolData.erase(iter);
 			return false;
 		}
-		const int CoolDownTime = ((iter->CoolDown - timeGetTime()) / 1000), mins = (CoolDownTime > 60 ? (CoolDownTime / 60) : 0);
+		const int CoolDownTime = (int)((iter->CoolDown - timeGetTime()) / 1000), mins = (CoolDownTime > 60 ? (CoolDownTime / 60) : 0);
 		if (mins != 0)
 		{
 			int secs = (mins > 0 ? (CoolDownTime - (mins * 60)) : CoolDownTime);
@@ -161,4 +161,24 @@ void TeleportToPlayer(AShooterPlayerController* me, PlayerS* p, AShooterPlayerCo
 		if(TPRCoolDownForPlayerTeleportedTo) AddCoolDown(op->SteamID, TPRCoolDownSeconds);
 	}
 	op->IsTping = p->IsTping = false;
+}
+
+AShooterPlayerController* FindPlayerFromCharacterName(const FString& character_name)
+{
+	const int NameLength = character_name.Len();
+	int LastNameLenDiff = 999;
+	FString char_name;
+	AShooterPlayerController* Player = nullptr, *PlayerCon;
+	const auto& player_controllers = ArkApi::GetApiUtils().GetWorld()->PlayerControllerListField()();
+	for (TWeakObjectPtr<APlayerController> player_controller : player_controllers)
+	{
+		PlayerCon = static_cast<AShooterPlayerController*>(player_controller.Get());
+		char_name = ArkApi::GetApiUtils().GetCharacterName(PlayerCon);
+		if (!char_name.IsEmpty() && char_name.StartsWith(character_name, ESearchCase::Type::IgnoreCase) && LastNameLenDiff > (char_name.Len() - NameLength))
+		{
+			Player = PlayerCon;
+			LastNameLenDiff = char_name.Len() - NameLength;
+		}
+	}
+	return Player;
 }

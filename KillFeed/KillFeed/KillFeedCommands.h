@@ -10,6 +10,7 @@ void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
 	InitConfig();
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"Kill Feed Config Reloaded!");
 }
+
 void InitCommands()
 {
 	ArkApi::GetCommands().AddChatCommand("/kfreload", &ReloadConfig);

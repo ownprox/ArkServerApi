@@ -109,8 +109,8 @@ void AdminTP(AShooterPlayerController* player, FString* message, int mode)
 	}
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
-	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())	ArkApi::GetApiUtils().TeleportToPlayer(player, Players[0], false);
+	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(player, OtherPlayer, false);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
 
@@ -131,8 +131,8 @@ void AdminTPM(AShooterPlayerController* player, FString* message, int mode)
 	}
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
-	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(Players[0], player, false);
+	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(OtherPlayer, player, false);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
 
@@ -147,12 +147,12 @@ void AdminTeleTamedToMe(AShooterPlayerController* player, FString* message, int 
 	}
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
-	int TamedDist = 500;
+	float TamedDist = 500;
 	if (Parsed.IsValidIndex(1))
 	{
 		try
 		{
-			TamedDist = std::stoi(Parsed[1].ToString().c_str());
+			TamedDist = std::stof(Parsed[1].ToString().c_str());
 		}
 		catch (...) {}
 	}
@@ -183,7 +183,7 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 	}
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
-	int TamedDist = 500;
+	float TamedDist = 500;
 	if (!Parsed.IsValidIndex(2))
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[10].c_str());
@@ -193,7 +193,7 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 	{
 		try
 		{
-			TamedDist = std::stoi(Parsed[1].ToString().c_str());
+			TamedDist = std::stof(Parsed[1].ToString().c_str());
 		}
 		catch (...) {}
 	}
@@ -201,11 +201,11 @@ void AdminTeleTamedToPlayer(AShooterPlayerController* player, FString* message, 
 
 	FString PlayerName = "";
 	for (int i = 2; i < Parsed.Num(); i++)	PlayerName += (i == 2 ? Parsed[i] : FString(" ") + Parsed[i]);
-	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
-	if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
+	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()())
 	{
 		TArray<TWeakObjectPtr<APrimalDinoCharacter>> Dinos;
-		Players[0]->GetTamedDinosNearBy(&Dinos, TamedDist);
+		OtherPlayer->GetTamedDinosNearBy(&Dinos, TamedDist);
 		APrimalDinoCharacter* Dino;
 		FVector Pos;
 		FRotator Rot{ 0, 0, 0 };

@@ -19,6 +19,7 @@ void InitConfig()
 	ServerName = FString(ArkApi::Tools::Utf8Decode(TeleportConfig["KillFeed"]["ServerName"]).c_str());
 	PlayerKillsEnabled = TeleportConfig["KillFeed"]["PlayerKillsEnabled"];
 	DinoKillsEnabled = TeleportConfig["KillFeed"]["TamedDinoKillsEnabled"];
+	DisplaySameTribeKills = TeleportConfig["KillFeed"]["DisplaySameTribeKills"];
 	DisplayType = TeleportConfig["KillFeed"]["DisplayType"];
 	DisplayScale = TeleportConfig["KillFeed"]["DisplayScale"];
 	DisplayDelay = TeleportConfig["KillFeed"]["DisplayDelay"];
