@@ -1,0 +1,8 @@
+{
+  "structures": [
+	"FConfigCacheIni"
+  ],
+  "functions": [
+	"PrimalGameIni_GameModeInitValues"
+  ]
+}
