@@ -1,0 +1,17 @@
+{  
+   "PVPScheduler":{  
+      "NotifyServer":true,
+      "Days":[  
+         {  
+            "StartDay":0,
+            "StartHour":11,
+            "PVPEnabledMinutes":10
+         },
+         {  
+            "StartDay":1,
+            "StartHour":11,
+            "PVPEnabledMinutes":10
+         }
+      ]
+   }
+}
