@@ -1,17 +1,23 @@
 #pragma once
-void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
+
+#include <API/UE/Math/ColorList.h>
+
+inline void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || !player->GetPlayerCharacter()->bIsServerAdminField()()) return;
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() ||
+		!player->GetPlayerCharacter()->bIsServerAdminField()())
+		return;
+
 	InitConfig();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), "Config Reloaded!.");
+	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
 }
 
-void InitCommands()
+inline void InitCommands()
 {
 	ArkApi::GetCommands().AddChatCommand("/wrreload", &ReloadConfig);
 }
 
-void RemoveCommands()
+inline void RemoveCommands()
 {
 	ArkApi::GetCommands().RemoveChatCommand("/wrreload");
 }
