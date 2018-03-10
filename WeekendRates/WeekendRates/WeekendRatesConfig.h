@@ -1,6 +1,10 @@
 #pragma once
+
+#include "WeekendRates.h"
+
 #include <fstream>
-void InitConfig()
+
+inline void InitConfig()
 {
 	std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/WeekendRates/config.json");
 	if (!file.is_open()) return;
@@ -32,5 +36,8 @@ void InitConfig()
 	WeekendMOTD = FString(ArkApi::Tools::Utf8Decode(Data).c_str());
 
 	Data = WeekendConfig["WeekendRates"]["NormalMOTD"];
-	NormalMOTD = FString(ArkApi::Tools::Utf8Decode(Data).c_str());	
+	NormalMOTD = FString(ArkApi::Tools::Utf8Decode(Data).c_str());
+
+	StartDay = WeekendConfig["WeekendRates"]["StartDay"];
+	EndDay = WeekendConfig["WeekendRates"]["EndDay"];
 }
