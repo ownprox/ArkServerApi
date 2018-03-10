@@ -25,7 +25,7 @@ inline tm TimeInfo;
 inline int TenMinCounter;
 inline float OldValues[15];
 
-inline bool RatesEnabledManually;
+inline bool RatesEnabledManually, HasStarted = false;
 
 inline void ToggleWeekendRates(AShooterPlayerController* player, FString* message, int mode)
 {
@@ -177,8 +177,9 @@ inline void WeekendRatesCheck()
 	AShooterGameMode* GameMode = ArkApi::GetApiUtils().GetShooterGameMode();
 	if (!GameMode) return;
 
-	if (TenMinCounter++ == 600)
+	if (TenMinCounter++ == (HasStarted ? 600 : 30))
 	{
+		HasStarted = true;
 		time(&RawTime);
 		localtime_s(&TimeInfo, &RawTime);
 
