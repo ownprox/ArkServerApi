@@ -12,22 +12,19 @@ inline void ReloadConfig(AShooterPlayerController* player, FString* message, int
 	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
 }
 
-inline void ReloadConfig(AShooterPlayerController* player, FString* message, bool lol)
+inline void ReloadConfigCon(APlayerController* player, FString* message, bool lol)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() ||
-		!player->GetPlayerCharacter()->bIsServerAdminField()())
-		return;
-
 	InitConfig();
-	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
 }
+
 inline void InitCommands()
 {
 	ArkApi::GetCommands().AddChatCommand("/wrreload", &ReloadConfig);
-	ArkApi::GetCommands().AddConsoleCommand("/wrreload", &ReloadConfig);
+	ArkApi::GetCommands().AddConsoleCommand("wrreload", &ReloadConfigCon);
 }
 
 inline void RemoveCommands()
 {
 	ArkApi::GetCommands().RemoveChatCommand("/wrreload");
+	ArkApi::GetCommands().RemoveChatCommand("wrreload");
 }
