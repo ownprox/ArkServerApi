@@ -2,32 +2,20 @@
 
 #include <API/UE/Math/ColorList.h>
 
-inline void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
+inline void ReloadConfig(APlayerController* player_controller, FString* cmd, bool)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() ||
-		!player->GetPlayerCharacter()->bIsServerAdminField()())
-		return;
+	AShooterPlayerController* shooter_controller = static_cast<AShooterPlayerController*>(player_controller);
 
 	InitConfig();
-	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
+	ArkApi::GetApiUtils().SendServerMessage(shooter_controller, FColorList::Green, "Config Reloaded!");
 }
 
-inline void ReloadConfig(AShooterPlayerController* player, FString* message, bool lol)
-{
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() ||
-		!player->GetPlayerCharacter()->bIsServerAdminField()())
-		return;
-
-	InitConfig();
-	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
-}
 inline void InitCommands()
 {
-	ArkApi::GetCommands().AddChatCommand("/wrreload", &ReloadConfig);
 	ArkApi::GetCommands().AddConsoleCommand("/wrreload", &ReloadConfig);
 }
 
 inline void RemoveCommands()
 {
-	ArkApi::GetCommands().RemoveChatCommand("/wrreload");
+	ArkApi::GetCommands().RemoveConsoleCommand("/wrreload");
 }

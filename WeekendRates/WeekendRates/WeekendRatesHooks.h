@@ -1,6 +1,6 @@
 #pragma once
 
-void ToggleWeekendRates(AShooterPlayerController* player, FString* message, int mode);
+void ToggleWeekendRates(APlayerController* player_controller, FString* cmd, bool);
 void WeekendRatesCheck();
 
 void EnableRates();
@@ -10,14 +10,14 @@ inline void InitHooks()
 {
 	ArkApi::GetCommands().AddOnTimerCallback("WeekendRatesCheck", &WeekendRatesCheck);
 
-	ArkApi::GetCommands().AddChatCommand("/ToggleWeekendRates", &ToggleWeekendRates);
+	ArkApi::GetCommands().AddConsoleCommand("/ToggleWeekendRates", &ToggleWeekendRates);
 }
 
 inline void RemoveHooks()
 {
 	ArkApi::GetCommands().RemoveOnTimerCallback("WeekendRatesCheck");
 
-	ArkApi::GetCommands().RemoveChatCommand("/ToggleWeekendRates");
+	ArkApi::GetCommands().RemoveConsoleCommand("/ToggleWeekendRates");
 }
 
 inline time_t RawTime;
@@ -27,9 +27,9 @@ inline float OldValues[15];
 
 inline bool RatesEnabledManually, HasStarted = false;
 
-inline void ToggleWeekendRates(AShooterPlayerController* player, FString* message, int mode)
+inline void ToggleWeekendRates(APlayerController* player_controller, FString* cmd, bool)
 {
-	if (!player->GetPlayerCharacter() || !player->GetPlayerCharacter()->bIsServerAdminField()() || WeekendRatesEnabled)
+	if (WeekendRatesEnabled)
 		return;
 
 	RatesEnabledManually = !RatesEnabledManually;
