@@ -27,6 +27,22 @@ struct MuteData
 std::vector<MuteData> muteData;
 std::vector<MuteData>::iterator GetMuteData(const uint64 SteamID, const FString& IPAddress = FString("")) { return std::find_if(muteData.begin(), muteData.end(), [SteamID, IPAddress](const MuteData& mute) -> bool { return (mute.IsIP ? mute.IPAddress == IPAddress : mute.SteamID == SteamID); }); }
 
+struct BadWords
+{
+	FString Word;
+	int Minutes;
+	BadWords(const std::wstring Word, const int Minutes)
+	{
+		this->Word = FString(Word.c_str());
+		this->Minutes = Minutes; 
+	}
+};
+
+typedef std::vector<BadWords> BadWordA;
+typedef BadWordA::iterator BadWordItr;
+BadWordA BadWord;
+
+
 void LoadMute(const uint64 SteamID, const DWORD64 MutedTill, const bool IPMute, const FString& IPAddress)
 {
 	muteData.push_back(MuteData(SteamID, MutedTill, IPMute, IPAddress));
@@ -60,7 +76,7 @@ int IsMuted(const uint64 SteamID, const FString& IPAddress)
 			muteData.erase(iter);
 			return 0;
 		}
-		return ((iter->MutedTill - timeGetTime()) / 1000);
+		return (int)((iter->MutedTill - timeGetTime()) / 1000);
 	}
 	return 0;
 }

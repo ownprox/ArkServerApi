@@ -10,19 +10,35 @@ std::string GetCurrentDir()
 	return std::string(buffer).substr(0, pos);
 }
 
-void InitConfig()
+void InitConfig(bool Reload)
 {
-	std::ifstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/config.json");
-	if (!file.is_open()) return;
+	std::ifstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/MuteData.json");
 	nlohmann::json MuteConfigData;
+	std::string Data;
+	if (!Reload)
+	{
+		if (file.is_open())
+		{
+			file >> MuteConfigData;
+			file.close();
+			auto MutedPlayers = MuteConfigData["Mutes"]["MutedPlayers"];
+			for (const auto& MutedPlayer : MutedPlayers)
+			{
+				Data = MutedPlayer["IP"];
+				LoadMute(MutedPlayer["SteamID"], MutedPlayer["MutedTill"], MutedPlayer["IPMute"], Data.c_str());
+			}
+		}
+	}
+
+	file = std::ifstream(GetCurrentDir() + "/ArkApi/Plugins/Mutes/config.json");
+	if (!file.is_open()) return;
 	file >> MuteConfigData;
 	file.close();
-	std::string IPAddress;
-	auto MutedPlayers = MuteConfigData["Mutes"]["MutedPlayers"];
-	for (const auto& MutedPlayer : MutedPlayers)
+	auto BLItemMap = MuteConfigData["Mutes"]["BlackList"];
+	for (const auto& szitem : BLItemMap)
 	{
-		IPAddress = MutedPlayer["IP"];
-		LoadMute(MutedPlayer["SteamID"], MutedPlayer["MutedTill"], MutedPlayer["IPMute"], IPAddress.c_str());
+		Data = szitem["Word"];
+		BadWord.push_back(BadWords(ArkApi::Tools::Utf8Decode(Data), szitem["Minutes"]));
 	}
 }
 
@@ -38,7 +54,7 @@ void SaveConfig()
 		First = false;
 	}
 	MutedPlayerStream << "]}}";
-	std::ofstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/config.json");
+	std::ofstream file(GetCurrentDir() + "/ArkApi/Plugins/Mutes/MuteData.json");
 	if (!file.is_open()) return;
 	file << nlohmann::json::parse(MutedPlayerStream.str());
 	file.close();

@@ -20,6 +20,8 @@
       "MOTDChangeEnabled":true,
       "WeekendMOTD":"Double Weekend (Xp, Taming, Resources)",
       "NormalMOTD":"Welcome to back",
+	  "StartDay":6,
+	  "EndDay":1,
       "XPMultiplier":4.0,
       "TamingSpeedMultiplier":2.0,
       "HarvestAmountMultiplier":4.0,
@@ -33,6 +35,7 @@
       "EggHatchSpeedMultiplier":1.0,
       "LayEggIntervalMultiplier":1.0,
       "ResourcesRespawnPeriodMultiplier":1.0,
-      "SupplyCrateLootQualityMultiplier":1.0
+      "SupplyCrateLootQualityMultiplier":1.0,
+      "StructureResistanceMultiplier":1.0
    }
 }

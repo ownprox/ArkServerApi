@@ -12,9 +12,11 @@ inline void ReloadConfig(AShooterPlayerController* player, FString* message, int
 	ArkApi::GetApiUtils().SendServerMessage(player, FColorList::Green, "Config Reloaded!");
 }
 
-inline void ReloadConfigCon(APlayerController* player, FString* message, bool lol)
+inline void ReloadConfigCon(APlayerController* player_controller, FString* message, bool lol)
 {
+	AShooterPlayerController* shooter_controller = static_cast<AShooterPlayerController*>(player_controller);
 	InitConfig();
+	ArkApi::GetApiUtils().SendServerMessage(shooter_controller, FColorList::Green, "Config Reloaded!");
 }
 
 inline void InitCommands()
