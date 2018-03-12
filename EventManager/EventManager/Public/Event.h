@@ -52,21 +52,21 @@ public:
 		SetState(EventState::WaitingForPlayers);
 	}
 
-	const FString GetName() { return Name; }
-	const FString GetServerName() { return ServerName; }
+	FString GetName() { return Name; }
+	FString GetServerName() { return ServerName; }
 
-	const EventState GetState() { return State; }
+	EventState GetState() { return State; }
 
-	const TArray<FVector> GetSpawns(EventTeam Team = EventTeam::All) { return Team == EventTeam::Blue ? SpawnsB : SpawnsA; }
+	TArray<FVector> GetSpawns(EventTeam Team = EventTeam::All) { return Team == EventTeam::Blue ? SpawnsB : SpawnsA; }
 	void AddSpawn(FVector Spawn, EventTeam Team = EventTeam::All) { Team == EventTeam::Blue ? SpawnsB.Add(Spawn) : SpawnsA.Add(Spawn); }
 
-	const int GetCount() { return Counter; }
-	const int UpCount() { Counter++; return Counter; }
-	const int GetStartedPlayerCount() { return StartPlayerCount; }
+	int GetCount() { return Counter; }
+	int UpCount() { Counter++; return Counter; }
+	int GetStartedPlayerCount() { return StartPlayerCount; }
 
-	const bool GetSpawnsSet() { return SpawnsSet; }
-	const bool TimePassed() { return timeGetTime() > LastTime; }
-	const bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, EventPosition) < EventDistance; }
+	bool GetSpawnsSet() { return SpawnsSet; }
+	bool TimePassed() { return timeGetTime() > LastTime; }
+	bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, EventPosition) < EventDistance; }
 
 	void SetStartPlayerCount(int StartPlayerCount) { this->StartPlayerCount = StartPlayerCount; }
 	void AddTime(int Seconds) { LastTime = timeGetTime() + (Seconds * 1000); }
