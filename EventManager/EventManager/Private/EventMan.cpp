@@ -1,41 +1,28 @@
 #include "EventMan.h"
 #include "..\Public\Event.h"
 
-//swap for chrono
-int timeGetTimea()
+EventMan& EventMan::Get()
 {
-	return 1;
+	static EventMan instance;
+	return instance;
 }
 
-EventMan::EventMan()
-{
-	Instance = this;
-	EventRunning = false;
-	ServType = ServerType::Ragnarok;
-}
-
-EventMan* EventMan::Instance = 0;
-
-EventMan* EventMan::GetInstance()
-{
-	return Instance;
-}
-
-void EventMan::AddEvent(Event* event)
+void EventMan::AddEvent(Event event)
 {
 	Events.push_back(event);
 }
 
-void EventMan::RemoveEvent(Event* event)
+void EventMan::RemoveEvent(Event event)
 {
-	EventItr itr = std::find(Events.begin(), Events.end(), event);
-	if (itr != Events.end()) Events.erase(itr);
+	const FString EventName = event.GetName();
+	EventItr Itr = std::find_if(Events.begin(), Events.end(), [EventName](Event e) -> bool { return e.GetName().Equals(EventName); });
+	if (Itr != Events.end()) Events.erase(Itr);
 }
 
 
 bool EventMan::AddPlayer(long long PlayerID, AShooterPlayerController* player)
 {
-	if (IsEventRunning() && CurrentEvent != NULL && CurrentEvent->GetState() == EventState::WaitingForPlayers && FindPlayer(PlayerID) == nullptr)
+	if (IsEventRunning() && CurrentEvent != nullptr && CurrentEvent->GetState() == EventState::WaitingForPlayers && FindPlayer(PlayerID) == nullptr)
 	{
 		Players.push_back(EventPlayer(PlayerID, player));
 		return true;
@@ -70,14 +57,14 @@ bool EventMan::StartEvent(const int EventID)
 	if (EventID == -1)
 	{
 		int Rand = 0;
-		CurrentEvent = Events[Rand];
-		CurrentEvent->Init(ServType);
+		CurrentEvent = &Events[Rand];
+		CurrentEvent->Init(Map);
 		EventRunning = true;
 	}
 	else if (EventID < Events.size())
 	{
-		CurrentEvent = Events[EventID];
-		CurrentEvent->Init(ServType);
+		CurrentEvent = &Events[EventID];
+		CurrentEvent->Init(Map);
 		EventRunning = true;
 	}
 	return true;
@@ -88,48 +75,55 @@ void EventMan::Update()
 	if (!ArkApi::GetApiUtils().GetShooterGameMode() || Events.size() == 0) return;
 	if (IsEventRunning() && CurrentEvent != nullptr)
 	{
-		if (!CurrentEvent->Finnished())
-		{
-			CurrentEvent->Update();
-		}
+		if (CurrentEvent->GetState() != Finnished) CurrentEvent->Update();
 		else
 		{
 			EventRunning = false;
 			CurrentEvent = nullptr;
-			NextEventTime = timeGetTimea() + 300000;
+			NextEventTime = timeGetTime() + 300000;
 		}
 	}
-	else if (timeGetTimea() > NextEventTime)
+	else if (timeGetTime() > NextEventTime)
 	{
+		if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 		StartEvent();
-		NextEventTime = timeGetTimea() + 0;//RandomNumber(7200000, 21600000);
+		NextEventTime = timeGetTime() + 0;//RandomNumber(7200000, 21600000);
 	}
 }
 
-void EventMan::TeleportEventPlayers(const FVector* Positions, const bool TeamBased, const bool IsBet)
+void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB)
 {
 	try
 	{
-		UShooterCheatManager* cheatManager;
-		int Size = sizeof(Positions) / sizeof(FVector), PosCount = 0;
+		int TeamAPosCount = 0, TeamBPosCount = 0;
+		bool TeamSwitch = false;
+		FVector Pos;
 		for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
 		{
-			if (PosCount == Size) PosCount = 0;
-			if (itr->ASPC && itr->ASPC->PlayerStateField()() /*&& itr->ASPC->GetPlayerCharacter() && itr->ASPC->GetPlayerCharacter()->GetReplicatedCurrentHealthField() > 1 &&*/ /*!IsRidingDino(itr->ASPC)*/ && (cheatManager = static_cast<UShooterCheatManager*>(itr->ASPC->CheatManagerField()())) != NULL)
+			if (TeamAPosCount == TeamA.Num()) TeamAPosCount = 0;
+			if (TeamBPosCount == TeamB.Num()) TeamBPosCount = 0;
+
+			if (itr->ASPC && itr->ASPC->PlayerStateField()() && itr->ASPC->GetPlayerCharacter() && !itr->ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr->ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr->ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
 			{
-				/*int IgnotCount = GetItemCount(itr->ASPC, "Metal Ingot");
-				if (IgnotCount != CurrentEvent->GetBetAmount())
+				if (WipeInventory)
 				{
-				SendMessage(itr->ASPC, TEXT("Nice Try!"), Tools::Colours::Red);
-				itr = Players.erase(itr);
-				continue;
-				}*/
-				cheatManager->ClearPlayerInventory(itr->ASPC->LinkedPlayerIDField()(), true, true, true);
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr->ASPC->CheatManagerField()());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr->ASPC->LinkedPlayerIDField()(), true, true, true);
+				}
+
 				itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
-				//TeleportToPos(itr->ASPC, Positions[PosCount++]);
+				
 				if (!TeamBased)
 				{
-					//	cheatManager->GiveItemNumToPlayer(itr->ASPC->LinkedPlayerIDField()(), EventItem, 3, 0, false);
+					Pos = TeamA[TeamAPosCount++];
+					itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+				}
+				else
+				{
+					Pos = TeamSwitch ? TeamA[TeamAPosCount++] : TeamB[TeamBPosCount++];
+					itr->Team = TeamSwitch ? EventTeam::Blue : EventTeam::Red;
+					itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+					TeamSwitch = !TeamSwitch;
 				}
 			}
 			else itr = Players.erase(itr);
@@ -163,6 +157,23 @@ void EventMan::OnPlayerDied(long long AttackerID, long long VictimID)
 	}
 	RemovePlayer(VictimID, false);
 }
+
+void EventMan::OnPlayerLogg(AShooterPlayerController* Player)
+{
+	EventPlayer* EPlayer;
+	if ((EPlayer = FindPlayer(Player->LinkedPlayerIDField()())) != nullptr)
+	{
+		Player->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
+		RemovePlayer(Player->LinkedPlayerIDField()(), false);
+	}
+}
+
+bool EventMan::IsEventProtectedStructure(const FVector& StructurePos)
+{
+	for (Event Evt : Events) if (Evt.IsEventProtectedStructure(StructurePos)) return true;
+	return false;
+}
+
 /*
 void EventManager::OnWonEvent(bool Solo)
 {

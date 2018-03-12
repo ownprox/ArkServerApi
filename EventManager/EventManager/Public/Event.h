@@ -1,10 +1,11 @@
 #pragma once
-enum ServerType
+#include "API\ARK\Ark.h"
+
+enum EventTeam
 {
-	Island = 0,
-	Ragnarok,
-	Center,
-	Scorched
+	All = 0,
+	Red = 1,
+	Blue = 2
 };
 
 enum EventState
@@ -21,31 +22,58 @@ class Event
 {
 private:
 	EventState State;
-	FVector StartPos;
-	int TravelDistance, Counter, MinimumPlayersNeeded, BetAmount, StartPlayerCount;
-	FString Name;
+	FString Name, ServerName;
+	TArray<FVector> SpawnsA, SpawnsB;
+	FVector EventPosition;
+	int EventDistance, Counter, MinimumPlayersNeeded, StartPlayerCount;
+	bool StructureProtection, SpawnsSet;
 	DWORD LastTime;
-	FVector* Spawns;
-	bool SpawnsSet;
+
 public:
-	EventState GetState() { return State; }
-	bool Finnished() { return State == EventState::Finnished; }
-	bool TimePassed() { return timeGetTime() > LastTime; }
-	int GetCount() { return Counter; }
-	int GetBetAmount() { return BetAmount; }
-	FString GetName() { return Name; }
-	bool GetSpawnsSet() { return SpawnsSet; }
-	FVector* GetSpawns() { return Spawns; }
-	int GetStartedPlayerCount() { return StartPlayerCount; }
+
+	void InitDefaults(const FString Name, const FString ServerName, const int MinimumPlayersNeeded, const bool StructureProtection, const FVector EventPosition, const int EventDistance)
+	{
+		this->Name = Name;
+		this->ServerName = ServerName;
+		this->StructureProtection = StructureProtection;
+		this->EventPosition = EventPosition;
+		this->EventDistance = EventDistance;
+		this->MinimumPlayersNeeded = MinimumPlayersNeeded;
+		this->Counter = 0;
+		this->LastTime = 0;
+		this->SpawnsSet = false;
+	}
+
+	void Reset()
+	{
+		SpawnsSet = true;
+		ResetCount();
+		AddTime(0);
+		SetState(EventState::WaitingForPlayers);
+	}
+
+	const FString GetName() { return Name; }
+	const FString GetServerName() { return ServerName; }
+
+	const EventState GetState() { return State; }
+
+	const TArray<FVector> GetSpawns(EventTeam Team = EventTeam::All) { return Team == EventTeam::Blue ? SpawnsB : SpawnsA; }
+	void AddSpawn(FVector Spawn, EventTeam Team = EventTeam::All) { Team == EventTeam::Blue ? SpawnsB.Add(Spawn) : SpawnsA.Add(Spawn); }
+
+	const int GetCount() { return Counter; }
+	const int UpCount() { Counter++; return Counter; }
+	const int GetStartedPlayerCount() { return StartPlayerCount; }
+
+	const bool GetSpawnsSet() { return SpawnsSet; }
+	const bool TimePassed() { return timeGetTime() > LastTime; }
+	const bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, EventPosition) < EventDistance; }
+
 	void SetStartPlayerCount(int StartPlayerCount) { this->StartPlayerCount = StartPlayerCount; }
-	void SetSpawns(FVector* spawns) { Spawns = spawns; SpawnsSet = true; }
 	void AddTime(int Seconds) { LastTime = timeGetTime() + (Seconds * 1000); }
-	int UpCount() { Counter++; return Counter; }
 	void SetState(EventState state) { State = state; }
 	void ResetCount() { Counter = 0;  }
-	void InitDefaults(FString Name, FVector StartPos, int TravelDistance, int MinimumPlayersNeeded, int BetAmount = 0) { this->Name = Name; this->StartPos = StartPos; this->TravelDistance = TravelDistance; this->MinimumPlayersNeeded = MinimumPlayersNeeded; this->Counter = 0; this->LastTime = 0; this->SpawnsSet = false; this->BetAmount = BetAmount; }
-	void Reset() { ResetCount(); AddTime(0); SetState(EventState::WaitingForPlayers); }
-	virtual void Init(ServerType ServType) {};
+
+	virtual void Init(const FString& Map) {};
 	virtual void Update() {};
-	virtual void OnWonEvent();
+	virtual void OnWonEvent() {};
 };

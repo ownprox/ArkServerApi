@@ -2,13 +2,6 @@
 #include "API\ARK\Ark.h"
 #include "..\Public\Event.h"
 
-enum EventTeam
-{
-	All = 0,
-	Red = 1,
-	Blue = 2
-};
-
 struct EventPlayer
 {
 	long long PlayerID;
@@ -31,7 +24,7 @@ struct EventPlayer
 
 typedef std::vector<EventPlayer> EventPlayerArray;
 typedef EventPlayerArray::iterator EventPlayerArrayItr;
-typedef std::vector<Event*> EventList;
+typedef std::vector<Event> EventList;
 typedef EventList::iterator EventItr;
 
 class EventMan
@@ -41,20 +34,16 @@ private:
 	EventPlayerArray Players;
 	EventList Events;
 	Event* CurrentEvent;
-	HANDLE ThreadHandle;
 	DWORD NextEventTime;
-	ServerType ServType;
-	static EventMan* Instance;
+	FString Map;
 
 public:
-	EventMan();
-
-	static EventMan* GetInstance();
-
-	void AddEvent(Event* event);
-	void RemoveEvent(Event* event);
+	static EventMan& Get();
+	void Init() { EventRunning = false; CurrentEvent = nullptr; }
+	void AddEvent(Event event);
+	void RemoveEvent(Event event);
 	void Update();
-	void TeleportEventPlayers(const FVector* Positions, const bool TeamBased = false, const bool IsBet = false);
+	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB);
 
 	EventPlayer* FindPlayer(long long SteamID);
 	bool AddPlayer(long long SteamID, AShooterPlayerController* player);
@@ -67,4 +56,25 @@ public:
 	//Hooked
 	bool CanTakeDamage(long long AttackerID, long long VictimID);
 	void OnPlayerDied(long long AttackerID, long long VictimID);
+	void OnPlayerLogg(AShooterPlayerController* Player);
+	bool IsEventProtectedStructure(const FVector& StructurePos);
+
+	//Event Player Messages
+	template <typename T, typename... Args>
+	void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)
+	{
+		const FString text(FString::Format(msg, std::forward<Args>(args)...));
+		FChatMessage chat_message = FChatMessage();
+		chat_message.SenderName = sender_name;
+		chat_message.Message = text;
+		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientChatMessage(chat_message);
+	}
+
+	template <typename T, typename... Args>
+	void SendNotificationToAllEventPlayers(FLinearColor color, float display_scale,
+		float display_time, UTexture2D* icon, const T* msg, Args&&... args)
+	{
+		const FString text(FString::Format(msg, std::forward<Args>(args)...));
+		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer->ClientServerSOTFNotificationCustom(&text, color, display_scale, display_time, icon, nullptr);
+	}
 };
