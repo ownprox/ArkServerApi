@@ -3,9 +3,15 @@
 
 enum EventTeam
 {
-	All = 0,
-	Red = 1,
-	Blue = 2
+	None = 0,
+	TeamA,
+	TeamB,
+	TeamC,
+	TeamD,
+	TeamE,
+	TeamF,
+	TeamG,
+	TeamH
 };
 
 enum EventState
@@ -18,62 +24,75 @@ enum EventState
 	Finnished
 };
 
+typedef std::map<EventTeam, TArray<FVector>> SpawnsMap;
+typedef SpawnsMap::iterator SpawnsMapItr;
+typedef SpawnsMap::value_type SpawnsMapType;
+
 class Event
 {
 private:
 	EventState State;
-	FString Name, ServerName;
-	TArray<FVector> SpawnsA, SpawnsB;
-	FVector EventPosition;
-	int EventDistance, Counter, MinimumPlayersNeeded, StartPlayerCount;
-	bool StructureProtection, SpawnsSet;
+	FString Name;
+	SpawnsMap Spawns;
+	FVector StructureProtectionPosition;
+	int StructureProtectionDistance, Counter;
+	bool StructureProtection, ConfigLoaded;
 	DWORD LastTime;
 
 public:
-
-	void InitDefaults(const FString Name, const FString ServerName, const int MinimumPlayersNeeded, const bool StructureProtection, const FVector EventPosition, const int EventDistance)
+	void InitDefaults(const FString& Name, const bool StructureProtection = false, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
 	{
 		this->Name = Name;
-		this->ServerName = ServerName;
 		this->StructureProtection = StructureProtection;
-		this->EventPosition = EventPosition;
-		this->EventDistance = EventDistance;
-		this->MinimumPlayersNeeded = MinimumPlayersNeeded;
+		this->StructureProtectionPosition = StructureProtectionPosition;
+		this->StructureProtectionDistance = StructureProtectionDistance;
+		this->ConfigLoaded = false;
 		this->Counter = 0;
 		this->LastTime = 0;
-		this->SpawnsSet = false;
 	}
 
-	void Reset()
+	void Init()
 	{
-		SpawnsSet = true;
-		ResetCount();
-		AddTime(0);
+		ConfigLoaded = true;
+		LastTime = Counter = 0;
 		SetState(EventState::WaitingForPlayers);
 	}
 
 	FString GetName() { return Name; }
-	FString GetServerName() { return ServerName; }
 
 	EventState GetState() { return State; }
-
-	TArray<FVector> GetSpawns(EventTeam Team = EventTeam::All) { return Team == EventTeam::Blue ? SpawnsB : SpawnsA; }
-	void AddSpawn(FVector Spawn, EventTeam Team = EventTeam::All) { Team == EventTeam::Blue ? SpawnsB.Add(Spawn) : SpawnsA.Add(Spawn); }
-
-	int GetCount() { return Counter; }
-	int UpCount() { Counter++; return Counter; }
-	int GetStartedPlayerCount() { return StartPlayerCount; }
-
-	bool GetSpawnsSet() { return SpawnsSet; }
-	bool TimePassed() { return timeGetTime() > LastTime; }
-	bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, EventPosition) < EventDistance; }
-
-	void SetStartPlayerCount(int StartPlayerCount) { this->StartPlayerCount = StartPlayerCount; }
-	void AddTime(int Seconds) { LastTime = timeGetTime() + (Seconds * 1000); }
 	void SetState(EventState state) { State = state; }
-	void ResetCount() { Counter = 0;  }
 
-	virtual void InitConfig(const FString& Map) {};
+	SpawnsMap GetSpawns()
+	{
+		return Spawns;
+	}
+
+	void AddSpawn(FVector Spawn, EventTeam Team = EventTeam::None)
+	{
+		SpawnsMapItr itr = Spawns.find(Team);
+		if (itr != Spawns.end()) itr->second.Add(Spawn);
+		else
+		{
+			TArray<FVector> Spawnz;
+			Spawnz.Add(Spawn);
+			Spawns.insert(SpawnsMapType(Team, Spawnz));
+		}
+	}
+
+	int GetCounter() { return Counter; }
+	int IncreaseCounter() { Counter++; return Counter; }
+	void ResetCounter() { Counter = 0; }
+
+	bool WaitForPassed() { return timeGetTime() > LastTime; }
+	void WaitFor(int Seconds) { LastTime = timeGetTime() + (Seconds * 1000); }
+
+	bool HasConfigLoaded() { return ConfigLoaded; }
+
+	bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
+
+	
+	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map) {};
 	virtual void Update() {};
 	virtual void OnWonEvent() {};
 };

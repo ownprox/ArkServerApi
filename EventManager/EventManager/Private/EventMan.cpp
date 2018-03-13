@@ -68,14 +68,14 @@ bool EventMan::StartEvent(const int EventID)
 	{
 		int Rand = 0;
 		CurrentEvent = Events[Rand];
-		CurrentEvent->InitConfig(Map);
+		CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
 		Log::GetLog()->warn("InitEvent");
 		EventRunning = true;
 	}
 	else if (EventID < Events.size())
 	{
 		CurrentEvent = Events[EventID];
-		CurrentEvent->InitConfig(Map);
+		CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
 		EventRunning = true;
 	}
 	return true;
@@ -103,18 +103,18 @@ void EventMan::Update()
 	}
 }
 
-void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB)
+void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const EventTeam StartTeam)
 {
-	try
+	int TeamCount = (int)Spawns.size(), TeamIndex = (int)StartTeam;
+	int* TeamSpawnIndexCounter = new int[TeamCount];
+	EventTeam CurrentTeam = EventTeam::None;
+	FVector Pos;
+	for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
 	{
-		int TeamAPosCount = 0, TeamBPosCount = 0;
-		bool TeamSwitch = false;
-		FVector Pos;
-		for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
+		CurrentTeam = (EventTeam)TeamIndex;
+		std::map<EventTeam, TArray<FVector>>::iterator SpawnItr = Spawns.find(CurrentTeam);
+		if (SpawnItr != Spawns.end())
 		{
-			if (TeamAPosCount == TeamA.Num()) TeamAPosCount = 0;
-			if (TeamBPosCount == TeamB.Num()) TeamBPosCount = 0;
-
 			if (itr->ASPC && itr->ASPC->PlayerStateField()() && itr->ASPC->GetPlayerCharacter() && !itr->ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr->ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr->ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
 			{
 				if (WipeInventory)
@@ -124,28 +124,23 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 				}
 
 				itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
-				
-				if (!TeamBased)
+
+				Pos = SpawnItr->second[TeamSpawnIndexCounter[TeamIndex]++];
+				itr->Team = CurrentTeam;
+				itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+
+				if (TeamCount > 1)
 				{
-					Pos = TeamA[TeamAPosCount++];
-					itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+					TeamIndex++;
+					if (TeamIndex == TeamCount) TeamIndex = (int)StartTeam;
 				}
-				else
-				{
-					Pos = TeamSwitch ? TeamA[TeamAPosCount++] : TeamB[TeamBPosCount++];
-					itr->Team = TeamSwitch ? EventTeam::Blue : EventTeam::Red;
-					itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
-					TeamSwitch = !TeamSwitch;
-				}
+
+				if (TeamSpawnIndexCounter[TeamIndex] == SpawnItr->second.Num()) TeamSpawnIndexCounter[TeamIndex] = 0;
 			}
 			else itr = Players.erase(itr);
 		}
-		if (CurrentEvent) CurrentEvent->SetStartPlayerCount((int)Players.size());
 	}
-	catch (...)
-	{
-		//		std::cout << "Event Manager Exception: TeleportPlayers" << std::endl;
-	}
+	free(TeamSpawnIndexCounter);
 }
 
 bool EventMan::CanTakeDamage(long long AttackerID, long long VictimID)
@@ -154,7 +149,7 @@ bool EventMan::CanTakeDamage(long long AttackerID, long long VictimID)
 	EventPlayer* Attacker, *Victim;
 	if ((Attacker = FindPlayer(AttackerID)) != nullptr && (Victim = FindPlayer(VictimID)) != nullptr)
 	{
-		if (Attacker->Team != EventTeam::All && Attacker->Team == Victim->Team) return false;
+		if (Attacker->Team != EventTeam::None && Attacker->Team == Victim->Team) return false;
 		else if (CurrentEvent != nullptr && CurrentEvent->GetState() != EventState::Fighting) return false;
 	}
 	return true;

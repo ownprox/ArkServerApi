@@ -15,7 +15,7 @@ struct EventPlayer
 	{
 		this->PlayerID = PlayerID;
 		this->ASPC = ASPC;
-		this->Team = EventTeam::All;
+		this->Team = EventTeam::None;
 		this->Kills = 0;
 		this->Alive = true;
 		this->StartPos = ArkApi::GetApiUtils().GetPosition(ASPC);
@@ -35,7 +35,7 @@ private:
 	EventList Events;
 	Event* CurrentEvent;
 	DWORD NextEventTime;
-	FString Map;
+	FString JoinEventCommand, ServerName, Map;
 
 public:
 	EventMan();
@@ -43,7 +43,7 @@ public:
 	void AddEvent(Event* event);
 	void RemoveEvent(Event* event);
 	void Update();
-	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB);
+	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const EventTeam StartTeam = EventTeam::None);
 
 	EventPlayer* FindPlayer(long long SteamID);
 	bool AddPlayer(long long SteamID, AShooterPlayerController* player);
