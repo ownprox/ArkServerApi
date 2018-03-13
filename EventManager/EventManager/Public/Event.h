@@ -36,13 +36,14 @@ private:
 	SpawnsMap Spawns;
 	FVector StructureProtectionPosition;
 	int StructureProtectionDistance, Counter;
-	bool StructureProtection, ConfigLoaded;
+	bool StructureProtection, ConfigLoaded, KillOnLogg;
 	DWORD LastTime;
 
 public:
-	void InitDefaults(const FString& Name, const bool StructureProtection = false, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
+	void InitDefaults(const FString& Name, const bool KillOnLogg = true, const bool StructureProtection = false, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
 	{
 		this->Name = Name;
+		this->KillOnLogg = KillOnLogg;
 		this->StructureProtection = StructureProtection;
 		this->StructureProtectionPosition = StructureProtectionPosition;
 		this->StructureProtectionDistance = StructureProtectionDistance;
@@ -90,6 +91,8 @@ public:
 	bool HasConfigLoaded() { return ConfigLoaded; }
 
 	bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
+
+	bool KillOnLoggout() { return KillOnLogg; }
 
 	
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map) {};

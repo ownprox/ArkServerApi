@@ -63,13 +63,11 @@ bool EventMan::RemovePlayer(long long PlayerID, bool ByCommand)
 bool EventMan::StartEvent(const int EventID)
 {
 	if (CurrentEvent != nullptr) return false;
-	Log::GetLog()->warn("StartEvent");
 	if (EventID == -1)
 	{
 		int Rand = 0;
 		CurrentEvent = Events[Rand];
 		CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
-		Log::GetLog()->warn("InitEvent");
 		EventRunning = true;
 	}
 	else if (EventID < Events.size())
@@ -86,7 +84,6 @@ void EventMan::Update()
 	if (Events.size() == 0) return;
 	if (IsEventRunning() && CurrentEvent != nullptr)
 	{
-		Log::GetLog()->warn("UpdateEvent");
 		if (CurrentEvent->GetState() != Finnished) CurrentEvent->Update();
 		else
 		{
@@ -167,11 +164,15 @@ void EventMan::OnPlayerDied(long long AttackerID, long long VictimID)
 
 void EventMan::OnPlayerLogg(AShooterPlayerController* Player)
 {
-	EventPlayer* EPlayer;
-	if ((EPlayer = FindPlayer(Player->LinkedPlayerIDField()())) != nullptr)
+	if (CurrentEvent != nullptr && CurrentEvent->GetState() > EventState::TeleportingPlayers)
 	{
-		Player->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
-		RemovePlayer(Player->LinkedPlayerIDField()(), false);
+		EventPlayer* EPlayer;
+		if ((EPlayer = FindPlayer(Player->LinkedPlayerIDField()())) != nullptr)
+		{
+			if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
+			else Player->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
+			RemovePlayer(Player->LinkedPlayerIDField()(), false);
+		}
 	}
 }
 
@@ -180,43 +181,3 @@ bool EventMan::IsEventProtectedStructure(const FVector& StructurePos)
 	for (Event* Evt : Events) if (Evt->IsEventProtectedStructure(StructurePos)) return true;
 	return false;
 }
-
-/*
-void EventManager::OnWonEvent(bool Solo)
-{
-	try
-	{
-		if (Players.size() > 0)
-		{
-			if (Solo)
-			{
-				EventPlayer* Player = &Players[0];
-				if (Player != NULL && Player->ASPC && Player->ASPC->PlayerStateField()() /*&& Player->ASPC->GetPlayerCharacter() && Player->ASPC->GetPlayerCharacter()->GetReplicatedCurrentHealthField() > 1*//*)
-				{
-					//TeleportToPos(Player->ASPC, Player->StartPos);
-
-					//	Tools::SendColoredMessageToAll(TEXT("[Event] %s %s is The Winner!"), Tools::GetChatColour(Tools::Colours::Oranage), CurrentEvent->GetName().GetW(), GetCharacterNameW(Player->ASPC));
-					if (GetBetAmount() > 0) //Bet Based Event Rewards
-					{
-						int TotalAtStart = 0;
-						if (CurrentEvent) TotalAtStart = CurrentEvent->GetStartedPlayerCount();
-						UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(Player->ASPC->CheatManagerField()());
-						if (cheatManager)
-						{
-							cheatManager->ClearPlayerInventory(Player->ASPC->LinkedPlayerIDField()(), true, true, true);
-							int WonAmount = GetBetAmount() * TotalAtStart;
-							for (; WonAmount > 0; WonAmount -= 200)
-								if (WonAmount > 200) cheatManager->GiveItemNumToPlayer(Player->ASPC->LinkedPlayerIDField()(), 74, 200, 0, false);
-								else cheatManager->GiveItemNumToPlayer(Player->ASPC->LinkedPlayerIDField()(), 74, WonAmount, 0, false);
-						}
-					}
-				}
-			}
-		}
-		Players.clear();
-	}
-	catch (...)
-	{
-		//		std::cout << "Event Manager Exception: OnWonEvent" << std::endl;
-	}
-}*/
