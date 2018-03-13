@@ -1,21 +1,30 @@
 #include "EventMan.h"
 #include "..\Public\Event.h"
 
-EventMan& EventMan::Get()
+static EventMan* instance;
+
+EventMan::EventMan()
 {
-	static EventMan instance;
+	instance = this;
+	EventRunning = false;
+	CurrentEvent = nullptr;
+}
+
+EventMan* EventMan::Get()
+{
 	return instance;
 }
 
-void EventMan::AddEvent(Event event)
+void EventMan::AddEvent(Event* event)
 {
+	Log::GetLog()->warn("EventMan::AddEvent(Event event)");
 	Events.push_back(event);
 }
 
-void EventMan::RemoveEvent(Event event)
+void EventMan::RemoveEvent(Event* event)
 {
-	const FString EventName = event.GetName();
-	EventItr Itr = std::find_if(Events.begin(), Events.end(), [EventName](Event e) -> bool { return e.GetName().Equals(EventName); });
+	const FString EventName = event->GetName();
+	EventItr Itr = std::find_if(Events.begin(), Events.end(), [EventName](Event* e) -> bool { return e->GetName().Equals(EventName); });
 	if (Itr != Events.end()) Events.erase(Itr);
 }
 
@@ -54,17 +63,19 @@ bool EventMan::RemovePlayer(long long PlayerID, bool ByCommand)
 bool EventMan::StartEvent(const int EventID)
 {
 	if (CurrentEvent != nullptr) return false;
+	Log::GetLog()->warn("StartEvent");
 	if (EventID == -1)
 	{
 		int Rand = 0;
-		CurrentEvent = &Events[Rand];
-		CurrentEvent->Init(Map);
+		CurrentEvent = Events[Rand];
+		CurrentEvent->InitConfig(Map);
+		Log::GetLog()->warn("InitEvent");
 		EventRunning = true;
 	}
 	else if (EventID < Events.size())
 	{
-		CurrentEvent = &Events[EventID];
-		CurrentEvent->Init(Map);
+		CurrentEvent = Events[EventID];
+		CurrentEvent->InitConfig(Map);
 		EventRunning = true;
 	}
 	return true;
@@ -72,9 +83,10 @@ bool EventMan::StartEvent(const int EventID)
 
 void EventMan::Update()
 {
-	if (!ArkApi::GetApiUtils().GetShooterGameMode() || Events.size() == 0) return;
+	if (Events.size() == 0) return;
 	if (IsEventRunning() && CurrentEvent != nullptr)
 	{
+		Log::GetLog()->warn("UpdateEvent");
 		if (CurrentEvent->GetState() != Finnished) CurrentEvent->Update();
 		else
 		{
@@ -170,7 +182,7 @@ void EventMan::OnPlayerLogg(AShooterPlayerController* Player)
 
 bool EventMan::IsEventProtectedStructure(const FVector& StructurePos)
 {
-	for (Event Evt : Events) if (Evt.IsEventProtectedStructure(StructurePos)) return true;
+	for (Event* Evt : Events) if (Evt->IsEventProtectedStructure(StructurePos)) return true;
 	return false;
 }
 

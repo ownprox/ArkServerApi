@@ -73,7 +73,7 @@ public:
 	void SetState(EventState state) { State = state; }
 	void ResetCount() { Counter = 0;  }
 
-	virtual void Init(const FString& Map) {};
+	virtual void InitConfig(const FString& Map) {};
 	virtual void Update() {};
 	virtual void OnWonEvent() {};
 };

@@ -24,7 +24,7 @@ struct EventPlayer
 
 typedef std::vector<EventPlayer> EventPlayerArray;
 typedef EventPlayerArray::iterator EventPlayerArrayItr;
-typedef std::vector<Event> EventList;
+typedef std::vector<Event*> EventList;
 typedef EventList::iterator EventItr;
 
 class EventMan
@@ -38,10 +38,10 @@ private:
 	FString Map;
 
 public:
-	static EventMan& Get();
-	void Init() { EventRunning = false; CurrentEvent = nullptr; }
-	void AddEvent(Event event);
-	void RemoveEvent(Event event);
+	EventMan();
+	static EventMan* Get();
+	void AddEvent(Event* event);
+	void RemoveEvent(Event* event);
 	void Update();
 	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB);
 

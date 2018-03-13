@@ -11,9 +11,9 @@
 
 namespace EventManager
 {
-	ARK_API EventMan& GetEventManager();
-	ARK_API void AddEvent(Event event);
-	ARK_API void RemoveEvent(Event event);
+	ARK_API EventMan* GetEventManager();
+	ARK_API void AddEvent(Event* event);
+	ARK_API void RemoveEvent(Event* event);
 	ARK_API bool StartEvent(const int EventID = -1);
 	ARK_API void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, const TArray<FVector> TeamA, const TArray<FVector> TeamB);
 }
