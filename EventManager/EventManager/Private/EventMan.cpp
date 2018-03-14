@@ -1,13 +1,6 @@
 #include "EventMan.h"
 #include "..\Public\Event.h"
 
-
-void EventMan::Init()
-{
-	EventRunning = false;
-	CurrentEvent = nullptr;
-}
-
 EventMan& EventMan::Get()
 {
 	static EventMan instance;
@@ -105,41 +98,38 @@ void EventMan::Update()
 	}
 }
 
-void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const int StartTeam)
+void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam)
 {
 	int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
+	if (TeamCount < 1) return;
 	TArray<int> SpawnIndexs;
 	for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
 	FVector Pos;
 	for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
 	{
-		SpawnsMapItr SpawnItr = Spawns.find(TeamIndex);
-		if (SpawnItr != Spawns.end())
+		if (itr->ASPC && itr->ASPC->PlayerStateField()() && itr->ASPC->GetPlayerCharacter() && !itr->ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr->ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr->ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
 		{
-			if (itr->ASPC && itr->ASPC->PlayerStateField()() && itr->ASPC->GetPlayerCharacter() && !itr->ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr->ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr->ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
+			if (WipeInventory)
 			{
-				if (WipeInventory)
-				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr->ASPC->CheatManagerField()());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr->ASPC->LinkedPlayerIDField()(), true, true, true);
-				}
-
-				itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
-
-				Pos = SpawnItr->second[SpawnIndexs[TeamIndex]++];
-				itr->Team = TeamIndex;
-				itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
-
-				if (TeamCount > 1)
-				{
-					TeamIndex++;
-					if (TeamIndex == TeamCount) TeamIndex = StartTeam;
-				}
-
-				if (SpawnIndexs[TeamIndex] == SpawnItr->second.Num()) SpawnIndexs[TeamIndex] = 0;
+				UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr->ASPC->CheatManagerField()());
+				if (cheatManager) cheatManager->ClearPlayerInventory((int)itr->ASPC->LinkedPlayerIDField()(), true, true, true);
 			}
-			else itr = Players.erase(itr);
+
+			itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
+
+			Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]++];
+			itr->Team = TeamIndex;
+			itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+
+			if (TeamCount > 1)
+			{
+				TeamIndex++;
+				if (TeamIndex == TeamCount) TeamIndex = StartTeam;
+			}
+
+			if (SpawnIndexs[TeamIndex] == Spawns[TeamIndex].Num()) SpawnIndexs[TeamIndex] = 0;
 		}
+		else itr = Players.erase(itr);
 	}
 }
 

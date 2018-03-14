@@ -37,15 +37,15 @@ private:
 	FString JoinEventCommand, ServerName, Map;
 
 public:
+	EventMan() : EventRunning(false), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
+	
 	static EventMan& Get();
-
-	void Init();
 
 	void AddEvent(Event* event);
 	void RemoveEvent(Event* event);
 	void Update();
 
-	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const int StartTeam = 0);
+	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
 	void TeleportWinningEventPlayersToStart();
 
 	EventPlayer* FindPlayer(long long SteamID);
