@@ -23,7 +23,14 @@ void EventMan::AddEvent(Event* event)
 
 void EventMan::RemoveEvent(Event* event)
 {
-	EventItr Itr = std::find_if(Events.begin(), Events.end(), event);
+	if (CurrentEvent != nullptr && CurrentEvent == event)
+	{
+
+		EventRunning = false;
+		CurrentEvent = nullptr;
+		NextEventTime = timeGetTime() + 300000;
+	}
+	EventItr Itr = std::find(Events.begin(), Events.end(), event);
 	if (Itr != Events.end()) Events.erase(Itr);
 }
 
