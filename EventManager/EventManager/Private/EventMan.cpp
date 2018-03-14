@@ -117,7 +117,8 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 
 			itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
 
-			Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]++];
+			Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]];
+			SpawnIndexs[TeamIndex]++;
 			itr->Team = TeamIndex;
 			itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
 
