@@ -11,7 +11,7 @@
 
 namespace EventManager
 {
-	ARK_API EventMan* GetEventManager();
+	ARK_API EventMan& GetEventManager();
 	ARK_API void AddEvent(Event* event);
 	ARK_API void RemoveEvent(Event* event);
 	ARK_API bool StartEvent(const int EventID = -1);

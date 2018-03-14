@@ -1,17 +1,16 @@
 #include "EventMan.h"
 #include "..\Public\Event.h"
 
-static EventMan* instance;
 
-EventMan::EventMan()
+void EventMan::Init()
 {
-	instance = this;
 	EventRunning = false;
 	CurrentEvent = nullptr;
 }
 
-EventMan* EventMan::Get()
+EventMan& EventMan::Get()
 {
+	static EventMan instance;
 	return instance;
 }
 
@@ -90,7 +89,7 @@ void EventMan::Update()
 	if (Events.size() == 0) return;
 	if (IsEventRunning() && CurrentEvent != nullptr)
 	{
-		if (CurrentEvent->GetState() != Finnished) CurrentEvent->Update();
+		if (CurrentEvent->GetState() != Finished) CurrentEvent->Update();
 		else
 		{
 			EventRunning = false;

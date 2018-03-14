@@ -37,8 +37,10 @@ private:
 	FString JoinEventCommand, ServerName, Map;
 
 public:
-	EventMan();
-	static EventMan* Get();
+	static EventMan& Get();
+
+	void Init();
+
 	void AddEvent(Event* event);
 	void RemoveEvent(Event* event);
 	void Update();

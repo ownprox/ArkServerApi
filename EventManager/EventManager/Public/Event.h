@@ -8,7 +8,7 @@ enum EventState
 	WaitForFight,
 	Fighting,
 	Rewarding,
-	Finnished
+	Finished
 };
 
 typedef std::map<int, TArray<FVector>> SpawnsMap;
