@@ -27,7 +27,8 @@ private:
 	DWORD LastTime;
 
 public:
-	void InitDefaults(const FString& Name, const bool KillOnLogg = true, const bool StructureProtection = false, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
+	void InitDefaults(const FString& Name, const bool KillOnLogg = true, const bool StructureProtection = false
+		, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
 	{
 		this->Name = Name;
 		this->KillOnLogg = KillOnLogg;
@@ -76,7 +77,8 @@ public:
 
 	bool HasConfigLoaded() { return ConfigLoaded; }
 
-	bool IsEventProtectedStructure(const FVector& StructurePos) { return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
+	bool IsEventProtectedStructure(const FVector& StructurePos)
+	{ return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
 
 	bool KillOnLoggout() { return KillOnLogg; }
 
