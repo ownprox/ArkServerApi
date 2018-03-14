@@ -46,12 +46,12 @@ public:
 		SetState(EventState::WaitingForPlayers);
 	}
 
-	FString GetName() { return Name; }
+	FString& GetName() { return Name; }
 
-	EventState GetState() { return State; }
+	EventState& GetState() { return State; }
 	void SetState(EventState state) { State = state; }
 
-	SpawnsMap GetSpawns()
+	SpawnsMap& GetSpawns()
 	{
 		return Spawns;
 	}

@@ -37,49 +37,46 @@ private:
 	FString JoinEventCommand, ServerName, Map;
 
 public:
-	EventMan() : EventRunning(false), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
-	
+	EventMan() : EventRunning(false), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};	
 	static EventMan& Get();
+	void Update();
+
+
+	//API Functions
+	bool IsEventRunning() { return EventRunning; }
+	FString& GetCurrentEventName();
 
 	void AddEvent(Event* event);
 	void RemoveEvent(Event* event);
-	void Update();
+	bool StartEvent(const int EventID = -1);
+
+	EventPlayer* FindPlayer(long long SteamID);
+	bool AddPlayer(long long PlayerID, AShooterPlayerController* player);
+	bool RemovePlayer(long long PlayerID, bool ByCommand = true);
+	EventPlayerArray& GetEventPlayers() { return Players; }
+	int GetEventPlayersCount() { return (int)Players.size(); }
 
 	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
 	void TeleportWinningEventPlayersToStart();
 
-	EventPlayer* FindPlayer(long long SteamID);
-	bool AddPlayer(long long SteamID, AShooterPlayerController* player);
-	bool RemovePlayer(long long SteamID, bool ByCommand = true);
-	bool IsEventRunning() { return EventRunning; }
-	bool StartEvent(const int EventID = -1);
+	void SendChatMessageToAllEventPlayers(const FString& sender_name, const FString& msg)
+	{
+		FChatMessage chat_message = FChatMessage();
+		chat_message.SenderName = sender_name;
+		chat_message.Message = msg;
+		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientChatMessage(chat_message);
+	}
 
-	EventPlayerArray& GetEventPlayers() { return Players; }
+	void SendNotificationToAllEventPlayers(FLinearColor color, float display_scale,
+		float display_time, UTexture2D* icon, FString& msg)
+	{
+		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientServerSOTFNotificationCustom(&msg, color, display_scale, display_time, icon, nullptr);
+	}
 
-	int GetPlayersAlive() { return (int)Players.size(); }
 
-	//Hooked
+	//Hooks
 	bool CanTakeDamage(long long AttackerID, long long VictimID);
 	void OnPlayerDied(long long AttackerID, long long VictimID);
 	void OnPlayerLogg(AShooterPlayerController* Player);
 	bool IsEventProtectedStructure(const FVector& StructurePos);
-
-	//Event Player Messages
-	template <typename T, typename... Args>
-	void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)
-	{
-		const FString text(FString::Format(msg, std::forward<Args>(args)...));
-		FChatMessage chat_message = FChatMessage();
-		chat_message.SenderName = sender_name;
-		chat_message.Message = text;
-		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientChatMessage(chat_message);
-	}
-
-	template <typename T, typename... Args>
-	void SendNotificationToAllEventPlayers(FLinearColor color, float display_scale,
-		float display_time, UTexture2D* icon, const T* msg, Args&&... args)
-	{
-		const FString text(FString::Format(msg, std::forward<Args>(args)...));
-		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer->ClientServerSOTFNotificationCustom(&text, color, display_scale, display_time, icon, nullptr);
-	}
 };

@@ -157,7 +157,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>
       </SDLCheck>
-      <PreprocessorDefinitions>ARK_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EVMGR_EXPORTS;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>E:\ArkServerModding\ArkServerAPIREP\version\Core\Public\;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>

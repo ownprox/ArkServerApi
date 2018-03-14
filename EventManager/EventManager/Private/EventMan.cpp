@@ -7,6 +7,12 @@ EventMan& EventMan::Get()
 	return instance;
 }
 
+FString& EventMan::GetCurrentEventName()
+{
+	if (CurrentEvent) return CurrentEvent->GetName();
+	return FString();
+}
+
 void EventMan::AddEvent(Event* event)
 {
 	Log::GetLog()->warn("EventMan::AddEvent(Event event)");
@@ -26,6 +32,12 @@ void EventMan::RemoveEvent(Event* event)
 	if (Itr != Events.end()) Events.erase(Itr);
 }
 
+EventPlayer* EventMan::FindPlayer(long long PlayerID)
+{
+	EventPlayerArrayItr Itr = std::find_if(Players.begin(), Players.end(), [PlayerID](EventPlayer p) -> bool { return p.PlayerID == PlayerID; });
+	if (Itr != Players.end()) return &(*Itr);
+	return nullptr;
+}
 
 bool EventMan::AddPlayer(long long PlayerID, AShooterPlayerController* player)
 {
@@ -35,13 +47,6 @@ bool EventMan::AddPlayer(long long PlayerID, AShooterPlayerController* player)
 		return true;
 	}
 	return false;
-}
-
-EventPlayer* EventMan::FindPlayer(long long PlayerID)
-{
-	EventPlayerArrayItr Itr = std::find_if(Players.begin(), Players.end(), [PlayerID](EventPlayer p) -> bool { return p.PlayerID == PlayerID; });
-	if (Itr != Players.end()) return &(*Itr);
-	return nullptr;
 }
 
 bool EventMan::RemovePlayer(long long PlayerID, bool ByCommand)
