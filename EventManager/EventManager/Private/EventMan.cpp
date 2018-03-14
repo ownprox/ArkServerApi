@@ -23,8 +23,7 @@ void EventMan::AddEvent(Event* event)
 
 void EventMan::RemoveEvent(Event* event)
 {
-	const FString EventName = event->GetName();
-	EventItr Itr = std::find_if(Events.begin(), Events.end(), [EventName](Event* e) -> bool { return e->GetName().Equals(EventName); });
+	EventItr Itr = std::find_if(Events.begin(), Events.end(), event);
 	if (Itr != Events.end()) Events.erase(Itr);
 }
 
