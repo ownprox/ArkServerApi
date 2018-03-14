@@ -52,6 +52,8 @@ public:
 	bool IsEventRunning() { return EventRunning; }
 	bool StartEvent(const int EventID = -1);
 
+	EventPlayerArray& GetEventPlayers() { return Players; }
+
 	int GetPlayersAlive() { return (int)Players.size(); }
 
 	//Hooked
