@@ -103,7 +103,8 @@ void EventMan::Update()
 void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const int StartTeam)
 {
 	int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
-	int* TeamSpawnIndexCounter = new int[TeamCount];
+	TArray<int> SpawnIndexs;
+	for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
 	FVector Pos;
 	for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
 	{
@@ -120,7 +121,7 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 
 				itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
 
-				Pos = SpawnItr->second[TeamSpawnIndexCounter[TeamIndex]++];
+				Pos = SpawnItr->second[SpawnIndexs[TeamIndex]++];
 				itr->Team = TeamIndex;
 				itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
 
@@ -130,12 +131,11 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 					if (TeamIndex == TeamCount) TeamIndex = StartTeam;
 				}
 
-				if (TeamSpawnIndexCounter[TeamIndex] == SpawnItr->second.Num()) TeamSpawnIndexCounter[TeamIndex] = 0;
+				if (SpawnIndexs[TeamIndex] == SpawnItr->second.Num()) SpawnIndexs[TeamIndex] = 0;
 			}
 			else itr = Players.erase(itr);
 		}
 	}
-	free(TeamSpawnIndexCounter);
 }
 
 void EventMan::TeleportWinningEventPlayersToStart()
