@@ -1,19 +1,6 @@
 #pragma once
 #include "API\ARK\Ark.h"
 
-enum EventTeam
-{
-	None = 0,
-	TeamA,
-	TeamB,
-	TeamC,
-	TeamD,
-	TeamE,
-	TeamF,
-	TeamG,
-	TeamH
-};
-
 enum EventState
 {
 	WaitingForPlayers = 0,
@@ -24,7 +11,7 @@ enum EventState
 	Finnished
 };
 
-typedef std::map<EventTeam, TArray<FVector>> SpawnsMap;
+typedef std::map<int, TArray<FVector>> SpawnsMap;
 typedef SpawnsMap::iterator SpawnsMapItr;
 typedef SpawnsMap::value_type SpawnsMapType;
 
@@ -48,8 +35,7 @@ public:
 		this->StructureProtectionPosition = StructureProtectionPosition;
 		this->StructureProtectionDistance = StructureProtectionDistance;
 		this->ConfigLoaded = false;
-		this->Counter = 0;
-		this->LastTime = 0;
+		this->LastTime = this->Counter = 0;
 	}
 
 	void Init()
@@ -69,7 +55,7 @@ public:
 		return Spawns;
 	}
 
-	void AddSpawn(FVector Spawn, EventTeam Team = EventTeam::None)
+	void AddSpawn(FVector Spawn, int Team = 0)
 	{
 		SpawnsMapItr itr = Spawns.find(Team);
 		if (itr != Spawns.end()) itr->second.Add(Spawn);

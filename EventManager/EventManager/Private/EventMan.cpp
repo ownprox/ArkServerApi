@@ -100,16 +100,14 @@ void EventMan::Update()
 	}
 }
 
-void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const EventTeam StartTeam)
+void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const int StartTeam)
 {
-	int TeamCount = (int)Spawns.size(), TeamIndex = (int)StartTeam;
+	int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
 	int* TeamSpawnIndexCounter = new int[TeamCount];
-	EventTeam CurrentTeam = EventTeam::None;
 	FVector Pos;
 	for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
 	{
-		CurrentTeam = (EventTeam)TeamIndex;
-		std::map<EventTeam, TArray<FVector>>::iterator SpawnItr = Spawns.find(CurrentTeam);
+		SpawnsMapItr SpawnItr = Spawns.find(TeamIndex);
 		if (SpawnItr != Spawns.end())
 		{
 			if (itr->ASPC && itr->ASPC->PlayerStateField()() && itr->ASPC->GetPlayerCharacter() && !itr->ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr->ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr->ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
@@ -123,13 +121,13 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 				itr->StartPos = ArkApi::GetApiUtils().GetPosition(itr->ASPC);
 
 				Pos = SpawnItr->second[TeamSpawnIndexCounter[TeamIndex]++];
-				itr->Team = CurrentTeam;
+				itr->Team = TeamIndex;
 				itr->ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
 
 				if (TeamCount > 1)
 				{
 					TeamIndex++;
-					if (TeamIndex == TeamCount) TeamIndex = (int)StartTeam;
+					if (TeamIndex == TeamCount) TeamIndex = StartTeam;
 				}
 
 				if (TeamSpawnIndexCounter[TeamIndex] == SpawnItr->second.Num()) TeamSpawnIndexCounter[TeamIndex] = 0;
@@ -140,14 +138,23 @@ void EventMan::TeleportEventPlayers(const bool TeamBased, const bool WipeInvento
 	free(TeamSpawnIndexCounter);
 }
 
-bool EventMan::CanTakeDamage(long long AttackerID, long long VictimID)
+void EventMan::TeleportWinningEventPlayersToStart()
 {
-	if (AttackerID == VictimID) return true;
+	for (EventPlayerArrayItr itr = Players.begin(); itr != Players.end(); itr++)
+	{
+		itr->ASPC->SetPlayerPos(itr->StartPos.X, itr->StartPos.Y, itr->StartPos.Z);
+		itr = Players.erase(itr);
+	}
+}
+
+bool EventMan::CanTakeDamage(long long AttackerID, long long VictimID)
+{	
+	if (CurrentEvent == nullptr || AttackerID == VictimID) return true;
 	EventPlayer* Attacker, *Victim;
 	if ((Attacker = FindPlayer(AttackerID)) != nullptr && (Victim = FindPlayer(VictimID)) != nullptr)
 	{
-		if (Attacker->Team != EventTeam::None && Attacker->Team == Victim->Team) return false;
-		else if (CurrentEvent != nullptr && CurrentEvent->GetState() != EventState::Fighting) return false;
+		if (Attacker->Team != 0 && Attacker->Team == Victim->Team) return false;
+		else if (CurrentEvent->GetState() != EventState::Fighting) return false;
 	}
 	return true;
 }

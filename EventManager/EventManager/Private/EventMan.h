@@ -5,8 +5,7 @@
 struct EventPlayer
 {
 	long long PlayerID;
-	EventTeam Team;
-	int Kills;
+	int Kills, Team;
 	AShooterPlayerController* ASPC;
 	bool Alive;
 	FVector StartPos;
@@ -15,7 +14,7 @@ struct EventPlayer
 	{
 		this->PlayerID = PlayerID;
 		this->ASPC = ASPC;
-		this->Team = EventTeam::None;
+		this->Team = 0;
 		this->Kills = 0;
 		this->Alive = true;
 		this->StartPos = ArkApi::GetApiUtils().GetPosition(ASPC);
@@ -43,7 +42,9 @@ public:
 	void AddEvent(Event* event);
 	void RemoveEvent(Event* event);
 	void Update();
-	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const EventTeam StartTeam = EventTeam::None);
+
+	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap Spawns, const int StartTeam = 0);
+	void TeleportWinningEventPlayersToStart();
 
 	EventPlayer* FindPlayer(long long SteamID);
 	bool AddPlayer(long long SteamID, AShooterPlayerController* player);
@@ -51,7 +52,7 @@ public:
 	bool IsEventRunning() { return EventRunning; }
 	bool StartEvent(const int EventID = -1);
 
-	int GetEventPlayerCount() { return (int)Players.size(); }
+	int GetPlayersAlive() { return (int)Players.size(); }
 
 	//Hooked
 	bool CanTakeDamage(long long AttackerID, long long VictimID);
