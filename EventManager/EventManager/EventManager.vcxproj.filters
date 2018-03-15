@@ -15,19 +15,19 @@
     <ClInclude Include="Private\json.hpp">
       <Filter>Private</Filter>
     </ClInclude>
-    <ClInclude Include="Public\EventManager.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Private\EventMan.h">
-      <Filter>Private</Filter>
-    </ClInclude>
     <ClInclude Include="Public\Event.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\IEventManager.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\EventManager.h">
+      <Filter>Private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Private\EventManager.cpp" />
-    <ClCompile Include="Private\EventMan.cpp">
+    <ClCompile Include="Private\Main.cpp" />
+    <ClCompile Include="Private\EventManager.cpp">
       <Filter>Private</Filter>
     </ClCompile>
   </ItemGroup>

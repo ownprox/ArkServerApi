@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Private\EventMan.h" />
+    <ClInclude Include="Private\EventManager.h" />
     <ClInclude Include="Private\json.hpp" />
     <ClInclude Include="Public\Event.h" />
-    <ClInclude Include="Public\EventManager.h" />
+    <ClInclude Include="Public\IEventManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Private\EventMan.cpp" />
     <ClCompile Include="Private\EventManager.cpp" />
+    <ClCompile Include="Private\Main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

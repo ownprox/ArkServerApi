@@ -11,8 +11,7 @@ enum EventState
 	Finished
 };
 
-typedef std::map<int, TArray<FVector>> SpawnsMap;
-typedef SpawnsMap::iterator SpawnsMapItr;
+typedef std::map<int, TArray<FVector>> SpawnsMap; //Change to unordered map
 typedef SpawnsMap::value_type SpawnsMapType;
 
 class Event
@@ -58,7 +57,7 @@ public:
 
 	void AddSpawn(FVector Spawn, int Team = 0)
 	{
-		SpawnsMapItr itr = Spawns.find(Team);
+		auto& itr = Spawns.find(Team);
 		if (itr != Spawns.end()) itr->second.Add(Spawn);
 		else
 		{
