@@ -16,7 +16,7 @@ namespace EventManager
 
 	EventState EventManager::GetEventState()
 	{
-		if(CurrentEvent != nullptr) return CurrentEvent->GetState();
+		if(CurrentEvent) return CurrentEvent->GetState();
 		EventState Current = EventState::Finished; 
 		return Current;
 	}
@@ -40,7 +40,7 @@ namespace EventManager
 
 	void EventManager::RemoveEvent(Event* event)
 	{
-		if (CurrentEvent != nullptr && CurrentEvent == event)
+		if (CurrentEvent && CurrentEvent == event)
 		{
 			EventRunning = false;
 			CurrentEvent = nullptr;
@@ -51,7 +51,7 @@ namespace EventManager
 
 	bool EventManager::StartEvent(const int EventID)
 	{
-		if (CurrentEvent != nullptr) return false;
+		if (CurrentEvent) return false;
 		if (EventID == -1)
 		{
 			int Rand = 0;
@@ -77,7 +77,7 @@ namespace EventManager
 
 	bool EventManager::AddPlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent != nullptr && CurrentEvent->GetState() == EventState::WaitingForPlayers && FindPlayer(player->LinkedPlayerIDField()()) == nullptr)
+		if (IsEventRunning() && CurrentEvent && CurrentEvent->GetState() == EventState::WaitingForPlayers && !FindPlayer(player->LinkedPlayerIDField()()))
 		{
 			Players.Add(EventPlayer(player->LinkedPlayerIDField()(), player));
 			return true;
@@ -87,7 +87,7 @@ namespace EventManager
 
 	bool EventManager::RemovePlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent != nullptr)
+		if (IsEventRunning() && CurrentEvent)
 		{
 			const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField()(); });
 			return Removed != 0;
@@ -98,7 +98,7 @@ namespace EventManager
 	void EventManager::Update()
 	{
 		if (Events.Num() == 0) return;
-		if (IsEventRunning() && CurrentEvent != nullptr)
+		if (IsEventRunning() && CurrentEvent)
 		{
 			if (CurrentEvent->GetState() != Finished) CurrentEvent->Update();
 			else
@@ -126,7 +126,7 @@ namespace EventManager
 		FVector Pos;
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() != nullptr || itr.ASPC->GetPlayerCharacter()->GetRidingDino() == nullptr))
+			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
 			{
 				if (WipeInventory)
 				{
@@ -152,14 +152,15 @@ namespace EventManager
 			}
 		}
 
-		Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.ASPC == nullptr || evplayer.ASPC->GetPlayerCharacter() == nullptr; });
+		Players.RemoveAll([&](EventPlayer& evplayer) { return !evplayer.ASPC || !evplayer.ASPC->GetPlayerCharacter(); });
 	}
 
 	void EventManager::TeleportWinningEventPlayersToStart()
 	{
 		for (auto& itr : Players)
 		{
-			itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
+			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
 		}
 		Players.Empty();
 	}
@@ -185,32 +186,26 @@ namespace EventManager
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)
 	{
-		if (CurrentEvent == nullptr || AttackerID == VictimID) return true;
+		if (!CurrentEvent) return true; 
 		EventPlayer* Attacker, *Victim;
-		if ((Attacker = FindPlayer(AttackerID)) != nullptr && (Victim = FindPlayer(VictimID)) != nullptr)
-		{
-			if (Attacker->Team != 0 && Attacker->Team == Victim->Team) return false;
-			else if (CurrentEvent->GetState() != EventState::Fighting) return false;
-		}
-		return true;
+		return ( (Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID &&
+			(Attacker->Team != 0 && Attacker->Team == Victim->Team || CurrentEvent->GetState() != EventState::Fighting));
 	}
 
 	void EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
 		if (AttackerID != -1 && AttackerID != VictimID)
-		{
-			EventPlayer* Attacker;
-			if ((Attacker = FindPlayer(AttackerID)) != nullptr) Attacker->Kills++;
+		{			
+			if (EventPlayer* Attacker; (Attacker = FindPlayer(AttackerID))) Attacker->Kills++;
 		}
 		Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == VictimID; });
 	}
 
 	void EventManager::OnPlayerLogg(AShooterPlayerController* Player)
 	{
-		if (CurrentEvent != nullptr && CurrentEvent->GetState() > EventState::TeleportingPlayers)
-		{
-			EventPlayer* EPlayer;
-			if ((EPlayer = FindPlayer(Player->LinkedPlayerIDField()())) != nullptr)
+		if (CurrentEvent && CurrentEvent->GetState() > EventState::TeleportingPlayers)
+		{			
+			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField()())))
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
 				else Player->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
