@@ -16,9 +16,7 @@ namespace EventManager
 
 	EventState EventManager::GetEventState()
 	{
-		if(CurrentEvent) return CurrentEvent->GetState();
-		EventState Current = EventState::Finished; 
-		return Current;
+		return CurrentEvent ? CurrentEvent->GetState() : EventState::Finished;
 	}
 
 	FString& EventManager::GetCurrentEventName()
