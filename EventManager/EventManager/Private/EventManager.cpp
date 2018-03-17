@@ -9,15 +9,32 @@ namespace EventManager
 		return instance;
 	}
 
+	FString& EventManager::GetServerName()
+	{
+		return ServerName;
+	}
+
+	EventState EventManager::GetEventState()
+	{
+		if(CurrentEvent != nullptr) return CurrentEvent->GetState();
+		EventState Current = EventState::Finished; 
+		return Current;
+	}
+
 	FString& EventManager::GetCurrentEventName()
 	{
 		if (CurrentEvent) return CurrentEvent->GetName();
 		return FString();
 	}
 
+	bool EventManager::IsEventOverrideJoinAndLeave()
+	{
+		if (CurrentEvent) return CurrentEvent->IsEventOverrideJoinAndLeave();
+		return false;
+	}
+
 	void EventManager::AddEvent(Event* event)
 	{
-		Log::GetLog()->warn("EventMan::AddEvent(Event event)");
 		Events.Add(event);
 	}
 
@@ -25,10 +42,9 @@ namespace EventManager
 	{
 		if (CurrentEvent != nullptr && CurrentEvent == event)
 		{
-
 			EventRunning = false;
 			CurrentEvent = nullptr;
-			NextEventTime = timeGetTime() + 300000;
+			//NextEventTime = timeGetTime() + 300000;
 		}
 		Events.Remove(event);
 	}
@@ -49,6 +65,7 @@ namespace EventManager
 			CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
 			EventRunning = true;
 		}
+		if (LogToConsole) Log::GetLog()->info("{} Event Started!", CurrentEvent->GetName().ToString().c_str());
 		return true;
 	}
 
@@ -58,21 +75,22 @@ namespace EventManager
 		return Player;
 	}
 
-	bool EventManager::AddPlayer(long long PlayerID, AShooterPlayerController* player)
+	bool EventManager::AddPlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent != nullptr && CurrentEvent->GetState() == EventState::WaitingForPlayers && FindPlayer(PlayerID) == nullptr)
+		if (IsEventRunning() && CurrentEvent != nullptr && CurrentEvent->GetState() == EventState::WaitingForPlayers && FindPlayer(player->LinkedPlayerIDField()()) == nullptr)
 		{
-			Players.Add(EventPlayer(PlayerID, player));
+			Players.Add(EventPlayer(player->LinkedPlayerIDField()(), player));
 			return true;
 		}
 		return false;
 	}
 
-	bool EventManager::RemovePlayer(long long PlayerID, bool ByCommand)
+	bool EventManager::RemovePlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent != nullptr && (CurrentEvent->GetState() == EventState::WaitingForPlayers && ByCommand || !ByCommand))
+		if (IsEventRunning() && CurrentEvent != nullptr)
 		{
-			Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == PlayerID; });
+			const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField()(); });
+			return Removed != 0;
 		}
 		return false;
 	}
@@ -85,12 +103,13 @@ namespace EventManager
 			if (CurrentEvent->GetState() != Finished) CurrentEvent->Update();
 			else
 			{
+				if (LogToConsole) Log::GetLog()->info("{} Event Ended!", CurrentEvent->GetName().ToString().c_str());
 				EventRunning = false;
 				CurrentEvent = nullptr;
 				NextEventTime = timeGetTime() + 300000;
 			}
 		}
-		else if (timeGetTime() > NextEventTime)
+		else //if (timeGetTime() > NextEventTime)
 		{
 			if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 			StartEvent();
@@ -159,6 +178,11 @@ namespace EventManager
 		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientServerSOTFNotificationCustom(&msg, color, display_scale, display_time, icon, nullptr);
 	}
 
+	bool EventManager::GetEventQueueNotifications()
+	{
+		return EventQueueNotifications;
+	}
+
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)
 	{
 		if (CurrentEvent == nullptr || AttackerID == VictimID) return true;
@@ -178,7 +202,7 @@ namespace EventManager
 			EventPlayer* Attacker;
 			if ((Attacker = FindPlayer(AttackerID)) != nullptr) Attacker->Kills++;
 		}
-		RemovePlayer(VictimID, false);
+		Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == VictimID; });
 	}
 
 	void EventManager::OnPlayerLogg(AShooterPlayerController* Player)
@@ -190,7 +214,7 @@ namespace EventManager
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
 				else Player->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
-				RemovePlayer(Player->LinkedPlayerIDField()(), false);
+				RemovePlayer(Player);
 			}
 		}
 	}

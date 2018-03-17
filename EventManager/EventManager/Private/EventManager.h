@@ -8,14 +8,14 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool EventRunning;
+		bool EventRunning, LogToConsole, EventQueueNotifications;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
 		DWORD NextEventTime;
 		FString JoinEventCommand, ServerName, Map;
 		~EventManager() = default;
-		EventManager() : EventRunning(false), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
+		EventManager() : EventRunning(false), LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
 	public:
 		static EventManager& Get();
 
@@ -24,16 +24,20 @@ namespace EventManager
 		EventManager& operator=(const EventManager&) = delete;
 		EventManager& operator=(EventManager&&) = delete;
 
+		FString& GetServerName();
+
 		bool IsEventRunning() { return EventRunning; }
 		FString& GetCurrentEventName();
+		EventState GetEventState();
+		bool IsEventOverrideJoinAndLeave();
 
 		void AddEvent(Event* event);
 		void RemoveEvent(Event* event);
 		bool StartEvent(const int EventID = -1);
 
 		EventPlayer* FindPlayer(long long SteamID);
-		bool AddPlayer(long long PlayerID, AShooterPlayerController* player);
-		bool RemovePlayer(long long PlayerID, bool ByCommand = true);
+		bool AddPlayer(AShooterPlayerController* player);
+		bool RemovePlayer(AShooterPlayerController* player);
 		TArray<EventPlayer>& GetEventPlayers() { return Players; }
 		int GetEventPlayersCount() { return (int)Players.Num(); }
 
@@ -46,6 +50,7 @@ namespace EventManager
 		void SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,
 			float display_time, UTexture2D* icon, FString& msg);
 
+		bool GetEventQueueNotifications();
 
 		//Hooks
 		bool CanTakeDamage(long long AttackerID, long long VictimID);

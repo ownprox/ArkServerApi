@@ -1,0 +1,47 @@
+{  
+   "Deathmatch":{  
+      "EventName":"Deathmatch",
+      "PlayersNeededToStart":1,
+      "JoinMessages":4,
+      "JoinMessageDelaySeconds":60,
+      "StructureProtection":true,
+      "StructureProtectionPosition":[  
+         0,
+         0,
+         0
+      ],
+      "StructureProtectionDistance":30000,
+      "ArkShopPointsRewardMin":45,
+      "ArkShopPointsRewardMax":90,
+      "KillOnLoggout":true,
+      "EventMessageColour":[  
+         1.000,
+         1.000,
+         0.000,
+         1
+      ],
+      "Spawns":[  
+         {
+            "Position":[  
+			-410361, 
+			-405592,
+			-13993
+            ]
+         }
+      ],
+      "Rewards":[  
+         {  
+            "Blueprint":"",
+            "QuantityMin":1,
+            "QuantityMax":1,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         }
+      ],
+      "Messages":[  
+
+      ]
+   }
+}

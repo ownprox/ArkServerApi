@@ -35,14 +35,18 @@ namespace EventManager
 
 		virtual void Update() = 0;
 
+		virtual FString& GetServerName() = 0;
+
 		virtual bool IsEventRunning() = 0;
 		virtual FString& GetCurrentEventName() = 0;
+		virtual EventState GetEventState() = 0;
+		virtual bool IsEventOverrideJoinAndLeave() = 0;
 
 		virtual void AddEvent(Event* event) = 0;
 		virtual void RemoveEvent(Event* event) = 0;
 
-		virtual bool AddPlayer(const long long PlayerID, AShooterPlayerController* player) = 0;
-		virtual bool RemovePlayer(const long long PlayerID, const bool ByCommand) = 0;
+		virtual bool AddPlayer(AShooterPlayerController* player) = 0;
+		virtual bool RemovePlayer(AShooterPlayerController* player) = 0;
 
 		virtual TArray<EventPlayer>& GetEventPlayers() = 0;
 		virtual int GetEventPlayersCount() = 0;
@@ -67,6 +71,8 @@ namespace EventManager
 			const FString text(FString::Format(msg, std::forward<Args>(args)...));
 			SendNotificationToAllEventPlayersInternal(color, display_scale, display_time, icon, text);
 		}
+
+		virtual bool GetEventQueueNotifications() = 0;
 
 		virtual bool CanTakeDamage(long long AttackerID, long long VictimID) = 0;
 		virtual void OnPlayerDied(long long AttackerID, long long VictimID) = 0;

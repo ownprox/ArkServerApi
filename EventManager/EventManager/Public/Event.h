@@ -21,27 +21,28 @@ private:
 	FString Name;
 	SpawnsMap Spawns;
 	FVector StructureProtectionPosition;
-	int StructureProtectionDistance, Counter;
-	bool StructureProtection, ConfigLoaded, KillOnLogg;
-	DWORD LastTime;
+	int StructureProtectionDistance, Counter, Timer;
+	bool StructureProtection, ConfigLoaded, KillOnLogg, OverrideJoinAndLeave, FinalWarning;
 
 public:
-	void InitDefaults(const FString& Name, const bool KillOnLogg = true, const bool StructureProtection = false
+	void InitDefaults(const FString& Name, const bool OverrideJoinAndLeave = false, const bool KillOnLogg = true, const bool StructureProtection = false
 		, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
 	{
 		this->Name = Name;
 		this->KillOnLogg = KillOnLogg;
+		this->OverrideJoinAndLeave = OverrideJoinAndLeave;
 		this->StructureProtection = StructureProtection;
 		this->StructureProtectionPosition = StructureProtectionPosition;
 		this->StructureProtectionDistance = StructureProtectionDistance;
-		this->ConfigLoaded = false;
-		this->LastTime = this->Counter = 0;
+		FinalWarning = ConfigLoaded = false;
 	}
 
-	void Init()
+	void Init(const int TimerSecs)
 	{
 		ConfigLoaded = true;
-		LastTime = Counter = 0;
+		FinalWarning = false;
+		Timer = TimerSecs;
+		Counter = 0;
 		SetState(EventState::WaitingForPlayers);
 	}
 
@@ -49,6 +50,10 @@ public:
 
 	EventState& GetState() { return State; }
 	void SetState(EventState state) { State = state; }
+
+	bool IsEventOverrideJoinAndLeave() {
+		return OverrideJoinAndLeave;
+	}
 
 	SpawnsMap& GetSpawns()
 	{
@@ -67,12 +72,17 @@ public:
 		}
 	}
 
-	int GetCounter() { return Counter; }
-	int IncreaseCounter() { Counter++; return Counter; }
 	void ResetCounter() { Counter = 0; }
+	bool WaitForCounter(int Count) { return Counter++ == Count; }
+	int GetCounter() { return Counter;  }
+	bool GetFinalWarning() { return FinalWarning; }
+	void SetFinalWarning(bool FinalWarning) { this->FinalWarning = FinalWarning; }
 
-	bool WaitForPassed() { return timeGetTime() > LastTime; }
-	void WaitFor(int Seconds) { LastTime = timeGetTime() + (Seconds * 1000); }
+
+	void ResetTimer() { Timer = 0; }
+	bool WaitForTimer(int Seconds) { Timer++; return Timer > Seconds; }
+
+
 
 	bool HasConfigLoaded() { return ConfigLoaded; }
 
