@@ -19,16 +19,14 @@ namespace EventManager
 		return CurrentEvent ? CurrentEvent->GetState() : EventState::Finished;
 	}
 
-	FString& EventManager::GetCurrentEventName()
+	FString EventManager::GetCurrentEventName()
 	{
-		if (CurrentEvent) return CurrentEvent->GetName();
-		return FString();
+		return CurrentEvent ? CurrentEvent->GetName() : L"";
 	}
 
 	bool EventManager::IsEventOverrideJoinAndLeave()
 	{
-		if (CurrentEvent) return CurrentEvent->IsEventOverrideJoinAndLeave();
-		return false;
+		return CurrentEvent ? CurrentEvent->IsEventOverrideJoinAndLeave() : false;
 	}
 
 	void EventManager::AddEvent(Event* event)
@@ -40,7 +38,6 @@ namespace EventManager
 	{
 		if (CurrentEvent && CurrentEvent == event)
 		{
-			EventRunning = false;
 			CurrentEvent = nullptr;
 			//NextEventTime = timeGetTime() + 300000;
 		}
@@ -55,13 +52,11 @@ namespace EventManager
 			int Rand = 0;
 			CurrentEvent = Events[Rand];
 			CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
-			EventRunning = true;
 		}
 		else if (EventID < Events.Num())
 		{
 			CurrentEvent = Events[EventID];
 			CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
-			EventRunning = true;
 		}
 		if (LogToConsole) Log::GetLog()->info("{} Event Started!", CurrentEvent->GetName().ToString().c_str());
 		return true;
@@ -75,7 +70,7 @@ namespace EventManager
 
 	bool EventManager::AddPlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent && CurrentEvent->GetState() == EventState::WaitingForPlayers && !FindPlayer(player->LinkedPlayerIDField()()))
+		if (!FindPlayer(player->LinkedPlayerIDField()()))
 		{
 			Players.Add(EventPlayer(player->LinkedPlayerIDField()(), player));
 			return true;
@@ -85,24 +80,19 @@ namespace EventManager
 
 	bool EventManager::RemovePlayer(AShooterPlayerController* player)
 	{
-		if (IsEventRunning() && CurrentEvent)
-		{
-			const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField()(); });
-			return Removed != 0;
-		}
-		return false;
+		const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField()(); });
+		return Removed != 0;
 	}
 
 	void EventManager::Update()
 	{
 		if (Events.Num() == 0) return;
-		if (IsEventRunning() && CurrentEvent)
+		if (CurrentEvent)
 		{
 			if (CurrentEvent->GetState() != Finished) CurrentEvent->Update();
 			else
 			{
 				if (LogToConsole) Log::GetLog()->info("{} Event Ended!", CurrentEvent->GetName().ToString().c_str());
-				EventRunning = false;
 				CurrentEvent = nullptr;
 				NextEventTime = timeGetTime() + 300000;
 			}

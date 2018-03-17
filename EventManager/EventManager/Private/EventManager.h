@@ -8,14 +8,14 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool EventRunning, LogToConsole, EventQueueNotifications;
+		bool LogToConsole, EventQueueNotifications;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
 		DWORD NextEventTime;
 		FString JoinEventCommand, ServerName, Map;
 		~EventManager() = default;
-		EventManager() : EventRunning(false), LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
+		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
 	public:
 		static EventManager& Get();
 
@@ -26,8 +26,8 @@ namespace EventManager
 
 		FString& GetServerName();
 
-		bool IsEventRunning() { return EventRunning; }
-		FString& GetCurrentEventName();
+		bool IsEventRunning() { return CurrentEvent != nullptr; }
+		FString GetCurrentEventName();
 		EventState GetEventState();
 		bool IsEventOverrideJoinAndLeave();
 

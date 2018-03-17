@@ -38,7 +38,7 @@ namespace EventManager
 		virtual FString& GetServerName() = 0;
 
 		virtual bool IsEventRunning() = 0;
-		virtual FString& GetCurrentEventName() = 0;
+		virtual FString GetCurrentEventName() = 0;
 		virtual EventState GetEventState() = 0;
 		virtual bool IsEventOverrideJoinAndLeave() = 0;
 
