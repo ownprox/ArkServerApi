@@ -8,14 +8,16 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool LogToConsole, EventQueueNotifications;
+		bool LogToConsole, EventQueueNotifications, DefaultRunningSpeed, UseSchedule;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
 		DWORD NextEventTime;
 		FString JoinEventCommand, ServerName, Map;
+		int32 MinStartEvent, MaxStartEvent;
 		~EventManager() = default;
-		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), NextEventTime(timeGetTime() + 120000) {};
+		EventManager() : LogToConsole(true), EventQueueNotifications(true), DefaultRunningSpeed(false), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
+			MinStartEvent(7200000), MaxStartEvent(21600000) {};
 	public:
 		static EventManager& Get();
 
@@ -43,8 +45,9 @@ namespace EventManager
 
 		void Update();
 
-		void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
-		void TeleportWinningEventPlayersToStart();
+		void TeleportEventPlayers(const bool TeamBased, const bool DefaultRunningSpeed, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
+		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
+		void EnableEventPlayersInputs();
 
 		void SendChatMessageToAllEventPlayersInternal(const FString& sender_name, const FString& msg);
 		void SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,
@@ -54,7 +57,7 @@ namespace EventManager
 
 		//Hooks
 		bool CanTakeDamage(long long AttackerID, long long VictimID);
-		void OnPlayerDied(long long AttackerID, long long VictimID);
+		bool OnPlayerDied(long long AttackerID, long long VictimID);
 		void OnPlayerLogg(AShooterPlayerController* Player);
 		bool IsEventProtectedStructure(const FVector& StructurePos);
 	};

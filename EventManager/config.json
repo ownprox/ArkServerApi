@@ -1,0 +1,22 @@
+{  
+   "EventManager":{  
+      "EventName":"ServerNameHere",
+      "EventStartMinuteMin":45,
+      "EventStartMinuteMax":60,
+      "EventSchedule":[  
+         {  
+            "EventName":"Deathmatch",
+            "StartDays":[  
+               0,
+               4,
+               5
+            ],
+            "StartHours":[  
+               16,
+               10,
+               23
+            ]
+         }
+      ]
+   }
+}

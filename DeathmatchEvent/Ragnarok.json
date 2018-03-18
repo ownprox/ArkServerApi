@@ -21,19 +21,91 @@
          1
       ],
       "Spawns":[  
-         {
+         {  
             "Position":[  
-			-410361, 
-			-405592,
-			-13993
+               -410361,
+               -405592,
+               -13993
             ]
          }
       ],
       "Rewards":[  
          {  
-            "Blueprint":"",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMetalHatchet.PrimalItem_WeaponMetalHatchet'",
             "QuantityMin":1,
             "QuantityMax":1,
+            "QualityMin":0,
+            "QualityMax":1,
+            "MinIsBP":0,
+            "MaxIsBP":10
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMetalPick.PrimalItem_WeaponMetalPick'",
+            "QuantityMin":1,
+            "QuantityMax":1,
+            "QualityMin":0,
+            "QualityMax":1,
+            "MinIsBP":0,
+            "MaxIsBP":10
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponBow.PrimalItem_WeaponBow'",
+            "QuantityMin":1,
+            "QuantityMax":1,
+            "QualityMin":0,
+            "QualityMax":1,
+            "MinIsBP":0,
+            "MaxIsBP":10
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_ArrowStone.PrimalItemAmmo_ArrowStone'",
+            "QuantityMin":1,
+            "QuantityMax":200,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_ArrowTranq.PrimalItemAmmo_ArrowTranq'",
+            "QuantityMin":1,
+            "QuantityMax":100,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Items/Consumables/PrimalItemConsumable_Narcotic.PrimalItemConsumable_Narcotic'",
+            "QuantityMin":1,
+            "QuantityMax":100,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_TranqDart.PrimalItemAmmo_TranqDart'",
+            "QuantityMin":1,
+            "QuantityMax":50,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_SimpleRifleBullet.PrimalItemAmmo_SimpleRifleBullet'",
+            "QuantityMin":1,
+            "QuantityMax":50,
+            "QualityMin":0,
+            "QualityMax":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Resources/PrimalItemResource_MetalIngot.PrimalItemResource_MetalIngot'",
+            "QuantityMin":25,
+            "QuantityMax":200,
             "QualityMin":0,
             "QualityMax":0,
             "MinIsBP":0,

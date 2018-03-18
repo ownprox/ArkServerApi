@@ -49,9 +49,8 @@ float _cdecl Hook_APrimalStructure_TakeDamage(APrimalStructure* _this, float Dam
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (EventManager::Get().IsEventRunning() && Killer && _this && !Killer->IsLocalController() && Killer->IsA(AShooterCharacter::GetPrivateStaticClass()))
-		EventManager::Get().OnPlayerDied(GetPlayerID(Killer), GetPlayerID(_this));
-	return AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
+	return (EventManager::Get().IsEventRunning() && Killer && _this && !Killer->IsLocalController() && Killer->IsA(AShooterCharacter::GetPrivateStaticClass())
+		&& EventManager::Get().OnPlayerDied(GetPlayerID(Killer), GetPlayerID(_this))) ? 0 : AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
 }
 
 void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* Exiting)

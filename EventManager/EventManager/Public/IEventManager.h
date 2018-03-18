@@ -54,8 +54,9 @@ namespace EventManager
 		virtual bool StartEvent(const int EventID) = 0;
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
-		virtual	void TeleportEventPlayers(const bool TeamBased, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
-		virtual void TeleportWinningEventPlayersToStart() = 0;
+		virtual	void TeleportEventPlayers(const bool TeamBased, const bool DefaultRunningSpeed, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
+		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
+		virtual void EnableEventPlayersInputs() = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)
@@ -75,7 +76,7 @@ namespace EventManager
 		virtual bool GetEventQueueNotifications() = 0;
 
 		virtual bool CanTakeDamage(long long AttackerID, long long VictimID) = 0;
-		virtual void OnPlayerDied(long long AttackerID, long long VictimID) = 0;
+		virtual bool OnPlayerDied(long long AttackerID, long long VictimID) = 0;
 		virtual void OnPlayerLogg(AShooterPlayerController* Player) = 0;
 
 	private:
