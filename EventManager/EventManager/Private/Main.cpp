@@ -115,7 +115,6 @@ void StartEvent(APlayerController* player_controller, FString* message, bool Log
 	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"{} event is already running!", *EventManager::Get().GetCurrentEventName());
 }
 
-
 void InitEventManager()
 {
 	Log::Get().Init("Event Manager");

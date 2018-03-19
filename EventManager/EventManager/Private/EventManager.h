@@ -8,7 +8,7 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool LogToConsole, EventQueueNotifications, DefaultRunningSpeed, UseSchedule;
+		bool LogToConsole, EventQueueNotifications, UseSchedule;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
@@ -16,7 +16,7 @@ namespace EventManager
 		FString JoinEventCommand, ServerName, Map;
 		int32 MinStartEvent, MaxStartEvent;
 		~EventManager() = default;
-		EventManager() : LogToConsole(true), EventQueueNotifications(true), DefaultRunningSpeed(false), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
+		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
 			MinStartEvent(7200000), MaxStartEvent(21600000) {};
 	public:
 		static EventManager& Get();

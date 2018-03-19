@@ -112,7 +112,6 @@ namespace EventManager
 
 	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam)
 	{
-		this->DefaultRunningSpeed = DefaultRunningSpeed;
 		int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
 		if (TeamCount < 1) return;
 		TArray<int> SpawnIndexs;
@@ -122,18 +121,16 @@ namespace EventManager
 		{
 			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
 			{
-				if(DisableInputs) itr.ASPC->DisableInput(itr.ASPC);
+				if (DisableInputs)
+				{
+					itr.ASPC->GetPlayerCharacter()->bPreventMovement() = true;
+					itr.ASPC->GetPlayerCharacter()->bPreventJump() = true;
+				}
 
 				if (WipeInventory)
 				{
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField()());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField()(), true, true, true);
-				}
-
-				if (DefaultRunningSpeed && itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-				{
-					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
-					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = true;
 				}
 
 				itr.StartPos = ArkApi::GetApiUtils().GetPosition(itr.ASPC);
@@ -160,6 +157,9 @@ namespace EventManager
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
 						*speed = 100;
+
+						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
+						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = true;
 					}
 
 					if (ApplyFairMeleeDamage)
@@ -197,7 +197,10 @@ namespace EventManager
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField()(), true, true, true);
 				}
 
-				if (DefaultRunningSpeed && itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
+				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
+
+				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
 					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
 					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
@@ -205,6 +208,7 @@ namespace EventManager
 
 				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
+					//need to cap max to player does not regain hp or find a way to prevent character regaining hp
 					UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
 
 					float* health = charStatus->CurrentStatusValuesField()();
@@ -227,7 +231,11 @@ namespace EventManager
 	{
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead()) itr.ASPC->EnableInput(itr.ASPC);
+			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+			{
+				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
+				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
+			}
 		}
 	}
 
@@ -286,13 +294,16 @@ namespace EventManager
 		if (VictimID != -1)
 		{
 			EventPlayer* Player;
-			if (AttackerID != VictimID && (Player = FindPlayer(AttackerID))) Player->Kills++;
+			if (AttackerID != VictimID && AttackerID != -1 && (Player = FindPlayer(AttackerID))) Player->Kills++;
 
 			if ((Player = FindPlayer(VictimID)))
 			{
 				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
 				{
-					if (DefaultRunningSpeed && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+
+					Player->ASPC->bInputEnabled() = true;
+
+					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 					{
 						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
 						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
@@ -301,7 +312,6 @@ namespace EventManager
 					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 					{
 						UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-
 						float* health = charStatus->CurrentStatusValuesField()();
 						if (*health < 100.f) *health = 100.f;//calculate max hp using base level ect
 
@@ -334,14 +344,15 @@ namespace EventManager
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
 				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
 				{
-					if (DefaultRunningSpeed && EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+					Player->bInputEnabled() = true;
+					if (EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 					{
 						EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
 						EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
 					}
 
 					EPlayer->ASPC->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
-				}
+				} else Player->ServerSuicide_Implementation();
 				RemovePlayer(Player);
 			}
 		}
