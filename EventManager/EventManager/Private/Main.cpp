@@ -91,6 +91,31 @@ void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 	}
 }
 
+void StartEvent(APlayerController* player_controller, FString* message, bool LogToFile)
+{
+	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(player_controller);
+	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!EventManager::Get().IsEventRunning())
+	{
+		TArray<FString> Parsed;
+		message->ParseIntoArray(Parsed, L" ", true);
+		if (!Parsed.IsValidIndex(1)) EventManager::Get().StartEvent();
+		else
+		{
+			int EventID = -1;
+			try
+			{
+				EventID = std::stoi(Parsed[1].ToString().c_str());
+			} catch (...) {}
+
+			if (EventID != -1 && EventID < EventManager::Get().GetEventsCount()) EventManager::Get().StartEvent(EventID);
+			else EventManager::Get().StartEvent();
+		}
+		ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"{} event Started!", *EventManager::Get().GetCurrentEventName());
+	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"{} event is already running!", *EventManager::Get().GetCurrentEventName());
+}
+
+
 void InitEventManager()
 {
 	Log::Get().Init("Event Manager");
@@ -102,6 +127,7 @@ void InitEventManager()
 	ArkApi::GetCommands().AddOnTimerCallback("EventManagerUpdate", &EventManagerUpdate);
 	ArkApi::GetCommands().AddChatCommand("/join", &JoinEvent);
 	ArkApi::GetCommands().AddChatCommand("/leave", &LeaveEvent);
+	ArkApi::GetCommands().AddConsoleCommand("startevent", &StartEvent);
 }
 
 void DestroyEventManager()
@@ -114,6 +140,7 @@ void DestroyEventManager()
 	ArkApi::GetCommands().RemoveOnTimerCallback("EventManagerUpdate");
 	ArkApi::GetCommands().RemoveChatCommand("/join");
 	ArkApi::GetCommands().RemoveChatCommand("/leave");
+	ArkApi::GetCommands().RemoveConsoleCommand("startevent");
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

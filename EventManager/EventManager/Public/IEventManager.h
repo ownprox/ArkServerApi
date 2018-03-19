@@ -62,6 +62,8 @@ namespace EventManager
 
 		virtual void AddEvent(Event* event) = 0;
 		virtual void RemoveEvent(Event* event) = 0;
+		virtual int GetEventsCount() = 0;
+		virtual bool StartEvent(const int EventID = -1) = 0;
 
 		virtual bool AddPlayer(AShooterPlayerController* player) = 0;
 		virtual bool RemovePlayer(AShooterPlayerController* player) = 0;
@@ -69,7 +71,6 @@ namespace EventManager
 		virtual TArray<EventPlayer>& GetEventPlayers() = 0;
 		virtual int GetEventPlayersCount() = 0;
 
-		virtual bool StartEvent(const int EventID) = 0;
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
 		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;

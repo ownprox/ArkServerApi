@@ -44,6 +44,11 @@ namespace EventManager
 		Events.Remove(event);
 	}
 
+	int EventManager::GetEventsCount()
+	{
+		return Events.Num();
+	}
+
 	bool EventManager::StartEvent(const int EventID)
 	{
 		if (CurrentEvent) return false;

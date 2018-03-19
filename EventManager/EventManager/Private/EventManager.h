@@ -35,6 +35,7 @@ namespace EventManager
 
 		void AddEvent(Event* event);
 		void RemoveEvent(Event* event);
+		int GetEventsCount();
 		bool StartEvent(const int EventID = -1);
 
 		EventPlayer* FindPlayer(long long SteamID);
