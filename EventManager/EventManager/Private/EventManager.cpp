@@ -283,7 +283,7 @@ namespace EventManager
 
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
-		if (AttackerID != -1)
+		if (VictimID != -1)
 		{
 			EventPlayer* Player;
 			if (AttackerID != VictimID && (Player = FindPlayer(AttackerID))) Player->Kills++;
