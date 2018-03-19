@@ -283,45 +283,43 @@ namespace EventManager
 
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
-		if (AttackerID != -1 && AttackerID != VictimID)
-		{			
-			if (EventPlayer* Player; (Player = FindPlayer(AttackerID)))
+		if (AttackerID != -1)
+		{
+			EventPlayer* Player;
+			if (AttackerID != VictimID && (Player = FindPlayer(AttackerID))) Player->Kills++;
+
+			if ((Player = FindPlayer(VictimID)))
 			{
-				Player->Kills++;
-				
-				if ((Player = FindPlayer(VictimID)))
+				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
 				{
-					if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
+					if (DefaultRunningSpeed && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 					{
-						if (DefaultRunningSpeed && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-						{
-							Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
-							Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
-						}
-
-						if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-						{
-							UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-
-							float* health = charStatus->CurrentStatusValuesField()();
-							if (*health < 100.f) *health = 100.f;//calculate max hp using base level ect
-
-							float* torpor = charStatus->CurrentStatusValuesField()() + 2;
-							*torpor = 0;
-
-							float* melee = charStatus->CurrentStatusValuesField()() + 8;
-							*melee = 100; //reset back to max percent
-
-							float* speed = charStatus->CurrentStatusValuesField()() + 9;
-							*speed = 100; //reset back to max percent
-
-							Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
-
-							return true;
-						}
+						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
+						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
 					}
-					Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == Player->PlayerID; });
+
+					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+					{
+						UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
+
+						float* health = charStatus->CurrentStatusValuesField()();
+						if (*health < 100.f) *health = 100.f;//calculate max hp using base level ect
+
+						float* torpor = charStatus->CurrentStatusValuesField()() + 2;
+						*torpor = 0;
+
+						float* melee = charStatus->CurrentStatusValuesField()() + 8;
+						*melee = 100; //reset back to max percent
+
+						float* speed = charStatus->CurrentStatusValuesField()() + 9;
+						*speed = 100; //reset back to max percent
+
+						Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
+
+						return true;
+					}
 				}
+				Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == Player->PlayerID; });
 			}
 		}
 		return false;
