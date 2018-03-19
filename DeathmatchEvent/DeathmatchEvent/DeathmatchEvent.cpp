@@ -114,7 +114,7 @@ public:
 			}
 			break;
 		case EventState::TeleportingPlayers:
-			EventManager::Get().TeleportEventPlayers(false, true, true, true, true, GetSpawns(), 0);
+			EventManager::Get().TeleportEventPlayers(true, true, true, true, true, true, GetSpawns(), 0);
 			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, L"[Event] {} Starting in 30 Seconds", *GetName());
 			SetState(EventState::WaitForFight);
 			break;

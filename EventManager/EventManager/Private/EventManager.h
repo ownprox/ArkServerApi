@@ -45,7 +45,7 @@ namespace EventManager
 
 		void Update();
 
-		void TeleportEventPlayers(const bool TeamBased, const bool DefaultRunningSpeed, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
+		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
 		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
 		void EnableEventPlayersInputs();
 

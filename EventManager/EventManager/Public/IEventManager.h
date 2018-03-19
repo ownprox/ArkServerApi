@@ -72,7 +72,7 @@ namespace EventManager
 		virtual bool StartEvent(const int EventID) = 0;
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
-		virtual	void TeleportEventPlayers(const bool TeamBased, const bool DefaultRunningSpeed, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
+		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
 		virtual void EnableEventPlayersInputs() = 0;
 
