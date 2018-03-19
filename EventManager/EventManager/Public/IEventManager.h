@@ -11,21 +11,39 @@ namespace EventManager
 {
 	struct EventPlayer
 	{
-		long long PlayerID;
+		const long long PlayerID;
+		FVector StartPos;
 		int Kills, Team;
 		AShooterPlayerController* ASPC;
-		bool Alive;
-		FVector StartPos;
 
-		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC)
-		{
-			this->PlayerID = PlayerID;
-			this->ASPC = ASPC;
-			this->Team = 0;
-			this->Kills = 0;
-			this->Alive = true;
-			this->StartPos = ArkApi::GetApiUtils().GetPosition(ASPC);
-		}
+		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC) : PlayerID(PlayerID), ASPC(ASPC), StartPos(ArkApi::GetApiUtils().GetPosition(ASPC))
+			, Kills(0), Team(0) {}
+	};
+
+	enum EventArmourType
+	{
+		Head = 0,
+		Torso,
+		Gloves,
+		Offhand,
+		Legs,
+		Feet,
+		Max
+	};
+
+	struct EventItem
+	{
+		const FString BP;
+		const int Quantity;
+		const float Quality;
+		EventItem(const FString BP, const int Quantity, const float Quality) : BP(BP), Quantity(Quantity), Quality(Quality) {}
+	};
+
+	struct EventEquipment
+	{
+		const EventItem* Armour;
+		const TArray<EventItem> Items;
+		EventEquipment(const TArray<EventItem>& Items, const EventItem Armour[(int)EventArmourType::Max]) : Items(Items), Armour(Armour) {}
 	};
 
 	class EM_API IEventManager
@@ -57,6 +75,8 @@ namespace EventManager
 		virtual	void TeleportEventPlayers(const bool TeamBased, const bool DefaultRunningSpeed, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
 		virtual void EnableEventPlayersInputs() = 0;
+
+		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)

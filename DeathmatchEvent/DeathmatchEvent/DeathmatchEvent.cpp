@@ -135,10 +135,10 @@ public:
 
 			if (EventManager::Get().GetEventPlayersCount() > 0)
 			{
-				if (Rewards.Num() != 0)
+				AShooterPlayerController* RewardPlayer = EventManager::Get().GetEventPlayers()[0].ASPC;
+				if (RewardPlayer && RewardPlayer->GetPlayerCharacter() && !RewardPlayer->GetPlayerCharacter()->IsDead())
 				{
-					AShooterPlayerController* RewardPlayer = EventManager::Get().GetEventPlayers()[0].ASPC;
-					if (RewardPlayer && RewardPlayer->GetPlayerCharacter() && !RewardPlayer->GetPlayerCharacter()->IsDead())
+					if (Rewards.Num() != 0)
 					{
 						const Reward& reward = Rewards[FMath::RandRange(0, Rewards.Num() - 1)];
 						const int RandomQuantity = (reward.QuantityMin == reward.QuantityMax ? reward.QuantityMin : FMath::RandRange(reward.QuantityMin, reward.QuantityMax))
@@ -148,8 +148,9 @@ public:
 						FString BP = reward.BP;
 						RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
 					}
+
+					EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, L"[Event] {} has won the {} event!", *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
 				}
-				//add winner message
 			}
 			SetState(EventState::Finished);
 			break;

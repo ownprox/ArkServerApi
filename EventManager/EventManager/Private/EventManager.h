@@ -49,6 +49,8 @@ namespace EventManager
 		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
 		void EnableEventPlayersInputs();
 
+		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
+
 		void SendChatMessageToAllEventPlayersInternal(const FString& sender_name, const FString& msg);
 		void SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,
 			float display_time, UTexture2D* icon, FString& msg);

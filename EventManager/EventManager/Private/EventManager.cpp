@@ -151,15 +151,7 @@ namespace EventManager
 
 		Players.RemoveAll([&](EventPlayer& evplayer) { return !evplayer.ASPC || !evplayer.ASPC->GetPlayerCharacter() || (PreventDinos && evplayer.ASPC->GetPlayerCharacter()->GetRidingDino() || !PreventDinos && !evplayer.ASPC->GetPlayerCharacter()->GetRidingDino()); });
 	}
-
-	void EventManager::EnableEventPlayersInputs()
-	{
-		for (auto& itr : Players)
-		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead()) itr.ASPC->EnableInput(itr.ASPC);
-		}
-	}
-
+	
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
 	{
 		for (auto& itr : Players)
@@ -180,6 +172,37 @@ namespace EventManager
 				}
 
 				//at some point add hp
+			}
+		}
+	}
+
+	void EventManager::EnableEventPlayersInputs()
+	{
+		for (auto& itr : Players)
+		{
+			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead()) itr.ASPC->EnableInput(itr.ASPC);
+		}
+	}
+
+	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
+	{
+		for (auto& itr : Players)
+		{
+			if (!itr.ASPC || !itr.ASPC->GetPlayerCharacter() || itr.ASPC->GetPlayerCharacter()->IsDead()) continue;
+
+			for (int i = 0; i < (int)EventArmourType::Max; i++)
+			{
+				if (!Equipment.Armour[i].BP.IsEmpty())
+				{
+					FString BP = Equipment.Armour[i].BP;
+					itr.ASPC->GiveItem(&BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
+				}
+			}
+
+			for (const auto& Item : Equipment.Items)
+			{
+				FString BP = Item.BP;
+				itr.ASPC->GiveItem(&BP, Item.Quantity, Item.Quality, false);
 			}
 		}
 	}
