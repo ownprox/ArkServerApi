@@ -9,12 +9,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Header Files\Includes">
       <UniqueIdentifier>{b2d46d29-29b4-427c-ae32-c7fcea11cd37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Includes\SQLLite">
+      <UniqueIdentifier>{7aea03d2-e134-4df0-8416-d43551469307}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Includes\SQLLite\hdr">
+      <UniqueIdentifier>{22f7aeda-e5d3-4482-be4f-4b75cddd98ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -36,10 +38,40 @@
     <ClInclude Include="MuteHooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\lists\error_codes.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\errors.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\function_traits.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\log.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\sqlcipher.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\uncaught_exceptions.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\variant.h">
+      <Filter>Header Files\Includes\SQLLite\hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
+      <Filter>Header Files\Includes\SQLLite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mutes.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3.c">
+      <Filter>Header Files\Includes\SQLLite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

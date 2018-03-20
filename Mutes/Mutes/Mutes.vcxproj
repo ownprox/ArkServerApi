@@ -148,7 +148,7 @@
       </SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\ArkServerModding\ARK-Server-Beyond-API-2.0\version\Core\Public\;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\ArkServerModding\ArkServerAPIREP\version\Core\Public\;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -159,20 +159,31 @@
       </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <AdditionalLibraryDirectories>E:\ArkServerModding\ARK-Server-Beyond-API-2.0\x64\Release\;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>E:\ArkServerModding\ArkServerAPIREP\x64\Release\;</AdditionalLibraryDirectories>
       <AdditionalDependencies>Winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>C:\Servers\ShooterGame\Binaries\Win64\ArkApi\Plugins\$(TargetName)\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Mutes.cpp" />
+    <ClCompile Include="sqlite3.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hdr\sqlite_modern_cpp.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\errors.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\lists\error_codes.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\log.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\sqlcipher.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\function_traits.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\uncaught_exceptions.h" />
+    <ClInclude Include="hdr\sqlite_modern_cpp\utility\variant.h" />
     <ClInclude Include="MuteManager.h" />
     <ClInclude Include="MuteCommands.h" />
     <ClInclude Include="MuteHooks.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="Mutes.h" />
     <ClInclude Include="MuteConfig.h" />
+    <ClInclude Include="sqlite3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
