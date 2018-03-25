@@ -1,22 +1,21 @@
 {  
    "EventManager":{  
-      "EventName":"ServerNameHere",
+      "ServerName":"ServerNameHere",
+      "JoinCommand":"/join",
+      "LeaveCommand":"/leave",
+      "AdminStartEventConsoleCommand":"startevent",
       "EventStartMinuteMin":45,
       "EventStartMinuteMax":60,
-      "EventSchedule":[  
-         {  
-            "EventName":"Deathmatch",
-            "StartDays":[  
-               0,
-               4,
-               5
-            ],
-            "StartHours":[  
-               16,
-               10,
-               23
-            ]
-         }
+      "DebugLogToConsole":true,
+      "Messages":[  
+         "{} has joined {} event queue!",
+         "To leave the queue type /leave",
+         "you are already in the {} event queue!",
+         "{} has left {} event queue!",
+         "You left {} event queue!",
+         "you are not in the {} event queue!",
+         "{} event Started!",
+         "{} event is already running!"
       ]
    }
 }

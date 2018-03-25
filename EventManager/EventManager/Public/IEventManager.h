@@ -33,17 +33,21 @@ namespace EventManager
 
 	struct EventItem
 	{
-		const FString BP;
-		const int Quantity;
-		const float Quality;
+		FString BP;
+		int Quantity;
+		float Quality;
 		EventItem(const FString BP, const int Quantity, const float Quality) : BP(BP), Quantity(Quantity), Quality(Quality) {}
+		EventItem() : BP(), Quantity(0), Quality(0) {}
 	};
 
 	struct EventEquipment
 	{
-		const EventItem* Armour;
+		EventItem Armour[(int)EventArmourType::Max];
 		const TArray<EventItem> Items;
-		EventEquipment(const TArray<EventItem>& Items, const EventItem Armour[(int)EventArmourType::Max]) : Items(Items), Armour(Armour) {}
+		EventEquipment(const TArray<EventItem>& Items, const EventItem Armour[(int)EventArmourType::Max]) : Items(Items)
+		{
+			for(int i = 0; i < (int)EventArmourType::Max; i++) this->Armour[i] = Armour[i];
+		}
 	};
 
 	class EM_API IEventManager
@@ -95,6 +99,8 @@ namespace EventManager
 		}
 
 		virtual bool GetEventQueueNotifications() = 0;
+
+		virtual void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole) = 0;
 
 		virtual bool CanTakeDamage(long long AttackerID, long long VictimID) = 0;
 		virtual bool OnPlayerDied(long long AttackerID, long long VictimID) = 0;

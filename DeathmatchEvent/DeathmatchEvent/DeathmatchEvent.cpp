@@ -22,7 +22,7 @@ private:
 	};
 
 	TArray<Reward> Rewards;
-
+	TArray<EventManager::EventEquipment> Equipments;
 public:
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map)
 	{
@@ -80,6 +80,12 @@ public:
 		Init(JoinMessageDelaySeconds + 1);
 		WaitForDelay = JoinMessageDelaySeconds;
 		WaitCounter = JoinMessages + 1;
+
+		TArray<EventManager::EventItem> Items;
+		Items.Add(EventManager::EventItem(L"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMetalHatchet.PrimalItem_WeaponMetalHatchet'", 1, 0));
+		EventManager::EventItem Armour[EventManager::EventArmourType::Max];
+		Armour[EventManager::EventArmourType::Torso] = EventManager::EventItem(L"Blueprint'/Game/PrimalEarth/CoreBlueprints/Items/Armor/Metal/PrimalItemArmor_MetalShirt.PrimalItemArmor_MetalShirt'", 1, 0);
+		Equipments.Add(EventManager::EventEquipment(Items, Armour));
 	}
 
 	virtual void Update()
@@ -89,6 +95,7 @@ public:
 		case EventState::WaitingForPlayers:
 			if (WaitForTimer(WaitForDelay))
 			{
+				EventManager::Get().GiveEventPlayersEquipment(Equipments[0]);
 				if (WaitForCounter(WaitCounter))
 				{
 					if (EventManager::Get().GetEventPlayersCount() < PlayersNeededToStart)

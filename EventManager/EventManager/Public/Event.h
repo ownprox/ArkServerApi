@@ -82,15 +82,12 @@ public:
 	void ResetTimer() { Timer = 0; }
 	bool WaitForTimer(int Seconds) { Timer++; return Timer > Seconds; }
 
-
-
 	bool HasConfigLoaded() { return ConfigLoaded; }
 
 	bool IsEventProtectedStructure(const FVector& StructurePos)
 	{ return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
 
 	bool KillOnLoggout() { return KillOnLogg; }
-
 	
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map) {};
 	virtual void Update() {};

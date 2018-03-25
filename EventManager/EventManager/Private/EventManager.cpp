@@ -55,14 +55,14 @@ namespace EventManager
 		if (EventID == -1)
 		{
 			CurrentEvent = Events[FMath::RandRange(0, Events.Num()-1)];
-			CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
+			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
 		}
 		else if (EventID < Events.Num())
 		{
 			CurrentEvent = Events[EventID];
-			CurrentEvent->InitConfig(JoinEventCommand, ServerName, Map);
+			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
 		}
-		if (LogToConsole) Log::GetLog()->info("{} Event Started!", CurrentEvent->GetName().ToString().c_str());
+		if (LogToConsole && CurrentEvent) Log::GetLog()->info("{} Event Started!", (CurrentEvent->GetName().IsEmpty() ? "" : CurrentEvent->GetName().ToString().c_str()));
 		return true;
 	}
 
@@ -247,7 +247,7 @@ namespace EventManager
 
 			for (int i = 0; i < (int)EventArmourType::Max; i++)
 			{
-				if (!Equipment.Armour[i].BP.IsEmpty())
+				if (Equipment.Armour[i].Quantity != 0)
 				{
 					FString BP = Equipment.Armour[i].BP;
 					itr.ASPC->GiveItem(&BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
@@ -258,6 +258,28 @@ namespace EventManager
 			{
 				FString BP = Item.BP;
 				itr.ASPC->GiveItem(&BP, Item.Quantity, Item.Quality, false);
+			}
+
+			int SlotIndex = 0;
+			FString Name;
+			UPrimalInventoryComponent* Inv = itr.ASPC->GetPlayerCharacter()->MyInventoryComponentField()();
+			if (!Inv) return;
+			TArray<UPrimalItem *> Items = Inv->InventoryItemsField()();
+			for (const auto& item : Items)
+			{
+				if (item && !item->IsInBlueprint())
+				{
+
+					switch (item->MyItemTypeField()())
+					{
+						case EPrimalItemType::Weapon:
+							item->GetItemName(&Name, false, false, nullptr);
+							if (Name.StartsWith(L"Engram:", ESearchCase::CaseSensitive) || SlotIndex == 10) continue;
+							item->AddToSlot(SlotIndex++, true);
+							item->UpdatedItem();
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -279,6 +301,15 @@ namespace EventManager
 	bool EventManager::GetEventQueueNotifications()
 	{
 		return EventQueueNotifications;
+	}
+
+	void EventManager::InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole)
+	{
+		this->ServerName = ServerName;
+		this->JoinCommand = JoinCommand;
+		MinStartEvent = EventStartMinuteMin;
+		MaxStartEvent = EventStartMinuteMax;
+		LogToConsole = DebugLogToConsole;
 	}
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)

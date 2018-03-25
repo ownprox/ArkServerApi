@@ -7,9 +7,6 @@
     <Filter Include="Private">
       <UniqueIdentifier>{0fd0f479-0cf9-4225-9c55-ebd9c5bcba10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Private\Events">
-      <UniqueIdentifier>{429bfe84-368a-4e34-8d81-b93f3c87acfa}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Private\json.hpp">

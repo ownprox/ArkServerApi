@@ -1,10 +1,15 @@
 #include "EventManager.h"
 #pragma comment(lib, "ArkApi.lib")
+#include <fstream>
+#include "json.hpp"
 DECLARE_HOOK(APrimalStructure_IsAllowedToBuild, int, APrimalStructure*, APlayerController*, FVector, FRotator, FPlacementData*, bool, FRotator, bool);
 DECLARE_HOOK(APrimalCharacter_TakeDamage, float, APrimalCharacter*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(APrimalStructure_TakeDamage, float, APrimalStructure*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(AShooterGameMode_Logout, void, AShooterGameMode*, AController*);
+
+FString EventJoinCommand, EventLeaveCommand, EventAdminStartEventConsoleCommand;
+FString Messages[5];
 
 void EventManagerUpdate()
 {
@@ -63,7 +68,6 @@ void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* E
 	AShooterGameMode_Logout_original(_this, Exiting);
 }
 
-
 void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 {
 	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
@@ -71,9 +75,9 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 	{
 		if (EventManager::Get().AddPlayer(player))
 		{
-			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), L"{} has joined {} event queue!", *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
-			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"To leave the queue type /leave");
-		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"you are already in the {} event queue!", *EventManager::Get().GetCurrentEventName());
+			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[0], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
+			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[1]);
+		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[2], *EventManager::Get().GetCurrentEventName());
 	}
 }
 
@@ -85,9 +89,9 @@ void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 	{
 		if (EventManager::Get().RemovePlayer(player))
 		{
-			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), L"{} has left {} event queue!", *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
-			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"You left {} event queue!", *EventManager::Get().GetCurrentEventName());
-		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"you are not in the {} event queue!", *EventManager::Get().GetCurrentEventName());
+			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[3], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
+			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[4], *EventManager::Get().GetCurrentEventName());
+		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[5], *EventManager::Get().GetCurrentEventName());
 	}
 }
 
@@ -111,8 +115,46 @@ void StartEvent(APlayerController* player_controller, FString* message, bool Log
 			if (EventID != -1 && EventID < EventManager::Get().GetEventsCount()) EventManager::Get().StartEvent(EventID);
 			else EventManager::Get().StartEvent();
 		}
-		ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"{} event Started!", *EventManager::Get().GetCurrentEventName());
-	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), L"{} event is already running!", *EventManager::Get().GetCurrentEventName());
+		ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[6], *EventManager::Get().GetCurrentEventName());
+	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[7], *EventManager::Get().GetCurrentEventName());
+}
+
+void InitConfig()
+{
+	const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AAEventManager/Config.json";
+
+	std::ifstream file{ config_path };
+
+	if (!file.is_open()) throw std::runtime_error(fmt::format("Can't open {}", config_path.c_str()).c_str());
+
+	nlohmann::json config;
+
+	file >> config;
+
+	std::string data = config["EventManager"]["JoinCommand"];
+	EventJoinCommand = ArkApi::Tools::Utf8Decode(data).c_str();
+	data = config["EventManager"]["LeaveCommand"];
+	EventLeaveCommand = ArkApi::Tools::Utf8Decode(data).c_str();
+	data = config["EventManager"]["AdminStartEventConsoleCommand"];
+	EventAdminStartEventConsoleCommand = ArkApi::Tools::Utf8Decode(data).c_str();
+
+	data = config["EventManager"]["ServerName"];
+
+
+	const int EventStartMinuteMin = config["EventManager"]["EventStartMinuteMin"], EventStartMinuteMax = config["EventManager"]["EventStartMinuteMax"];
+
+	const bool LogToConsole = config["EventManager"]["DebugLogToConsole"];
+	
+	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole);
+	
+	int j = 0;
+	const auto& Msgs = config["EventManager"]["Messages"];
+	for (const auto& Msg : Msgs)
+	{
+		data = Msg;
+		Messages[j++] = ArkApi::Tools::Utf8Decode(data).c_str();
+	}
+	file.close();
 }
 
 void InitEventManager()
@@ -124,9 +166,9 @@ void InitEventManager()
 	ArkApi::GetHooks().SetHook("AShooterCharacter.Die", &Hook_AShooterCharacter_Die, &AShooterCharacter_Die_original);
 	ArkApi::GetHooks().SetHook("AShooterGameMode.Logout", &Hook_AShooterGameMode_Logout, &AShooterGameMode_Logout_original);
 	ArkApi::GetCommands().AddOnTimerCallback("EventManagerUpdate", &EventManagerUpdate);
-	ArkApi::GetCommands().AddChatCommand("/join", &JoinEvent);
-	ArkApi::GetCommands().AddChatCommand("/leave", &LeaveEvent);
-	ArkApi::GetCommands().AddConsoleCommand("startevent", &StartEvent);
+	ArkApi::GetCommands().AddChatCommand(EventJoinCommand, &JoinEvent);
+	ArkApi::GetCommands().AddChatCommand(EventLeaveCommand, &LeaveEvent);
+	ArkApi::GetCommands().AddConsoleCommand(EventAdminStartEventConsoleCommand, &StartEvent);
 }
 
 void DestroyEventManager()
@@ -137,9 +179,9 @@ void DestroyEventManager()
 	ArkApi::GetHooks().DisableHook("AShooterCharacter.Die", &Hook_AShooterCharacter_Die);
 	ArkApi::GetHooks().DisableHook("AShooterGameMode.Logout", &Hook_AShooterGameMode_Logout);
 	ArkApi::GetCommands().RemoveOnTimerCallback("EventManagerUpdate");
-	ArkApi::GetCommands().RemoveChatCommand("/join");
-	ArkApi::GetCommands().RemoveChatCommand("/leave");
-	ArkApi::GetCommands().RemoveConsoleCommand("startevent");
+	ArkApi::GetCommands().RemoveChatCommand(EventJoinCommand);
+	ArkApi::GetCommands().RemoveChatCommand(EventLeaveCommand);
+	ArkApi::GetCommands().RemoveConsoleCommand(EventAdminStartEventConsoleCommand);
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

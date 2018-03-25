@@ -13,7 +13,7 @@ namespace EventManager
 		TArray<Event*> Events;
 		Event* CurrentEvent;
 		DWORD NextEventTime;
-		FString JoinEventCommand, ServerName, Map;
+		FString JoinCommand, ServerName, Map;
 		int32 MinStartEvent, MaxStartEvent;
 		~EventManager() = default;
 		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
@@ -57,6 +57,8 @@ namespace EventManager
 			float display_time, UTexture2D* icon, FString& msg);
 
 		bool GetEventQueueNotifications();
+
+		void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole);
 
 		//Hooks
 		bool CanTakeDamage(long long AttackerID, long long VictimID);
