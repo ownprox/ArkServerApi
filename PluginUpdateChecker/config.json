@@ -1,5 +1,6 @@
 {  
-   "DinoColourCommand":{  
-      "RequireAdmin":true
+   "PluginChecker":{  
+      "DiscordUseWebHooks":false,
+      "DiscordWebHookURL":""
    }
 }
