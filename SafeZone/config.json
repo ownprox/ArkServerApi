@@ -1,97 +1,61 @@
-{  
-   "SafeZones":{  
-      "ServerName":"ServerNameHere",
-      "ClaimItemsCommand":"/claim",
-      "AdminIgnoreChecks":false,
-      "SafeZoneNotifications":true,
-      "SafeZoneNotificationCheckSeconds":4,
-      "InstantNotifications":true,
-      "NotificationScale":1.0,
-      "NotificationShowDelay":10.0,
-      "DisplayType":0,
-      "SafeZoneKillAgressiveDino":true,
-      "DistanceSafeZones":[  
-         {  
-            "Name":"Zone1",
-            "Distance":10000,
-            "PreventBuilding":true,
-            "PreventPVP":true,
-            "PreventStructureDamage":true,
-            "Position":[  
-               -389508,
-               -417001,
-               -14285.6
-            ],
-            "Messages":[  
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
-               "You have entered {}",
-               "You have left {}",
-               "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
-            ],
-            "EnterNotificationColour":[  
-               0,
-               1,
-               0,
-               1
-            ],
-            "LeaveNotificationColour":[  
-               1,
-               0,
-               0,
-               1
-            ],
-            "Items":[  
-               {  
-                  "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
-                  "Quantity":1,
-                  "Quality":0.0,
-                  "IsBlueprint":false
-               },
-               {  
-                  "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStonePick.PrimalItem_WeaponStonePick'",
-                  "Quantity":1,
-                  "Quality":0.0,
-                  "IsBlueprint":false
-               }
-            ]
-         },
-         {  
-            "Name":"Zone2",
-            "Distance":10000,
-            "PreventBuilding":true,
-            "PreventPVP":false,
-            "PreventStructureDamage":true,
-            "Position":[  
-               -389508,
-               -417001,
-               -14285.6
-            ],
-            "Messages":[  
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not build here.</>",
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not pvp here.</>",
-               "<RichColor Color=\"1, 0, 0, 1\">This is a Community trade center you can not damage structures here.</>",
-               "You have entered {}",
-               "You have left {}",
-               "<RichColor Color=\"0, 1, 0, 1\">Items Redeemed!</>"
-            ],
-            "EnterNotificationColour":[  
-               0,
-               1,
-               0,
-               1
-            ],
-            "LeaveNotificationColour":[  
-               1,
-               0,
-               0,
-               1
-            ],
-            "Items":[  
-
-            ]
-         }
-      ]
-   }
+{
+  "ServerName":"ServerNameHere",
+  "NotificationScale":1.0,
+  "NotificationDisplayTime":5.0,
+  "AdminsIgnoreRestrictions":false,
+  "SafeZones":[
+    {
+      "Name":"Zone1",
+      "Position":[
+        -111820,
+        233874,
+        -14259.6
+      ],
+      "Radius":1800,
+      "PreventPVP":true,
+      "PreventStructureDamage":true,
+      "PreventBuilding":true,
+      "KillWildDinos":true,
+	  "PreventLeaving":true,
+	  "PreventEntering":false,
+      "EnableEvents":true,
+      "ScreenNotifications":true,
+      "ChatNotifications":true,
+      "SuccessNotificationColor":[
+        0,
+        1,
+        0,
+        1
+      ],
+      "FailNotificationColor":[
+        1,
+        0,
+        0,
+        1
+      ],
+      "Messages":[
+        "You have entered {0}",
+        "You have left {0}",
+        "This is a Community trade center you can not build here",
+		"You are not allowed to enter",
+		"You are not allowed to leave"
+      ],
+      "ItemsConfig":{
+        "Items":[
+          {
+            "Amount":1,
+            "Quality":0,
+            "ForceBlueprint":false,
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Items/Armor/Saddles/PrimalItemArmor_CarnoSaddle.PrimalItemArmor_CarnoSaddle'"
+          }
+        ],
+        "Dinos":[
+          {
+            "Level":10,
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Carno/Carno_Character_BP.Carno_Character_BP'"
+          }
+        ]
+      }
+    }
+  ]
 }

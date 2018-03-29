@@ -1,36 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Public">
-      <UniqueIdentifier>{dded2253-412e-493f-a883-2ae5f7b461f2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Private">
-      <UniqueIdentifier>{e60d6027-28ad-4239-9ccb-918b52c26d0d}</UniqueIdentifier>
+      <UniqueIdentifier>{b3455fc6-e309-4c40-a1a7-c838c24bfb84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Public">
+      <UniqueIdentifier>{bf1792bc-17d8-49dc-9128-33cb2279309a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Public\SafeZone.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Private\json.hpp">
-      <Filter>Private</Filter>
-    </ClInclude>
-    <ClInclude Include="Private\Main.h">
-      <Filter>Private</Filter>
-    </ClInclude>
-    <ClInclude Include="Private\SZManager.h">
-      <Filter>Private</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Private\Main.cpp">
+    <ClCompile Include="Private\Hooks.cpp">
       <Filter>Private</Filter>
     </ClCompile>
-    <ClCompile Include="Private\SZManager.cpp">
+    <ClCompile Include="Private\SafeZoneManager.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\SafeZones.cpp">
       <Filter>Private</Filter>
     </ClCompile>
     <ClCompile Include="Private\SafeZone.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\Commands.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Private\SafeZoneManager.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\Hooks.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\SafeZones.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SafeZone.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\ISafeZoneManager.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\Commands.h">
+      <Filter>Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Private\SzTools.h">
+      <Filter>Private</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
