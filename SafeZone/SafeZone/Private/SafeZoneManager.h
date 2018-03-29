@@ -19,7 +19,8 @@ namespace SafeZones
 {
 	struct PlayerPos
 	{
-		SafeZone* in_zone{};
+		SafeZone* zone{};
+		bool in_zone{};
 		FVector inzone_pos;
 		FVector outzone_pos;
 	};

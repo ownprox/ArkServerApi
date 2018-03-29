@@ -50,7 +50,8 @@ namespace SafeZones
 					{
 						auto& player_pos = players_pos[player];
 
-						player_pos.in_zone = this;
+						player_pos.zone = this;
+						player_pos.in_zone = true;
 
 						if (!CanJoinZone(player))
 						{
@@ -63,7 +64,7 @@ namespace SafeZones
 					}
 					else
 					{
-						players_pos[player] = {this, player->DefaultActorLocationField()(), player->DefaultActorLocationField()()};
+						players_pos[player] = {this, true, player->DefaultActorLocationField()(), player->DefaultActorLocationField()()};
 					}
 				}
 
@@ -101,14 +102,16 @@ namespace SafeZones
 					auto& players_pos = SafeZoneManager::Get().players_pos;
 					auto& player_pos = players_pos[player];
 
-					if (player_pos.in_zone && !player_pos.in_zone->CanJoinZone(player))
+					if (player_pos.zone && !player_pos.zone->CanJoinZone(player))
 					{
-						player_pos.in_zone = nullptr;
+						player_pos.zone = nullptr;
 						return;
 					}
 
 					if (prevent_leaving)
 					{
+						player_pos.in_zone = false;
+
 						SendNotification(player, messages[4], fail_color);
 
 						const FVector& last_pos = player_pos.inzone_pos;
@@ -118,7 +121,7 @@ namespace SafeZones
 						return;
 					}
 
-					player_pos.in_zone = nullptr;
+					player_pos.zone = nullptr;
 				}
 
 				SendNotification(player, FString::Format(*messages[1], *name),

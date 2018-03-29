@@ -77,7 +77,7 @@ namespace SafeZones
 
 		for (auto iter = players_pos.begin(); iter != players_pos.end();)
 		{
-			if (iter->second.in_zone == find_zone.get())
+			if (iter->second.zone == find_zone.get())
 			{
 				players_pos.erase(iter);
 				break;
@@ -228,20 +228,32 @@ namespace SafeZones
 				const FVector pos = player->DefaultActorLocationField()();
 
 				if (players_pos.find(player) == players_pos.end())
-					players_pos[player] = {nullptr, pos, pos};
-				else if (players_pos[player].in_zone)
 				{
-					auto& player_pos = players_pos[player];
-					if (!player_pos.in_zone->CanJoinZone(player))
+					players_pos[player] = {nullptr, false, pos, pos};
+					continue;
+				}
+
+				auto& player_pos = players_pos[player];
+				if (player_pos.zone && player_pos.in_zone)
+				{
+					if (!player_pos.zone->CanJoinZone(player))
 					{
 						const FVector& last_pos = player_pos.outzone_pos;
 						player->SetPlayerPos(last_pos.X, last_pos.Y, last_pos.Z);
 					}
 
-					players_pos[player].inzone_pos = pos;
+					player_pos.inzone_pos = pos;
 				}
 				else
-					players_pos[player].outzone_pos = pos;
+				{
+					if (player_pos.zone && !player_pos.in_zone && player_pos.zone->IsOverlappingActor(player->CharacterField()()))
+					{
+						player_pos.in_zone = true;
+						continue;
+					}
+
+					player_pos.outzone_pos = pos;
+				}
 			}
 		}
 	}
