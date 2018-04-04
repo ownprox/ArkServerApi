@@ -131,7 +131,7 @@ namespace SafeZones
 
 		for (const auto& safe_zone : all_safezones_)
 		{
-			if (FVector::Distance(safe_zone->position, location) <= safe_zone->radius)
+			if (safe_zone->prevent_building && FVector::Distance(safe_zone->position, location) <= safe_zone->radius)
 			{
 				if (FString msg = safe_zone->messages[2];
 					!msg.IsEmpty() && notification)
