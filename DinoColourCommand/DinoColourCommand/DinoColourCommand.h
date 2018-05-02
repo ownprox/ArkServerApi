@@ -1,4 +1,3 @@
 #pragma once
-#include <Windows.h>
-#include "API\ARK\Ark.h"
-bool RequiresAdmin;
+
+inline bool RequiresAdmin, RequiresPermission;

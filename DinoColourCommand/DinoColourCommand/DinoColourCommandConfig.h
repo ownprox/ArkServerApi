@@ -1,8 +1,9 @@
 #pragma once
+
 #include <fstream>
 #include "json.hpp"
 
-void InitConfig()
+inline void InitConfig()
 {
 	std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/DinoColourCommand/config.json");
 	if (!file.is_open())
@@ -10,9 +11,11 @@ void InitConfig()
 		RequiresAdmin = true;
 		return;
 	}
-	nlohmann::json MuteConfigData;
-	file >> MuteConfigData;
+
+	nlohmann::json configData;
+	file >> configData;
 	file.close();
-	std::string IPAddress;
-	RequiresAdmin = MuteConfigData["DinoColourCommand"]["RequireAdmin"];
+
+	RequiresAdmin = configData["DinoColourCommand"]["RequireAdmin"];
+	RequiresPermission = configData["DinoColourCommand"].value("RequirePermission", false);
 }
