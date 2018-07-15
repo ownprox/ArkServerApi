@@ -1,0 +1,13 @@
+{  
+   "PingLimit":200,
+   "TotalPingStrikes":5,
+   "CheckPingSecondsInteval":60,
+   "DisplayWarningsToUsers":true,
+   "Messages":[  
+      "ServerNameHere",
+      "Your Ping: {}",
+      "/ping",
+	  "<RichColor Color=\"1, 0, 0, 1\">Your ping is too high ({}/{}), Strike {}/{}</>",
+	  "You have been disconnected your ping was too high."
+   ]
+}
