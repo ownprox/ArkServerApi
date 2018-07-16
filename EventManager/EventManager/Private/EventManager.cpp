@@ -134,8 +134,9 @@ namespace EventManager
 					{
 						ArkApi::GetApiUtils().SendChatMessage(itr.ASPC, EventManager::Get().GetServerName(), *NakedChkMsg);
 						itr.Delete = true;
+						if (LogToConsole) Log::GetLog()->info("not naked");
+						continue;
 					}
-					continue;
 				}
 
 				if (DisableInputs)
@@ -151,6 +152,7 @@ namespace EventManager
 
 				itr.Team = TeamIndex;
 
+				if (LogToConsole) Log::GetLog()->info("GetCharacterStatusComponent");
 				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
 					UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
@@ -167,8 +169,7 @@ namespace EventManager
 					if (ApplyFairMovementSpeed)
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
-						if (LogToConsole) Log::GetLog()->info("Speed: {}!", *speed);
-						*speed = 100;
+						*speed = 0;
 
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = true;
@@ -237,7 +238,7 @@ namespace EventManager
 					*melee = 100; //reset back to max percent
 
 					float* speed = charStatus->CurrentStatusValuesField()() + 9;
-					*speed = 100; //reset back to max percent
+					*speed = 0; //reset back to max percent
 				}
 			}
 		}
