@@ -102,5 +102,4 @@ public:
 
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map) {};
 	virtual void Update() {};
-	virtual void OnWonEvent() {};
 };

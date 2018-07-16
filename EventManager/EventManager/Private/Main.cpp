@@ -9,7 +9,7 @@ DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEven
 DECLARE_HOOK(AShooterGameMode_Logout, void, AShooterGameMode*, AController*);
 
 FString EventJoinCommand, EventLeaveCommand, EventAdminStartEventConsoleCommand;
-FString Messages[5];
+FString Messages[11];
 
 void EventManagerUpdate()
 {
@@ -132,7 +132,7 @@ void Pos(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->bIsAdmin()()) return;
 
 	FVector Pos = player->DefaultActorLocationField();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {},", Pos.X, Pos.Y, Pos.Z);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 	Log::GetLog()->warn("{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 }
 
@@ -161,8 +161,6 @@ void InitConfig()
 
 	const bool LogToConsole = config["EventManager"]["DebugLogToConsole"];
 	
-	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole);
-	
 	int j = 0;
 	const auto& Msgs = config["EventManager"]["Messages"];
 	for (const auto& Msg : Msgs)
@@ -170,6 +168,8 @@ void InitConfig()
 		data = Msg;
 		Messages[j++] = ArkApi::Tools::Utf8Decode(data).c_str();
 	}
+	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole, Messages[8], Messages[9], Messages[10]);
+	
 	file.close();
 }
 

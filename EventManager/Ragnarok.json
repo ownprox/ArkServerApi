@@ -2,8 +2,8 @@
    "Deathmatch":{  
       "EventName":"Deathmatch",
       "PlayersNeededToStart":1,
-      "JoinMessages":1,
-      "JoinMessageDelaySeconds":30,
+      "JoinMessages":4,
+      "JoinMessageDelaySeconds":60,
       "StructureProtection":true,
       "StructureProtectionPosition":[  
          0,
@@ -130,7 +130,14 @@
          }
       ],
       "Messages":[  
-
+         "[Event] {} Starting in {} {}, To Join Type {}",
+         "Minutes",
+         "Minute",
+         "Seconds",
+         "[Event] {} Failed to start needed {} Players",
+         "[Event] {} Starting in 30 Seconds, Equipt your Gear!",
+         "[Event] {} Started Kill or Be Killed!",
+         "[Event] {} has won the {} event!"
       ]
    }
 }

@@ -256,16 +256,16 @@ namespace EventManager
 
 	std::optional<FString> EventManager::CheckIfPlayersNaked(AShooterPlayerController* Player)
 	{
-		if (!Player || !Player->GetPlayerCharacter() || Player->GetPlayerCharacter()->IsDead()) return "Player Not Found Or Dead";
+		if (!Player || !Player->GetPlayerCharacter() || Player->GetPlayerCharacter()->IsDead()) return PlayerDeadMsg;
 		UPrimalInventoryComponent* Inv = Player->GetPlayerCharacter()->MyInventoryComponentField();
-		if (!Inv) return "Inventory Not Found";
+		if (!Inv) return InventoryNotFoundMsg;
 		FString FoundItem;
 		TArray<UPrimalItem *> Items = Inv->InventoryItemsField();
 		for (const auto& item : Items)
 			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
 			{
 				item->GetItemName(&FoundItem, false, false, nullptr);
-				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+				return FString::Format(*MustBeNakedMsg, *FoundItem);
 			}
 
 		Items = Inv->EquippedItemsField();
@@ -273,7 +273,7 @@ namespace EventManager
 			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
 			{
 				item->GetItemName(&FoundItem, false, false, nullptr);
-				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+				return FString::Format(*MustBeNakedMsg, *FoundItem);
 			}
 
 		Items = Inv->ItemSlotsField();
@@ -281,7 +281,7 @@ namespace EventManager
 			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
 			{
 				item->GetItemName(&FoundItem, false, false, nullptr);
-				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+				return FString::Format(*MustBeNakedMsg, *FoundItem);
 			}
 
 		return {};
@@ -348,13 +348,17 @@ namespace EventManager
 		return EventQueueNotifications;
 	}
 
-	void EventManager::InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole)
+	void EventManager::InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
+		, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg)
 	{
 		this->ServerName = ServerName;
 		this->JoinCommand = JoinCommand;
 		MinStartEvent = (EventStartMinuteMin * 60000);
 		MaxStartEvent = (EventStartMinuteMax * 60000);
 		LogToConsole = DebugLogToConsole;
+		this->PlayerDeadMsg = PlayerDeadMsg;
+		this->InventoryNotFoundMsg = InventoryNotFoundMsg;
+		this->MustBeNakedMsg = MustBeNakedMsg;
 	}
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)

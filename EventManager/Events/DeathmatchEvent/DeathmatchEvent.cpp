@@ -11,7 +11,7 @@ class DeathMatch : public Event
 {
 private:
 	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter;
-	FString JoinEventCommand, ServerName;
+	FString JoinEventCommand, ServerName, Messages[8];
 
 	struct Reward
 	{
@@ -107,6 +107,15 @@ public:
 				}				
 				Equipments.Add(EventManager::EventEquipment(Items, Armour));
 			}
+
+
+			int j = 0;
+			const auto& Msgs = config["EventManager"]["Messages"];
+			for (const auto& Msg : Msgs)
+			{
+				Data = Msg;
+				Messages[j++] = ArkApi::Tools::Utf8Decode(Data).c_str();
+			}
 			file.close();
 		}
 		Init(JoinMessageDelaySeconds + 1);
@@ -125,7 +134,7 @@ public:
 				{
 					if (EventManager::Get().GetEventPlayersCount() < PlayersNeededToStart)
 					{
-						ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, L"[Event] {} Failed to start needed {} Players", *GetName(), PlayersNeededToStart);
+						ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[4], *GetName(), PlayersNeededToStart);
 						SetState(EventState::Finished);
 					}
 					else SetState(EventState::TeleportingPlayers);
@@ -133,8 +142,8 @@ public:
 				else
 				{
 					const int Seconds = GetFinalWarning() ? WaitForDelay : ((WaitCounter - GetCounter()) * JoinMessageDelaySeconds);
-					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, L"[Event] {} Starting in {} {}, To Join Type {}", *GetName()
-						, (Seconds >= 60 ? (Seconds / 60) : Seconds), (Seconds >= 60 ? (Seconds >= 120 ? L"Minutes" : L"Minute") : L"Seconds"), *JoinEventCommand);
+					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[0], *GetName()
+						, (Seconds >= 60 ? (Seconds / 60) : Seconds), (Seconds >= 60 ? (Seconds >= 120 ? *Messages[1] : *Messages[2]) : *Messages[3]), *JoinEventCommand);
 
 					if (!GetFinalWarning() && GetCounter() == (WaitCounter - 1))
 					{
@@ -147,7 +156,7 @@ public:
 			break;
 		case EventState::TeleportingPlayers:
 			EventManager::Get().TeleportEventPlayers(true, true, true, true, false, true, GetSpawns(), 0);
-			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, L"[Event] {} Starting in 30 Seconds, Equipt your Gear!", *GetName());
+			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
 			if (Equipments.Num() > 0)
 			{
 				const int EquipIndex = (int)FMath::RandRange(0, Equipments.Num() - 1);
@@ -159,7 +168,7 @@ public:
 			if (WaitForTimer(30))
 			{
 				EventManager::Get().EnableEventPlayersInputs();
-				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, L"[Event] {} Started Kill or Be Killed!", *GetName());
+				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[6], *GetName());
 				SetState(EventState::Fighting);
 			}
 			break;
@@ -185,7 +194,7 @@ public:
 						RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
 					}
 
-					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, L"[Event] {} has won the {} event!", *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
+					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
 				}
 			}
 			SetState(EventState::Finished);
@@ -202,7 +211,6 @@ void DMReload(APlayerController* player_controller, FString* message, bool LogTo
 	DmEvent->ResetConfigLoaded();
 	ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), "Config Reloaded!");
 }
-//
 
 void InitEvent()
 {

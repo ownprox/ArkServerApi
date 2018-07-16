@@ -24,8 +24,8 @@
          {  
             "Position":[  
                -121454,
-                186047,
-               -7700 
+               186047,
+               -7700
             ]
          }
       ],
@@ -130,7 +130,14 @@
          }
       ],
       "Messages":[  
-
+         "[Event] {} Starting in {} {}, To Join Type {}",
+         "Minutes",
+         "Minute",
+         "Seconds",
+         "[Event] {} Failed to start needed {} Players",
+         "[Event] {} Starting in 30 Seconds, Equipt your Gear!",
+         "[Event] {} Started Kill or Be Killed!",
+         "[Event] {} has won the {} event!"
       ]
    }
 }

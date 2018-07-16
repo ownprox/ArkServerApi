@@ -15,7 +15,10 @@
          "You left {} event queue!",
          "you are not in the {} event queue!",
          "{} event Started!",
-         "{} event is already running!"
+         "{} event is already running!",
+		 "You can't join the event while dead!",
+		 "Inventory not found.",
+		 "You must be naked! ({})"
       ]
    }
 }
