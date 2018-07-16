@@ -29,6 +29,7 @@ namespace EventManager
 		FString& GetServerName();
 
 		bool IsEventRunning() { return CurrentEvent != nullptr; }
+		bool OnlyNakeds() { return CurrentEvent->OnlyNakeds(); }
 		FString GetCurrentEventName();
 		EventState GetEventState();
 		bool IsEventOverrideJoinAndLeave();
@@ -46,9 +47,11 @@ namespace EventManager
 
 		void Update();
 
-		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
+		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
 		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
 		void EnableEventPlayersInputs();
+
+		std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player);
 
 		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
 

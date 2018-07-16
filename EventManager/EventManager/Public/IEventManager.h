@@ -15,9 +15,10 @@ namespace EventManager
 		FVector StartPos;
 		int Kills, Team;
 		AShooterPlayerController* ASPC;
+		bool Delete;
 
 		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC) : PlayerID(PlayerID), ASPC(ASPC), StartPos(ArkApi::GetApiUtils().GetPosition(ASPC))
-			, Kills(0), Team(0) {}
+			, Kills(0), Team(0), Delete(false) {}
 	};
 
 	enum EventArmourType
@@ -60,6 +61,7 @@ namespace EventManager
 		virtual FString& GetServerName() = 0;
 
 		virtual bool IsEventRunning() = 0;
+		virtual bool OnlyNakeds() = 0;
 		virtual FString GetCurrentEventName() = 0;
 		virtual EventState GetEventState() = 0;
 		virtual bool IsEventOverrideJoinAndLeave() = 0;
@@ -77,9 +79,11 @@ namespace EventManager
 
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
-		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
+		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
 		virtual void EnableEventPlayersInputs() = 0;
+
+		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
 

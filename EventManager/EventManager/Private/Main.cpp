@@ -27,13 +27,13 @@ int _cdecl Hook_APrimalStructure_IsAllowedToBuild(APrimalStructure* _this, APlay
 const long long GetPlayerID(APrimalCharacter* _this)
 {
 	AShooterCharacter* shooterCharacter = static_cast<AShooterCharacter*>(_this);
-	return (shooterCharacter && shooterCharacter->GetPlayerData()) ? shooterCharacter->GetPlayerData()->MyDataField()()->PlayerDataIDField()() : -1;
+	return (shooterCharacter && shooterCharacter->GetPlayerData()) ? shooterCharacter->GetPlayerData()->MyDataField()->PlayerDataIDField() : -1;
 }
 
 const long long GetPlayerID(AController* _this)
 {
 	AShooterPlayerController* Player = static_cast<AShooterPlayerController*>(_this);
-	return Player ? Player->LinkedPlayerIDField()() : 0;
+	return Player ? Player->LinkedPlayerIDField() : 0;
 }
 
 float _cdecl Hook_APrimalCharacter_TakeDamage(APrimalCharacter* _this, float Damage, FDamageEvent* DamageEvent, AController* EventInstigator
@@ -48,7 +48,7 @@ float _cdecl Hook_APrimalCharacter_TakeDamage(APrimalCharacter* _this, float Dam
 float _cdecl Hook_APrimalStructure_TakeDamage(APrimalStructure* _this, float Damage, FDamageEvent* DamageEvent, AController* EventInstigator
 	, AActor* DamageCauser)
 {
-	return EventManager::Get().IsEventProtectedStructure(_this->RootComponentField()() ? _this->RootComponentField()()->RelativeLocationField()()
+	return EventManager::Get().IsEventProtectedStructure(_this->RootComponentField() ? _this->RootComponentField()->RelativeLocationField()
 		: FVector(0, 0, 0)) ? 0 : APrimalStructure_TakeDamage_original(_this, Damage, DamageEvent, EventInstigator, DamageCauser);
 }
 
@@ -70,9 +70,18 @@ void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* E
 
 void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	if (EventManager::Get().IsEventRunning() && !EventManager::Get().IsEventOverrideJoinAndLeave() && EventManager::Get().GetEventState() == EventState::WaitingForPlayers)
 	{
+		if (EventManager::Get().OnlyNakeds())
+		{
+			const FString& NakedChkMsg = EventManager::Get().CheckIfPlayersNaked(player).value_or("");
+			if (!NakedChkMsg.IsEmpty())
+			{
+				ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *NakedChkMsg);
+				return;
+			}
+		}
 		if (EventManager::Get().AddPlayer(player))
 		{
 			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[0], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
@@ -81,10 +90,9 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 	}
 }
 
-
 void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	if (EventManager::Get().IsEventRunning() && !EventManager::Get().IsEventOverrideJoinAndLeave() && EventManager::Get().GetEventState() == EventState::WaitingForPlayers)
 	{
 		if (EventManager::Get().RemovePlayer(player))
@@ -98,7 +106,7 @@ void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 void StartEvent(APlayerController* player_controller, FString* message, bool LogToFile)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(player_controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	if (!EventManager::Get().IsEventRunning())
 	{
 		TArray<FString> Parsed;
@@ -117,6 +125,15 @@ void StartEvent(APlayerController* player_controller, FString* message, bool Log
 		}
 		ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[6], *EventManager::Get().GetCurrentEventName());
 	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[7], *EventManager::Get().GetCurrentEventName());
+}
+
+void Pos(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->bIsAdmin()()) return;
+
+	FVector Pos = player->DefaultActorLocationField();
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {},", Pos.X, Pos.Y, Pos.Z);
+	Log::GetLog()->warn("{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 }
 
 void InitConfig()
@@ -140,7 +157,6 @@ void InitConfig()
 
 	data = config["EventManager"]["ServerName"];
 
-
 	const int EventStartMinuteMin = config["EventManager"]["EventStartMinuteMin"], EventStartMinuteMax = config["EventManager"]["EventStartMinuteMax"];
 
 	const bool LogToConsole = config["EventManager"]["DebugLogToConsole"];
@@ -160,6 +176,7 @@ void InitConfig()
 void InitEventManager()
 {
 	Log::Get().Init("Event Manager");
+	InitConfig();
 	ArkApi::GetHooks().SetHook("APrimalStructure.IsAllowedToBuild", &Hook_APrimalStructure_IsAllowedToBuild, &APrimalStructure_IsAllowedToBuild_original);
 	ArkApi::GetHooks().SetHook("APrimalCharacter.TakeDamage", &Hook_APrimalCharacter_TakeDamage, &APrimalCharacter_TakeDamage_original);
 	ArkApi::GetHooks().SetHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage, &APrimalStructure_TakeDamage_original);
@@ -168,6 +185,7 @@ void InitEventManager()
 	ArkApi::GetCommands().AddOnTimerCallback("EventManagerUpdate", &EventManagerUpdate);
 	ArkApi::GetCommands().AddChatCommand(EventJoinCommand, &JoinEvent);
 	ArkApi::GetCommands().AddChatCommand(EventLeaveCommand, &LeaveEvent);
+	ArkApi::GetCommands().AddChatCommand("/tpos", &Pos);
 	ArkApi::GetCommands().AddConsoleCommand(EventAdminStartEventConsoleCommand, &StartEvent);
 }
 
@@ -181,6 +199,7 @@ void DestroyEventManager()
 	ArkApi::GetCommands().RemoveOnTimerCallback("EventManagerUpdate");
 	ArkApi::GetCommands().RemoveChatCommand(EventJoinCommand);
 	ArkApi::GetCommands().RemoveChatCommand(EventLeaveCommand);
+	ArkApi::GetCommands().RemoveChatCommand("/tpos");
 	ArkApi::GetCommands().RemoveConsoleCommand(EventAdminStartEventConsoleCommand);
 }
 

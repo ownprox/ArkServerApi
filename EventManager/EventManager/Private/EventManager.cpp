@@ -74,9 +74,9 @@ namespace EventManager
 
 	bool EventManager::AddPlayer(AShooterPlayerController* player)
 	{
-		if (!FindPlayer(player->LinkedPlayerIDField()()))
+		if (!FindPlayer(player->LinkedPlayerIDField()))
 		{
-			Players.Add(EventPlayer(player->LinkedPlayerIDField()(), player));
+			Players.Add(EventPlayer(player->LinkedPlayerIDField(), player));
 			return true;
 		}
 		return false;
@@ -84,7 +84,7 @@ namespace EventManager
 
 	bool EventManager::RemovePlayer(AShooterPlayerController* player)
 	{
-		const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField()(); });
+		const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField(); });
 		return Removed != 0;
 	}
 
@@ -106,31 +106,42 @@ namespace EventManager
 		{
 			if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 			StartEvent();
-			NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
 		}
 	}
 
-	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventory, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam)
+	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam)
 	{
 		int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
 		if (TeamCount < 1) return;
 		TArray<int> SpawnIndexs;
 		for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
 		FVector Pos;
+		if (LogToConsole) Log::GetLog()->info("Teleporting Players({}), Spawn Size({})!", Players.Num(), TeamCount);
+
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
+			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
 			{
+				if (WipeInventoryOrCheckIsNaked)
+				{
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
+				}
+				else
+				{
+					const FString& NakedChkMsg = CheckIfPlayersNaked(itr.ASPC).value_or("");
+					if (!NakedChkMsg.IsEmpty())
+					{
+						ArkApi::GetApiUtils().SendChatMessage(itr.ASPC, EventManager::Get().GetServerName(), *NakedChkMsg);
+						itr.Delete = true;
+					}
+					continue;
+				}
+
 				if (DisableInputs)
 				{
 					itr.ASPC->GetPlayerCharacter()->bPreventMovement() = true;
 					itr.ASPC->GetPlayerCharacter()->bPreventJump() = true;
-				}
-
-				if (WipeInventory)
-				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField()());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField()(), true, true, true);
 				}
 
 				itr.StartPos = ArkApi::GetApiUtils().GetPosition(itr.ASPC);
@@ -156,6 +167,7 @@ namespace EventManager
 					if (ApplyFairMovementSpeed)
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
+						if (LogToConsole) Log::GetLog()->info("Speed: {}!", *speed);
 						*speed = 100;
 
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
@@ -179,22 +191,26 @@ namespace EventManager
 
 				if (SpawnIndexs[TeamIndex] == Spawns[TeamIndex].Num()) SpawnIndexs[TeamIndex] = 0;
 			}
+			else
+			{
+				itr.Delete = true;
+			}
 		}
 
-		Players.RemoveAll([&](EventPlayer& evplayer) { return !evplayer.ASPC || !evplayer.ASPC->GetPlayerCharacter() || (PreventDinos && evplayer.ASPC->GetPlayerCharacter()->GetRidingDino() || !PreventDinos && !evplayer.ASPC->GetPlayerCharacter()->GetRidingDino()); });
+		Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
 	}
 	
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
 	{
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
 			{
 				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
 				if (WipeInventory)
 				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField()());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField()(), true, true, true);
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
 
 				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
@@ -231,12 +247,45 @@ namespace EventManager
 	{
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField()() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
 			{
 				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
 				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
 			}
 		}
+	}
+
+	std::optional<FString> EventManager::CheckIfPlayersNaked(AShooterPlayerController* Player)
+	{
+		if (!Player || !Player->GetPlayerCharacter() || Player->GetPlayerCharacter()->IsDead()) return "Player Not Found Or Dead";
+		UPrimalInventoryComponent* Inv = Player->GetPlayerCharacter()->MyInventoryComponentField();
+		if (!Inv) return "Inventory Not Found";
+		FString FoundItem;
+		TArray<UPrimalItem *> Items = Inv->InventoryItemsField();
+		for (const auto& item : Items)
+			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
+			{
+				item->GetItemName(&FoundItem, false, false, nullptr);
+				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+			}
+
+		Items = Inv->EquippedItemsField();
+		for (const auto& item : Items)
+			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
+			{
+				item->GetItemName(&FoundItem, false, false, nullptr);
+				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+			}
+
+		Items = Inv->ItemSlotsField();
+		for (const auto& item : Items)
+			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
+			{
+				item->GetItemName(&FoundItem, false, false, nullptr);
+				return FString::Format("You must be naked! ({})", FoundItem.ToString().c_str());
+			}
+
+		return {};
 	}
 
 	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
@@ -261,20 +310,17 @@ namespace EventManager
 			}
 
 			int SlotIndex = 0;
-			FString Name;
-			UPrimalInventoryComponent* Inv = itr.ASPC->GetPlayerCharacter()->MyInventoryComponentField()();
+			UPrimalInventoryComponent* Inv = itr.ASPC->GetPlayerCharacter()->MyInventoryComponentField();
 			if (!Inv) return;
-			TArray<UPrimalItem *> Items = Inv->InventoryItemsField()();
+			TArray<UPrimalItem *> Items = Inv->InventoryItemsField();
 			for (const auto& item : Items)
 			{
-				if (item && !item->IsInBlueprint())
+				if (item && !item->IsInBlueprint() && !item->bIsEngram()())
 				{
-
-					switch (item->MyItemTypeField()())
+					switch (item->MyItemTypeField())
 					{
 						case EPrimalItemType::Weapon:
-							item->GetItemName(&Name, false, false, nullptr);
-							if (Name.StartsWith(L"Engram:", ESearchCase::CaseSensitive) || SlotIndex == 10) continue;
+							if (SlotIndex == 10) continue;
 							item->AddToSlot(SlotIndex++, true);
 							item->UpdatedItem();
 						break;
@@ -307,8 +353,8 @@ namespace EventManager
 	{
 		this->ServerName = ServerName;
 		this->JoinCommand = JoinCommand;
-		MinStartEvent = EventStartMinuteMin;
-		MaxStartEvent = EventStartMinuteMax;
+		MinStartEvent = (EventStartMinuteMin * 60000);
+		MaxStartEvent = (EventStartMinuteMax * 60000);
 		LogToConsole = DebugLogToConsole;
 	}
 
@@ -316,8 +362,8 @@ namespace EventManager
 	{
 		if (!CurrentEvent) return true; 
 		EventPlayer* Attacker, *Victim;
-		return ( (Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID &&
-			(Attacker->Team != 0 && Attacker->Team == Victim->Team || CurrentEvent->GetState() != EventState::Fighting));
+		return ((Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID 
+			&& CurrentEvent->GetState() == EventState::Fighting && (Attacker->Team == 0 || Attacker->Team != Victim->Team));
 	}
 
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
@@ -331,7 +377,6 @@ namespace EventManager
 			{
 				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
 				{
-
 					Player->ASPC->bInputEnabled() = true;
 
 					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
@@ -370,8 +415,9 @@ namespace EventManager
 	{
 		if (CurrentEvent && CurrentEvent->GetState() > EventState::TeleportingPlayers)
 		{			
-			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField()())))
+			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
+				//Instead of kill teleback and wipe inventory if a variable is true WipeInventoryOnLoggout
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
 				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
 				{

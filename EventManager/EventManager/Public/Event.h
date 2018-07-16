@@ -22,15 +22,16 @@ private:
 	SpawnsMap Spawns;
 	FVector StructureProtectionPosition;
 	int StructureProtectionDistance, Counter, Timer;
-	bool StructureProtection, ConfigLoaded, KillOnLogg, OverrideJoinAndLeave, FinalWarning;
+	bool StructureProtection, ConfigLoaded, KillOnLogg, OverrideJoinAndLeave, FinalWarning, OnlyAllowNakedsOnJoinEventCommand;
 
 public:
-	void InitDefaults(const FString& Name, const bool OverrideJoinAndLeave = false, const bool KillOnLogg = true, const bool StructureProtection = false
+	void InitDefaults(const FString& Name, const bool OverrideJoinAndLeave = false, const bool OnlyAllowNakedsOnJoinEventCommand = true, const bool KillOnLogg = true, const bool StructureProtection = false
 		, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
 	{
 		this->Name = Name;
 		this->KillOnLogg = KillOnLogg;
 		this->OverrideJoinAndLeave = OverrideJoinAndLeave;
+		this->OnlyAllowNakedsOnJoinEventCommand = OnlyAllowNakedsOnJoinEventCommand;
 		this->StructureProtection = StructureProtection;
 		this->StructureProtectionPosition = StructureProtectionPosition;
 		this->StructureProtectionDistance = StructureProtectionDistance;
@@ -55,6 +56,10 @@ public:
 		return OverrideJoinAndLeave;
 	}
 
+	bool OnlyNakeds() {
+		return OnlyAllowNakedsOnJoinEventCommand;
+	}
+
 	SpawnsMap& GetSpawns()
 	{
 		return Spawns;
@@ -72,6 +77,11 @@ public:
 		}
 	}
 
+	void ClearSpawns()
+	{
+		Spawns.clear();
+	}
+
 	void ResetCounter() { Counter = 0; }
 	bool WaitForCounter(int Count) { return Counter++ == Count; }
 	int GetCounter() { return Counter;  }
@@ -83,12 +93,13 @@ public:
 	bool WaitForTimer(int Seconds) { Timer++; return Timer > Seconds; }
 
 	bool HasConfigLoaded() { return ConfigLoaded; }
+	void ResetConfigLoaded() { ConfigLoaded = false; }
 
 	bool IsEventProtectedStructure(const FVector& StructurePos)
 	{ return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }
 
 	bool KillOnLoggout() { return KillOnLogg; }
-	
+
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map) {};
 	virtual void Update() {};
 	virtual void OnWonEvent() {};
