@@ -62,7 +62,7 @@ namespace EventManager
 			CurrentEvent = Events[EventID];
 			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
 		}
-		if (LogToConsole && CurrentEvent) Log::GetLog()->info("{} Event Started!", (CurrentEvent->GetName().IsEmpty() ? "" : CurrentEvent->GetName().ToString().c_str()));
+		if (LogToConsole) Log::GetLog()->info("{} Event Started!", (CurrentEvent->GetName().IsEmpty() ? "" : CurrentEvent->GetName().ToString().c_str()));
 		return true;
 	}
 
@@ -134,7 +134,6 @@ namespace EventManager
 					{
 						ArkApi::GetApiUtils().SendChatMessage(itr.ASPC, EventManager::Get().GetServerName(), *NakedChkMsg);
 						itr.Delete = true;
-						if (LogToConsole) Log::GetLog()->info("not naked");
 						continue;
 					}
 				}
@@ -152,7 +151,6 @@ namespace EventManager
 
 				itr.Team = TeamIndex;
 
-				if (LogToConsole) Log::GetLog()->info("GetCharacterStatusComponent");
 				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
 					UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
@@ -399,7 +397,7 @@ namespace EventManager
 						*melee = 100; //reset back to max percent
 
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
-						*speed = 100; //reset back to max percent
+						*speed = 0; //reset back to max percent
 
 						Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
 
@@ -418,10 +416,12 @@ namespace EventManager
 		{			
 			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
-				//Instead of kill teleback and wipe inventory if a variable is true WipeInventoryOnLoggout
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
 				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
 				{
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(EPlayer->ASPC->CheatManagerField());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)EPlayer->ASPC->LinkedPlayerIDField(), true, true, true);
+
 					Player->bInputEnabled() = true;
 					if (EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 					{
