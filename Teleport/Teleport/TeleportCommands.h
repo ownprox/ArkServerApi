@@ -1,7 +1,7 @@
 #pragma once
 void TeleportRequest(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr)
 	{
@@ -21,7 +21,7 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 		FString PlayerName = "";
 		for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 		TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
-		if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
+		if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField())
 		{
 			if (!Players[0]->GetPlayerCharacter() || Players[0]->GetPlayerCharacter()->IsDead())
 			{
@@ -69,12 +69,12 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 
 void TeleportAccept(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr && p->LastTPRID != -1)
 	{
 		AShooterPlayerController* other = nullptr;
-		if ((other = ArkApi::GetApiUtils().FindPlayerFromSteamId(p->LastTPRID)) != nullptr && other->PlayerStateField()())
+		if ((other = ArkApi::GetApiUtils().FindPlayerFromSteamId(p->LastTPRID)) != nullptr && other->PlayerStateField())
 		{
 			if (!other->GetPlayerCharacter() || other->GetPlayerCharacter()->IsDead())
 			{
@@ -95,7 +95,7 @@ void TeleportAccept(AShooterPlayerController* player, FString* message, int mode
 void AdminTP(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(1))
@@ -106,14 +106,14 @@ void AdminTP(APlayerController* Player_Controller, FString* message, bool write_
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
-	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(player, OtherPlayer, false);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(player, OtherPlayer, false);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
 
 void AdminTPM(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(1))
@@ -124,7 +124,7 @@ void AdminTPM(APlayerController* Player_Controller, FString* message, bool write
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
-	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()()) ArkApi::GetApiUtils().TeleportToPlayer(OtherPlayer, player, false);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(OtherPlayer, player, false);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
 
@@ -132,7 +132,7 @@ void AdminTPM(APlayerController* Player_Controller, FString* message, bool write
 void AdminTeleTamedToMe(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	float TamedDist = 500;
@@ -155,8 +155,8 @@ void AdminTeleTamedToMe(APlayerController* Player_Controller, FString* message, 
 		{
 			Pos = ArkApi::GetApiUtils().GetPosition(player);
 			Dino->TeleportTo(&Pos, &Rot, true, false);
-			FString DinoName = Dino->TamedNameField()();
-			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
+			FString DinoName = Dino->TamedNameField();
+			if (DinoName.Len() == 0) Dino->DinoNameTagField().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), Messages[9].c_str(), *DinoName);
 		}
 }
@@ -164,7 +164,7 @@ void AdminTeleTamedToMe(APlayerController* Player_Controller, FString* message, 
 void AdminTeleTamedToPlayer(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	float TamedDist = 500;
@@ -186,7 +186,7 @@ void AdminTeleTamedToPlayer(APlayerController* Player_Controller, FString* messa
 	FString PlayerName = "";
 	for (int i = 2; i < Parsed.Num(); i++)	PlayerName += (i == 2 ? Parsed[i] : FString(" ") + Parsed[i]);
 	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
-	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()())
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField())
 	{
 		TArray<TWeakObjectPtr<APrimalDinoCharacter>> Dinos;
 		OtherPlayer->GetTamedDinosNearBy(&Dinos, TamedDist);
@@ -197,8 +197,8 @@ void AdminTeleTamedToPlayer(APlayerController* Player_Controller, FString* messa
 		{
 			Pos = ArkApi::GetApiUtils().GetPosition(player);
 			Dino->TeleportTo(&Pos, &Rot, true, false);
-			FString DinoName = Dino->TamedNameField()();
-			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
+			FString DinoName = Dino->TamedNameField();
+			if (DinoName.Len() == 0) Dino->DinoNameTagField().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), Messages[9].c_str(), *DinoName);
 		}
 	}
@@ -208,7 +208,7 @@ void AdminTeleTamedToPlayer(APlayerController* Player_Controller, FString* messa
 void AdminTPCoord(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	TArray<FString> Parsed;
 	message->ParseIntoArray(Parsed, L" ", true);
 	if (!Parsed.IsValidIndex(3))
@@ -230,8 +230,8 @@ void AdminTPCoord(APlayerController* Player_Controller, FString* message, bool w
 void AdminPos(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
-	FVector Pos = player->DefaultActorLocationField()();
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
+	FVector Pos = player->DefaultActorLocationField();
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), Messages[12].c_str(), Pos.X, Pos.Y, Pos.Z);
 	Log::GetLog()->warn(ArkApi::Tools::ConvertToAnsiStr(Messages[12]).c_str(), Pos.X, Pos.Y, Pos.Z);
 }
@@ -239,7 +239,7 @@ void AdminPos(APlayerController* Player_Controller, FString* message, bool write
 void AdminTPTarget(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	AActor* Actor = player->GetPlayerCharacter()->GetAimedActor(ECollisionChannel::ECC_GameTraceChannel1, nullptr, 0.0f, 0.0f, nullptr, nullptr, false, false);
 	if (!Actor) return;
 	if (Actor->IsA(APrimalDinoCharacter::GetPrivateStaticClass()))
@@ -250,8 +250,8 @@ void AdminTPTarget(APlayerController* Player_Controller, FString* message, bool 
 			FVector Pos = ArkApi::GetApiUtils().GetPosition(player);
 			FRotator Rot{ 0, 0, 0 };
 			Dino->TeleportTo(&Pos, &Rot, true, false);
-			FString DinoName = Dino->TamedNameField()();
-			if (DinoName.Len() == 0) Dino->DinoNameTagField()().ToString(&DinoName);
+			FString DinoName = Dino->TamedNameField();
+			if (DinoName.Len() == 0) Dino->DinoNameTagField().ToString(&DinoName);
 			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), Messages[9].c_str(), *DinoName);
 		}
 	}
@@ -260,7 +260,7 @@ void AdminTPTarget(APlayerController* Player_Controller, FString* message, bool 
 void ReloadConfig(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
 	InitConfig();
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"Teleport Config Reloaded!");
 }
