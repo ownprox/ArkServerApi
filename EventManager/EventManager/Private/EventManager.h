@@ -54,6 +54,7 @@ namespace EventManager
 		std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player);
 
 		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
+		void ResetPlayerStats(EventPlayer* Player);
 
 		void SendChatMessageToAllEventPlayersInternal(const FString& sender_name, const FString& msg);
 		void SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,

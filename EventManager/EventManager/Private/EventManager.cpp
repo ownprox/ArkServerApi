@@ -158,7 +158,8 @@ namespace EventManager
 					if (ApplyFairHp)
 					{
 						float* health = charStatus->CurrentStatusValuesField()();
-						if (*health < 100.f) *health = 100.f;
+						itr.EventPlayerStats.health = *health;
+						*health = 100.f;
 					}
 
 					float* torpor = charStatus->CurrentStatusValuesField()() + 2;
@@ -167,6 +168,7 @@ namespace EventManager
 					if (ApplyFairMovementSpeed)
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
+						itr.EventPlayerStats.speed = *speed;
 						*speed = 0;
 
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
@@ -176,6 +178,7 @@ namespace EventManager
 					if (ApplyFairMeleeDamage)
 					{
 						float* melee = charStatus->CurrentStatusValuesField()() + 8;
+						itr.EventPlayerStats.melee = *melee;
 						*melee = 100;
 					}
 				}
@@ -203,41 +206,15 @@ namespace EventManager
 	{
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+			if (itr.ASPC)
 			{
-				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
 				if (WipeInventory)
 				{
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
-
-				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
-				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
-
-				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-				{
-					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
-					itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
-				}
-
-				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-				{
-					//need to cap max to player does not regain hp or find a way to prevent character regaining hp
-					UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-
-					float* health = charStatus->CurrentStatusValuesField()();
-					if (*health < 100.f) *health = 100.f;//calculate max hp using base level ect
-
-					float* torpor = charStatus->CurrentStatusValuesField()() + 2;
-					*torpor = 0;
-
-					float* melee = charStatus->CurrentStatusValuesField()() + 8;
-					*melee = 100; //reset back to max percent
-
-					float* speed = charStatus->CurrentStatusValuesField()() + 9;
-					*speed = 0; //reset back to max percent
-				}
+				ResetPlayerStats(&itr);
+				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
 			}
 		}
 	}
@@ -329,6 +306,37 @@ namespace EventManager
 		}
 	}
 
+	void EventManager::ResetPlayerStats(EventPlayer* Player)
+	{
+		Player->ASPC->bInputEnabled() = true;
+
+		if (Player->ASPC->GetPlayerCharacter() && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+		{
+			UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
+
+			charStatus->bRunningUseDefaultSpeed() = false;
+			charStatus->bForceDefaultSpeed() = false;
+
+			float* health = charStatus->CurrentStatusValuesField()();
+			if (*health < 100.f || Player->EventPlayerStats.health != -1.f) *health = Player->EventPlayerStats.health == -1.f ? 100.f : Player->EventPlayerStats.health;//calculate max hp using base level ect
+
+			float* torpor = charStatus->CurrentStatusValuesField()() + 2;
+			*torpor = 0;
+
+			if (Player->EventPlayerStats.melee != -1.f)
+			{
+				float* melee = charStatus->CurrentStatusValuesField()() + 8;
+				*melee = Player->EventPlayerStats.melee;
+			}
+
+			if (Player->EventPlayerStats.speed != -1.f)
+			{
+				float* speed = charStatus->CurrentStatusValuesField()() + 9;
+				*speed = Player->EventPlayerStats.speed;
+			}
+		}
+	}
+
 	void EventManager::SendChatMessageToAllEventPlayersInternal(const FString& sender_name, const FString& msg)
 	{
 		FChatMessage chat_message = FChatMessage();
@@ -368,7 +376,7 @@ namespace EventManager
 		return ((Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID 
 			&& CurrentEvent->GetState() == EventState::Fighting && (Attacker->Team == 0 || Attacker->Team != Victim->Team));
 	}
-
+	
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
 		if (VictimID != -1)
@@ -378,37 +386,15 @@ namespace EventManager
 
 			if ((Player = FindPlayer(VictimID)))
 			{
-				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
+				if (Player->ASPC)
 				{
-					Player->ASPC->bInputEnabled() = true;
-
-					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-					{
-						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
-						Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
-					}
-
-					if (Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-					{
-						UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-						float* health = charStatus->CurrentStatusValuesField()();
-						if (*health < 100.f) *health = 100.f;//calculate max hp using base level ect
-
-						float* torpor = charStatus->CurrentStatusValuesField()() + 2;
-						*torpor = 0;
-
-						float* melee = charStatus->CurrentStatusValuesField()() + 8;
-						*melee = 100; //reset back to max percent
-
-						float* speed = charStatus->CurrentStatusValuesField()() + 9;
-						*speed = 0; //reset back to max percent
-
-						Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
-
-						return true;
-					}
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(Player->ASPC->CheatManagerField());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)Player->ASPC->LinkedPlayerIDField(), true, true, true);
+					ResetPlayerStats(Player);
+					Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
 				}
 				Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == Player->PlayerID; });
+				return true;
 			}
 		}
 		return false;
@@ -421,18 +407,11 @@ namespace EventManager
 			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
-				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
+				else if (EPlayer->ASPC)
 				{
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(EPlayer->ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)EPlayer->ASPC->LinkedPlayerIDField(), true, true, true);
-
-					Player->bInputEnabled() = true;
-					if (EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
-					{
-						EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = false;
-						EPlayer->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = false;
-					}
-
+					ResetPlayerStats(EPlayer);
 					EPlayer->ASPC->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
 				} else Player->ServerSuicide_Implementation();
 				RemovePlayer(Player);

@@ -110,7 +110,7 @@ public:
 
 
 			int j = 0;
-			const auto& Msgs = config["EventManager"]["Messages"];
+			const auto& Msgs = config["Deathmatch"]["Messages"];
 			for (const auto& Msg : Msgs)
 			{
 				Data = Msg;

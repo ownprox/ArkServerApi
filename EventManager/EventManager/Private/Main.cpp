@@ -54,7 +54,7 @@ float _cdecl Hook_APrimalStructure_TakeDamage(APrimalStructure* _this, float Dam
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	return (EventManager::Get().IsEventRunning() && Killer && _this && !Killer->IsLocalController() && Killer->IsA(AShooterCharacter::GetPrivateStaticClass())
+	return (EventManager::Get().IsEventRunning() && Killer && _this && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass())
 		&& EventManager::Get().OnPlayerDied(GetPlayerID(Killer), GetPlayerID(_this))) ? 0 : AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
 }
 
@@ -155,7 +155,6 @@ void InitConfig()
 	data = config["EventManager"]["AdminStartEventConsoleCommand"];
 	EventAdminStartEventConsoleCommand = ArkApi::Tools::Utf8Decode(data).c_str();
 
-	data = config["EventManager"]["ServerName"];
 
 	const int EventStartMinuteMin = config["EventManager"]["EventStartMinuteMin"], EventStartMinuteMax = config["EventManager"]["EventStartMinuteMax"];
 
@@ -168,6 +167,8 @@ void InitConfig()
 		data = Msg;
 		Messages[j++] = ArkApi::Tools::Utf8Decode(data).c_str();
 	}
+
+	data = config["EventManager"]["ServerName"];
 	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole, Messages[8], Messages[9], Messages[10]);
 	
 	file.close();

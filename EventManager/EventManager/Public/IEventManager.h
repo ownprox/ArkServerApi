@@ -9,6 +9,12 @@
 
 namespace EventManager
 {
+	struct EventPlayerStats_s
+	{
+		float health, melee, speed;
+		EventPlayerStats_s() : health(-1.f), melee(-1.f), speed(-1.f) {}
+	};
+
 	struct EventPlayer
 	{
 		const long long PlayerID;
@@ -16,9 +22,10 @@ namespace EventManager
 		int Kills, Team;
 		AShooterPlayerController* ASPC;
 		bool Delete;
+		EventPlayerStats_s EventPlayerStats;
 
 		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC) : PlayerID(PlayerID), ASPC(ASPC), StartPos(ArkApi::GetApiUtils().GetPosition(ASPC))
-			, Kills(0), Team(0), Delete(false) {}
+			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()) {}
 	};
 
 	enum EventArmourType
@@ -86,6 +93,7 @@ namespace EventManager
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
+		virtual void  ResetPlayerStats(EventPlayer* Player) = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)

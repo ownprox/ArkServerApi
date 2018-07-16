@@ -2,8 +2,8 @@
    "Deathmatch":{  
       "EventName":"Deathmatch",
       "PlayersNeededToStart":1,
-      "JoinMessages":4,
-      "JoinMessageDelaySeconds":60,
+      "JoinMessages":1,
+      "JoinMessageDelaySeconds":30,
       "StructureProtection":true,
       "StructureProtectionPosition":[  
          0,
@@ -23,9 +23,9 @@
       "Spawns":[  
          {  
             "Position":[  
-               -121454,
-               186047,
-               -7700
+               -410361,
+               -405592,
+               -13993
             ]
          }
       ],
@@ -130,14 +130,14 @@
          }
       ],
       "Messages":[  
-         "[Event] {} Starting in {} {}, To Join Type {}",
+         "<RichColor Color=\"0, 1, 0, 1\">[Event] {} Starting in {} {}, To Join Type {}</>",
          "Minutes",
          "Minute",
          "Seconds",
-         "[Event] {} Failed to start needed {} Players",
-         "[Event] {} Starting in 30 Seconds, Equipt your Gear!",
-         "[Event] {} Started Kill or Be Killed!",
-         "[Event] {} has won the {} event!"
+         "<RichColor Color=\"0, 1, 0, 1\">[Event] {} Failed to start needed {} Players</>",
+         "<RichColor Color=\"0, 1, 0, 1\">[Event] {} Starting in 30 Seconds, Equip your Gear!</>",
+         "<RichColor Color=\"1, 0, 0, 1\">[Event] {} Started Kill or Be Killed!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">[Event] {} has won the {} event!</>"
       ]
    }
 }
