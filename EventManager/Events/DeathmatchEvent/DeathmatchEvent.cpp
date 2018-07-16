@@ -1,7 +1,7 @@
 #pragma once
 #include "DeathmatchEvent.h"
-#include "../../EventManager/EventManager/Public/Event.h"
-#include "../../EventManager/EventManager/Public/IEventManager.h"
+#include "../../EventManager/Public/Event.h"
+#include "../../EventManager/Public/IEventManager.h"
 #pragma comment(lib, "AAEventManager.lib")
 #pragma comment(lib, "ArkApi.lib")
 #include <fstream>

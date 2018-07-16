@@ -13,7 +13,7 @@
       "StructureProtectionDistance":30000,
       "ArkShopPointsRewardMin":45,
       "ArkShopPointsRewardMax":90,
-      "KillOnLoggout":true,
+      "KillOnLoggout":false,
       "EventMessageColour":[  
          1.000,
          1.000,
@@ -23,9 +23,26 @@
       "Spawns":[  
          {  
             "Position":[  
-               -410361,
-               -405592,
-               -13993
+               -121454,
+                186047,
+               -7700 
+            ]
+         }
+      ],
+      "Equipment":[  
+         {  
+            "HeadBP":"",
+            "TorsoBP":"",
+            "GlovesBP":"",
+            "OffhandBP":"",
+            "LegsBP":"",
+            "FeetBP":"",
+            "Items":[  
+               {  
+                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
+                  "Quantity":1,
+                  "Quality":0.0
+               }
             ]
          }
       ],
