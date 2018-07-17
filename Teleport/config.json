@@ -1,6 +1,6 @@
 {  
    "Teleport":{  
-      "TPREnabled":true,
+      "TPREnabled":false,
       "TPRCoolDownEnabled":true,
       "TPRCoolDownForPlayerTeleportedTo":false,
       "TPRCoolDownSeconds":120,
@@ -10,13 +10,13 @@
       "Commands":{  
          "tpr":"/tpr",
          "tpa":"/tpa",
-         "tp":"/tp",
-         "tpm":"/tpm",
-         "tpd":"/tpd",
-         "tpdp":"/tpdp",
-         "tpp":"/tpp",
-         "tt":"/tt",
-         "pos":"/pos"
+         "tp":"tp",
+         "tpm":"tpm",
+         "tpd":"tpd",
+         "tpdp":"tpdp",
+         "tpp":"tpp",
+         "tt":"tt",
+         "pos":"pos"
       },
       "Messages":[  
          "Incorrect Syntax: /tpr <PlayerName>",
@@ -26,7 +26,7 @@
          "Cant Find: {}",
          "You will Teleport to {} in {} Seconds.",
          "{} Is Teleporting to you in {} Seconds.",
-         "Please login as admin to use this command",
+         "Please login as Admin to use this command",
          "Incorrect Syntax: /tp <PlayerName>",
          "{} Teleported to you.",
          "Incorrect Syntax: /tpdp <Dist> <PlayerName>",
