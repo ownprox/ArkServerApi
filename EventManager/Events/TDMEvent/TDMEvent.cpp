@@ -1,5 +1,5 @@
 #pragma once
-#include "DeathmatchEvent.h"
+#include "TDMEvent.h"
 #include "../../EventManager/Public/Event.h"
 #include "../../EventManager/Public/IEventManager.h"
 #pragma comment(lib, "AAEventManager.lib")
@@ -7,11 +7,11 @@
 #include <fstream>
 #include "json.hpp"
 
-class DeathMatch : public Event
+class TDMEvent : public Event
 {
 private:
 	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter;
-	FString JoinEventCommand, ServerName, Messages[8];
+	FString JoinEventCommand, ServerName, Messages[11];
 
 	struct Reward
 	{
@@ -34,49 +34,56 @@ public:
 			Rewards.Empty();
 			ClearSpawns();
 
-			const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/DeathMatchEvent/" + Map.ToString() + ".json";
+			const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/TeamDeathMatchEvent/" + Map.ToString() + ".json";
 			std::ifstream file { config_path };
 			if (!file.is_open()) throw std::runtime_error(fmt::format("Can't open {}.json", Map.ToString().c_str()).c_str());
 			nlohmann::json config;
 			file >> config;
-			const std::string eName = config["Deathmatch"]["EventName"];
+			const std::string eName = config["TDM"]["EventName"];
 			const FString& EventName = ArkApi::Tools::Utf8Decode(eName).c_str();
 
-			PlayersNeededToStart = config["Deathmatch"]["PlayersNeededToStart"];
+			PlayersNeededToStart = config["TDM"]["PlayersNeededToStart"];
 
-			JoinMessages = config["Deathmatch"]["JoinMessages"];
-			JoinMessageDelaySeconds = config["Deathmatch"]["JoinMessageDelaySeconds"];
+			JoinMessages = config["TDM"]["JoinMessages"];
+			JoinMessageDelaySeconds = config["TDM"]["JoinMessageDelaySeconds"];
 
-			const bool StructureProtection = config["Deathmatch"]["StructureProtection"];
-			const auto StructureProtectionPosition = config["Deathmatch"]["StructureProtectionPosition"];
-			const int StructureProtectionDistacne = config["Deathmatch"]["StructureProtectionDistance"];
+			const bool StructureProtection = config["TDM"]["StructureProtection"];
+			const auto StructureProtectionPosition = config["TDM"]["StructureProtectionPosition"];
+			const int StructureProtectionDistacne = config["TDM"]["StructureProtectionDistance"];
 
-			ArkShopPointsRewardMin = config["Deathmatch"]["ArkShopPointsRewardMin"];
-			ArkShopPointsRewardMax = config["Deathmatch"]["ArkShopPointsRewardMax"];
+			ArkShopPointsRewardMin = config["TDM"]["ArkShopPointsRewardMin"];
+			ArkShopPointsRewardMax = config["TDM"]["ArkShopPointsRewardMax"];
 			if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
 			if (ArkShopPointsRewardMin < 0) ArkShopPointsRewardMin = 0;
 
-			const bool KillOnLogg = config["Deathmatch"]["KillOnLoggout"];
+			const bool KillOnLogg = config["TDM"]["KillOnLoggout"];
 			std::string Data;
 
 			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
 				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne);
 
-			const auto& Spawns = config["Deathmatch"]["Spawns"];
-			for (const auto& Spawn : Spawns)
+			const auto& SpawnsA = config["TDM"]["TeamASpawns"];
+			for (const auto& Spawn : SpawnsA)
 			{
 				const auto& SpawnPos = Spawn["Position"];
 				AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]));
 			}
+
+			const auto& SpawnsB = config["TDM"]["TeamBSpawns"];
+			for (const auto& Spawn : SpawnsB)
+			{
+				const auto& SpawnPos = Spawn["Position"];
+				AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]), 1);
+			}
 			
-			const auto& RewardsConfig = config["Deathmatch"]["Rewards"];
+			const auto& RewardsConfig = config["TDM"]["Rewards"];
 			for (const auto& szitem : RewardsConfig)
 			{
 				Data = szitem["Blueprint"];
 				Rewards.Add(Reward(FString(Data.c_str()), (int)szitem["QuantityMin"], (int)szitem["QuantityMax"], (int)szitem["QualityMin"], (int)szitem["QualityMax"], (int)szitem["MinIsBP"], (int)szitem["MaxIsBP"]));
 			}
 			
-			const auto& EquipmentConfig = config["Deathmatch"]["Equipment"];
+			const auto& EquipmentConfig = config["TDM"]["Equipment"];
 			for (const auto& Equipment : EquipmentConfig)
 			{
 				TArray<EventManager::EventItem> Items;
@@ -110,7 +117,7 @@ public:
 
 
 			int j = 0;
-			const auto& Msgs = config["Deathmatch"]["Messages"];
+			const auto& Msgs = config["TDM"]["Messages"];
 			for (const auto& Msg : Msgs)
 			{
 				Data = Msg;
@@ -168,12 +175,16 @@ public:
 			if (WaitForTimer(30))
 			{
 				EventManager::Get().EnableEventPlayersInputs();
-				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[6], *GetName());
+				const auto& Players = EventManager::Get().GetEventPlayers();
+				for (const auto& player : Players)
+				{
+					if(player.ASPC) ArkApi::GetApiUtils().SendChatMessage(player.ASPC, ServerName, *Messages[6], *GetName(), (player.Team == 1 ? *Messages[9] : *Messages[10]));
+				}
 				SetState(EventState::Fighting);
 			}
 			break;
 		case EventState::Fighting:
-			if (EventManager::Get().GetEventPlayersCount() <= 1) SetState(EventState::Rewarding);
+			if (EventManager::Get().GetTeamAliveCount(0) == 0 || EventManager::Get().GetTeamAliveCount(1) == 0) SetState(EventState::Rewarding);
 			break;
 		case EventState::Rewarding:
 			if (EventManager::Get().GetEventPlayersCount() > 0)
@@ -193,9 +204,8 @@ public:
 						FString BP = reward.BP;
 						RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
 					}
-
-					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
 				}
+				ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, (EventManager::Get().GetTeamAliveCount(0) ? *Messages[7] : *Messages[8]), *GetName());
 			}
 			SetState(EventState::Finished);
 			break;
@@ -203,28 +213,28 @@ public:
 	}
 }; 
 
-DeathMatch* DmEvent;
+TDMEvent* TDmEvent;
 void DMReload(APlayerController* player_controller, FString* message, bool LogToFile)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(player_controller);
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
-	DmEvent->ResetConfigLoaded();
+	TDmEvent->ResetConfigLoaded();
 	ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), "Config Reloaded!");
 }
 
 void InitEvent()
 {
-	Log::Get().Init("Deathmatch Event");
-	DmEvent = new DeathMatch();
-	EventManager::Get().AddEvent((Event*)DmEvent);
-	ArkApi::GetCommands().AddConsoleCommand("dmreload", &DMReload);
+	Log::Get().Init("Team Deathmatch Event");
+	TDmEvent = new TDMEvent();
+	EventManager::Get().AddEvent((Event*)TDmEvent);
+	ArkApi::GetCommands().AddConsoleCommand("tdmreload", &DMReload);
 }
 
 void RemoveEvent()
 {
-	EventManager::Get().RemoveEvent((Event*)DmEvent);
-	ArkApi::GetCommands().RemoveConsoleCommand("dmreload");
-	if (DmEvent != nullptr) delete[] DmEvent;
+	EventManager::Get().RemoveEvent((Event*)TDmEvent);
+	ArkApi::GetCommands().RemoveConsoleCommand("tdmreload");
+	if (TDmEvent != nullptr) delete[] TDmEvent;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

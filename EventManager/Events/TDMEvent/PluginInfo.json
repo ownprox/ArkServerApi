@@ -1,0 +1,10 @@
+{
+  "FullName":"TeamDeathMatchEvent",
+  "Description":"TDM Event",
+  "Version":1.0,
+  "MinApiVersion":2.5,
+  "ResourceId":-1,
+  "Dependencies":[
+    "AAEventManager"
+  ]
+}

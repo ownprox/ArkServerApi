@@ -109,15 +109,28 @@ namespace EventManager
 		}
 	}
 
-	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam)
+	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns)
 	{
-		int TeamCount = (int)Spawns.size(), TeamIndex = StartTeam;
+		int TeamCount = (int)Spawns.size(), TeamIndex = 0;
 		if (TeamCount < 1) return;
 		TArray<int> SpawnIndexs;
-		for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
-		FVector Pos;
-		if (LogToConsole) Log::GetLog()->info("Teleporting Players({}), Spawn Size({})!", Players.Num(), TeamCount);
+		if (TeamCount > 1)
+		{
+			EventTeamData.Empty();
+			for (int i = 0; i < TeamCount; i++)
+			{
+				SpawnIndexs.Add(0); 
+				EventTeamData.Add(EventTeam());
+			}
+			TeamBased = true;
+		}
+		else
+		{
+			for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
+			TeamBased = false;
+		}
 
+		FVector Pos;
 		for (auto& itr : Players)
 		{
 			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
@@ -149,7 +162,7 @@ namespace EventManager
 				Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]];
 				SpawnIndexs[TeamIndex]++;
 
-				itr.Team = TeamIndex;
+				itr.Team = TeamIndex + 1;
 
 				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
@@ -187,8 +200,9 @@ namespace EventManager
 
 				if (TeamCount > 1)
 				{
+					EventTeamData[TeamIndex].Alive++;
 					TeamIndex++;
-					if (TeamIndex == TeamCount) TeamIndex = StartTeam;
+					if (TeamIndex == TeamCount) TeamIndex = 0;
 				}
 
 				if (SpawnIndexs[TeamIndex] == Spawns[TeamIndex].Num()) SpawnIndexs[TeamIndex] = 0;
@@ -309,6 +323,11 @@ namespace EventManager
 	void EventManager::ResetPlayerStats(EventPlayer* Player)
 	{
 		Player->ASPC->bInputEnabled() = true;
+		if (TeamBased)
+		{
+			const int Team = Player->Team - 1;
+			if (Team < EventTeamData.Num()) EventTeamData[Team].Alive--;
+		}
 
 		if (Player->ASPC->GetPlayerCharacter() && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 		{

@@ -8,16 +8,17 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool LogToConsole, EventQueueNotifications, UseSchedule, EventStartAuto;
+		bool LogToConsole, EventQueueNotifications, UseSchedule, EventStartAuto, TeamBased;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
 		DWORD NextEventTime;
 		FString JoinCommand, ServerName, Map, PlayerDeadMsg, InventoryNotFoundMsg, MustBeNakedMsg;
 		int32 MinStartEvent, MaxStartEvent;
+		TArray<EventTeam> EventTeamData;
 		~EventManager() = default;
 		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
-			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true) {};
+			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true), TeamBased(false) {};
 	public:
 		static EventManager& Get();
 
@@ -44,10 +45,12 @@ namespace EventManager
 		bool RemovePlayer(AShooterPlayerController* player);
 		TArray<EventPlayer>& GetEventPlayers() { return Players; }
 		int GetEventPlayersCount() { return (int)Players.Num(); }
+		int GetTeamAliveCount(const int Team) { return EventTeamData[Team].Alive; }
+		int GetTeamScore(const int Team) { return EventTeamData[Team].Score; }
 
 		void Update();
 
-		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam = 0);
+		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns);
 		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
 		void EnableEventPlayersInputs();
 

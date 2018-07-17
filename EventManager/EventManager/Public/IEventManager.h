@@ -28,6 +28,12 @@ namespace EventManager
 			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()) {}
 	};
 
+	struct EventTeam
+	{
+		int Alive, Score;
+		EventTeam() : Alive(0), Score(0) {}
+	};
+
 	enum EventArmourType
 	{
 		Head = 0,
@@ -83,10 +89,12 @@ namespace EventManager
 
 		virtual TArray<EventPlayer>& GetEventPlayers() = 0;
 		virtual int GetEventPlayersCount() = 0;
+		virtual int GetTeamAliveCount(const int Team) = 0;
+		virtual int GetTeamScore(const int Team) = 0;
 
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
-		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns, const int StartTeam) = 0;
+		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
 		virtual void EnableEventPlayersInputs() = 0;
 
