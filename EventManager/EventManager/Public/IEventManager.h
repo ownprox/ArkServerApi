@@ -101,7 +101,7 @@ namespace EventManager
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
-		virtual void  ResetPlayerStats(EventPlayer* Player) = 0;
+		virtual void ResetPlayerStats(EventPlayer* Player, bool PlayerDied = true) = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)

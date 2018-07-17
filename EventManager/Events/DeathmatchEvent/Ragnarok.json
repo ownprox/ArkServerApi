@@ -1,7 +1,7 @@
 {  
    "Deathmatch":{  
       "EventName":"Deathmatch",
-      "PlayersNeededToStart":2,
+      "PlayersNeededToStart":1,
       "JoinMessages":4,
       "JoinMessageDelaySeconds":60,
       "StructureProtection":false,
@@ -89,17 +89,17 @@
                   "Quality":0.0
                },
                {  
-                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMachinedPistol.PrimalItem_WeaponMachinedPistol'",
+                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_AdvancedBullet.PrimalItemAmmo_AdvancedBullet'",
                   "Quantity":50,
                   "Quality":0.0
                },
                {  
-                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMachinedPistol.PrimalItem_WeaponMachinedPistol'",
+                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_AdvancedBullet.PrimalItemAmmo_AdvancedBullet'",
                   "Quantity":50,
                   "Quality":0.0
                },
                {  
-                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponMachinedPistol.PrimalItem_WeaponMachinedPistol'",
+                  "BP":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItemAmmo_AdvancedBullet.PrimalItemAmmo_AdvancedBullet'",
                   "Quantity":50,
                   "Quality":0.0
                }

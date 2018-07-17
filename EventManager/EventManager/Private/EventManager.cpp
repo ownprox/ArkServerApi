@@ -227,7 +227,7 @@ namespace EventManager
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
-				ResetPlayerStats(&itr);
+				ResetPlayerStats(&itr, false);
 				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
 			}
 		}
@@ -320,10 +320,10 @@ namespace EventManager
 		}
 	}
 
-	void EventManager::ResetPlayerStats(EventPlayer* Player)
+	void EventManager::ResetPlayerStats(EventPlayer* Player, bool PlayerDied)
 	{
 		Player->ASPC->bInputEnabled() = true;
-		if (TeamBased)
+		if (TeamBased && PlayerDied)
 		{
 			const int Team = Player->Team - 1;
 			if (Team < EventTeamData.Num()) EventTeamData[Team].Alive--;
