@@ -4,21 +4,23 @@
       "JoinCommand":"/join",
       "LeaveCommand":"/leave",
       "AdminStartEventConsoleCommand":"startevent",
+	  "EventStartAuto":true,
       "EventStartMinuteMin":45,
       "EventStartMinuteMax":60,
+	  "StartEventOnServerStart":true,
       "DebugLogToConsole":true,
       "Messages":[  
-         "{} has joined {} event queue!",
-         "To leave the queue type /leave",
-         "you are already in the {} event queue!",
-         "{} has left {} event queue!",
-         "You left {} event queue!",
-         "you are not in the {} event queue!",
-         "{} event Started!",
-         "{} event is already running!",
-		 "You can't join the event while dead!",
-		 "Inventory not found.",
-		 "You must be naked! ({})"
+         "<RichColor Color=\"0, 1, 0, 1\">{} has joined {} event queue!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">To leave the queue type /leave</>",
+         "<RichColor Color=\"0, 1, 0, 1\">you are already in the {} event queue!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">{} has left {} event queue!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">You left {} event queue!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">you are not in the {} event queue!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">{} event Started!</>",
+         "<RichColor Color=\"0, 1, 0, 1\">{} event is already running!</>",
+		 "<RichColor Color=\"0, 1, 0, 1\">You can't join the event while dead!</>",
+		 "<RichColor Color=\"0, 1, 0, 1\">Inventory not found.</>",
+		 "<RichColor Color=\"0, 1, 0, 1\">You must be naked! ({})</>"
       ]
    }
 }

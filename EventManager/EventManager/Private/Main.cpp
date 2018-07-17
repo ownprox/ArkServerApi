@@ -156,10 +156,11 @@ void InitConfig()
 	EventAdminStartEventConsoleCommand = ArkApi::Tools::Utf8Decode(data).c_str();
 
 
+	const bool EventStartAuto = config["EventManager"]["EventStartAuto"];
 	const int EventStartMinuteMin = config["EventManager"]["EventStartMinuteMin"], EventStartMinuteMax = config["EventManager"]["EventStartMinuteMax"];
 
 	const bool LogToConsole = config["EventManager"]["DebugLogToConsole"];
-	
+	const bool StartEventOnServerStart = config["EventManager"]["StartEventOnServerStart"];
 	int j = 0;
 	const auto& Msgs = config["EventManager"]["Messages"];
 	for (const auto& Msg : Msgs)
@@ -169,10 +170,18 @@ void InitConfig()
 	}
 
 	data = config["EventManager"]["ServerName"];
-	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole, Messages[8], Messages[9], Messages[10]);
+	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole, Messages[8], Messages[9], Messages[10], StartEventOnServerStart, EventStartAuto);
 	
 	file.close();
 }
+
+void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->bIsAdmin()()) return;
+	InitConfig();
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"Config Reloaded!");
+}
+
 
 void InitEventManager()
 {
@@ -187,6 +196,7 @@ void InitEventManager()
 	ArkApi::GetCommands().AddChatCommand(EventJoinCommand, &JoinEvent);
 	ArkApi::GetCommands().AddChatCommand(EventLeaveCommand, &LeaveEvent);
 	ArkApi::GetCommands().AddChatCommand("/tpos", &Pos);
+	ArkApi::GetCommands().AddChatCommand("/emreload", &ReloadConfig);
 	ArkApi::GetCommands().AddConsoleCommand(EventAdminStartEventConsoleCommand, &StartEvent);
 }
 
@@ -201,6 +211,7 @@ void DestroyEventManager()
 	ArkApi::GetCommands().RemoveChatCommand(EventJoinCommand);
 	ArkApi::GetCommands().RemoveChatCommand(EventLeaveCommand);
 	ArkApi::GetCommands().RemoveChatCommand("/tpos");
+	ArkApi::GetCommands().RemoveChatCommand("/emreload");
 	ArkApi::GetCommands().RemoveConsoleCommand(EventAdminStartEventConsoleCommand);
 }
 

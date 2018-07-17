@@ -8,7 +8,7 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool LogToConsole, EventQueueNotifications, UseSchedule;
+		bool LogToConsole, EventQueueNotifications, UseSchedule, EventStartAuto;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
@@ -17,7 +17,7 @@ namespace EventManager
 		int32 MinStartEvent, MaxStartEvent;
 		~EventManager() = default;
 		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
-			MinStartEvent(7200000), MaxStartEvent(21600000) {};
+			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true) {};
 	public:
 		static EventManager& Get();
 
@@ -63,7 +63,7 @@ namespace EventManager
 		bool GetEventQueueNotifications();
 
 		void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
-			, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg);
+			, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto);
 
 		//Hooks
 		bool CanTakeDamage(long long AttackerID, long long VictimID);

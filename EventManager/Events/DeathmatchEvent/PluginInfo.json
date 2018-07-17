@@ -1,0 +1,10 @@
+{
+  "FullName":"DeathMatchEvent",
+  "Description":"DM Event",
+  "Version":1.1,
+  "MinApiVersion":2.5,
+  "ResourceId":-1,
+  "Dependencies":[
+    "AAEventManager"
+  ]
+}

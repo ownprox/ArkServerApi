@@ -113,7 +113,7 @@ namespace EventManager
 		virtual bool GetEventQueueNotifications() = 0;
 
 		virtual void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
-				, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg) = 0;
+				, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto) = 0;
 
 		virtual bool CanTakeDamage(long long AttackerID, long long VictimID) = 0;
 		virtual bool OnPlayerDied(long long AttackerID, long long VictimID) = 0;

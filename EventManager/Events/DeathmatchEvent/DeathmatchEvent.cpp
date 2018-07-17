@@ -122,7 +122,7 @@ public:
 		WaitForDelay = JoinMessageDelaySeconds;
 		WaitCounter = JoinMessages + 1;
 	}
-
+	
 	virtual void Update()
 	{
 		switch (GetState())
@@ -224,6 +224,7 @@ void RemoveEvent()
 {
 	EventManager::Get().RemoveEvent((Event*)DmEvent);
 	ArkApi::GetCommands().RemoveConsoleCommand("dmreload");
+	if (DmEvent != nullptr) delete[] DmEvent;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

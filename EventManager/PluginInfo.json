@@ -1,0 +1,7 @@
+{
+  "FullName":"Event Manager",
+  "Description":"Automatically run custom events.",
+  "Version":1.1,
+  "MinApiVersion":2.5,
+  "ResourceId":-1
+}

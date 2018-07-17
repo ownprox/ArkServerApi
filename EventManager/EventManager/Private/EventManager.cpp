@@ -52,6 +52,7 @@ namespace EventManager
 	bool EventManager::StartEvent(const int EventID)
 	{
 		if (CurrentEvent) return false;
+		if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 		if (EventID == -1)
 		{
 			CurrentEvent = Events[FMath::RandRange(0, Events.Num()-1)];
@@ -102,9 +103,8 @@ namespace EventManager
 				if(!UseSchedule) NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
 			}
 		}
-		else if (!UseSchedule && timeGetTime() > NextEventTime)
+		else if (EventStartAuto && !UseSchedule && timeGetTime() > NextEventTime)
 		{
-			if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 			StartEvent();
 		}
 	}
@@ -357,7 +357,7 @@ namespace EventManager
 	}
 
 	void EventManager::InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
-		, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg)
+		, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto)
 	{
 		this->ServerName = ServerName;
 		this->JoinCommand = JoinCommand;
@@ -367,6 +367,8 @@ namespace EventManager
 		this->PlayerDeadMsg = PlayerDeadMsg;
 		this->InventoryNotFoundMsg = InventoryNotFoundMsg;
 		this->MustBeNakedMsg = MustBeNakedMsg;
+		if (!StartEventOnServerStart) NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
+		this->EventStartAuto = EventStartAuto;
 	}
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)
