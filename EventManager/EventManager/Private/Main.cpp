@@ -127,6 +127,7 @@ void StartEvent(APlayerController* player_controller, FString* message, bool Log
 	} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[7], *EventManager::Get().GetCurrentEventName());
 }
 
+bool FirstPos = true;
 void Pos(AShooterPlayerController* player, FString* message, int mode)
 {
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->bIsAdmin()()) return;
@@ -134,6 +135,13 @@ void Pos(AShooterPlayerController* player, FString* message, int mode)
 	FVector Pos = player->DefaultActorLocationField();
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 	Log::GetLog()->warn("{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
+	std::ofstream ofs;
+	ofs.open(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AAEventManager/PosDump.txt", std::ofstream::out | std::ofstream::app);
+	char text[100];
+	sprintf(text, "%s         {  \n			\"Position\" : [\n				%f,\n				%f,\n				%f\n			]\n         }", (FirstPos ? "" : ",\n"), Pos.X, Pos.Y, Pos.Z);
+	ofs << text;
+	ofs.close();
+	FirstPos = false;
 }
 
 void InitConfig()
