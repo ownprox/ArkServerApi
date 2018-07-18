@@ -2,4 +2,5 @@
 
 #include <Windows.h>
 #include <API/ARK/Ark.h>
-inline std::wstring Messages[5];
+inline std::wstring Messages[7];
+bool StaffOnly = true;

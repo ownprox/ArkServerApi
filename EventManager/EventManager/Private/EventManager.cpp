@@ -129,7 +129,7 @@ namespace EventManager
 			for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
 			TeamBased = false;
 		}
-
+		
 		FVector Pos;
 		for (auto& itr : Players)
 		{
@@ -162,7 +162,7 @@ namespace EventManager
 				Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]];
 				SpawnIndexs[TeamIndex]++;
 
-				itr.Team = TeamIndex + 1;
+				itr.Team = TeamBased ? TeamIndex + 1 : 0;
 
 				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 				{
@@ -280,23 +280,27 @@ namespace EventManager
 
 	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
 	{
+		UShooterCheatManager* cheatManager;
 		for (auto& itr : Players)
 		{
 			if (!itr.ASPC || !itr.ASPC->GetPlayerCharacter() || itr.ASPC->GetPlayerCharacter()->IsDead()) continue;
 
+			cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
 			for (int i = 0; i < (int)EventArmourType::Max; i++)
 			{
 				if (Equipment.Armour[i].Quantity != 0)
 				{
 					FString BP = Equipment.Armour[i].BP;
-					itr.ASPC->GiveItem(&BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
+					if (cheatManager) cheatManager->GiveItemToPlayer((int)itr.ASPC->LinkedPlayerIDField(), &BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
+					//itr.ASPC->GiveItem(&BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
 				}
 			}
 
 			for (const auto& Item : Equipment.Items)
 			{
 				FString BP = Item.BP;
-				itr.ASPC->GiveItem(&BP, Item.Quantity, Item.Quality, false);
+				if (cheatManager) cheatManager->GiveItemToPlayer((int)itr.ASPC->LinkedPlayerIDField(), &BP, Item.Quantity, Item.Quality, false);
+				//itr.ASPC->GiveItem(&BP, Item.Quantity, Item.Quality, false);
 			}
 
 			int SlotIndex = 0;
@@ -392,10 +396,16 @@ namespace EventManager
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)
 	{
-		if (!CurrentEvent) return true; 
-		EventPlayer* Attacker, *Victim;
-		return ((Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID 
-			&& CurrentEvent->GetState() == EventState::Fighting && (Attacker->Team == 0 || Attacker->Team != Victim->Team));
+		if (!CurrentEvent) return true;
+		if (CurrentEvent->GetState() == EventState::Fighting || CurrentEvent->GetState() == EventState::WaitForFight)
+		{
+			EventPlayer* Attacker, *Victim;
+			if ((Attacker = FindPlayer(AttackerID)) && (Victim = FindPlayer(VictimID)) && AttackerID != VictimID)
+			{
+				return CurrentEvent->GetState() == EventState::Fighting && (Attacker->Team == 0 || Attacker->Team != Victim->Team);
+			}
+		}
+		return true;
 	}
 	
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)

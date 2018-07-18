@@ -25,7 +25,7 @@ inline void InitConfig()
 
 	file.close();
 	int i = 0;
-
+	StaffOnly = Config["StaffOnly"];
 	auto MessagesConfig = Config["Messages"];
 	for (nlohmann::json::iterator it = MessagesConfig.begin(); it != MessagesConfig.end(); ++it)
 	{

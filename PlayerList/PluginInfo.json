@@ -1,0 +1,7 @@
+{
+  "FullName":"PlayerList",
+  "Description":"List all online player character names",
+  "Version":1.3,
+  "MinApiVersion":2.5,
+  "ResourceId":22
+}
