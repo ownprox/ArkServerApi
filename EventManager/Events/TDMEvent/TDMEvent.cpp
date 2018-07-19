@@ -2,7 +2,7 @@
 #include "TDMEvent.h"
 #include "../../EventManager/Public/Event.h"
 #include "../../EventManager/Public/IEventManager.h"
-#pragma comment(lib, "AAEventManager.lib")
+#pragma comment(lib, "AZEventManager.lib")
 #pragma comment(lib, "ArkApi.lib")
 #include <fstream>
 #include "json.hpp"
@@ -10,8 +10,9 @@
 class TDMEvent : public Event
 {
 private:
+	bool Notifications;
 	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter;
-	FString JoinEventCommand, ServerName, Messages[11];
+	FString JoinEventCommand, ServerName, Messages[13];
 
 	struct Reward
 	{
@@ -51,6 +52,10 @@ public:
 			const auto StructureProtectionPosition = config["TDM"]["StructureProtectionPosition"];
 			const int StructureProtectionDistacne = config["TDM"]["StructureProtectionDistance"];
 
+			Notifications = config["Deathmatch"]["TopNotifications"];
+			const float MovementSpeedAddon = config["Deathmatch"]["MovementSpeedAddon"];
+			const int ArkShopPointsEntryFee = config["Deathmatch"]["ArkShopPointsEntryFee"];
+
 			ArkShopPointsRewardMin = config["TDM"]["ArkShopPointsRewardMin"];
 			ArkShopPointsRewardMax = config["TDM"]["ArkShopPointsRewardMax"];
 			if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
@@ -60,7 +65,7 @@ public:
 			std::string Data;
 
 			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
-				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne);
+				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee);
 
 			const auto& SpawnsA = config["TDM"]["TeamASpawns"];
 			for (const auto& Spawn : SpawnsA)
@@ -172,6 +177,7 @@ public:
 			SetState(EventState::WaitForFight);
 			break;
 		case EventState::WaitForFight:
+			if (Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 1), 1.f, 1, nullptr, *Messages[11]);
 			if (WaitForTimer(30))
 			{
 				EventManager::Get().EnableEventPlayersInputs();
@@ -184,7 +190,11 @@ public:
 			}
 			break;
 		case EventState::Fighting:
-			if (EventManager::Get().GetTeamAliveCount(0) == 0 || EventManager::Get().GetTeamAliveCount(1) == 0) SetState(EventState::Rewarding);
+			{
+				const int RedPlayers = EventManager::Get().GetTeamAliveCount(0), BluePlayers = EventManager::Get().GetTeamAliveCount(1);
+				if (Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 0), 1.f, 1.f, nullptr, *Messages[12], *GetName(), *Messages[9], RedPlayers, *Messages[10], BluePlayers);
+				if (RedPlayers == 0 || BluePlayers == 0) SetState(EventState::Rewarding);
+			}
 			break;
 		case EventState::Rewarding:
 			if (EventManager::Get().GetEventPlayersCount() > 0)
@@ -206,8 +216,11 @@ public:
 						UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(RewardPlayer->CheatManagerField());
 						if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
 					}
+
+					if (ArkShopPointsRewardMax > 0) EventManager::Get().ArkShopAddPoints(FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax), (int)RewardPlayer->LinkedPlayerIDField());
+
+					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, (EventManager::Get().GetTeamAliveCount(0) ? *Messages[7] : *Messages[8]), *GetName());
 				}
-				ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, (EventManager::Get().GetTeamAliveCount(0) ? *Messages[7] : *Messages[8]), *GetName());
 			}
 			SetState(EventState::Finished);
 			break;

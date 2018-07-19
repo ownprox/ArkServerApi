@@ -21,12 +21,13 @@ private:
 	FString Name;
 	SpawnsMap Spawns;
 	FVector StructureProtectionPosition;
-	int StructureProtectionDistance, Counter, Timer;
+	int StructureProtectionDistance, Counter, Timer, ArkShopPointsEntryFee;
+	float MovementSpeed;
 	bool StructureProtection, ConfigLoaded, KillOnLogg, OverrideJoinAndLeave, FinalWarning, OnlyAllowNakedsOnJoinEventCommand;
 
 public:
 	void InitDefaults(const FString& Name, const bool OverrideJoinAndLeave = false, const bool OnlyAllowNakedsOnJoinEventCommand = true, const bool KillOnLogg = true, const bool StructureProtection = false
-		, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0)
+		, const FVector StructureProtectionPosition = FVector(0, 0, 0), const int StructureProtectionDistance = 0, const float MovementSpeed = 0.f, const int ArkShopPointsEntryFee = 0)
 	{
 		this->Name = Name;
 		this->KillOnLogg = KillOnLogg;
@@ -35,6 +36,8 @@ public:
 		this->StructureProtection = StructureProtection;
 		this->StructureProtectionPosition = StructureProtectionPosition;
 		this->StructureProtectionDistance = StructureProtectionDistance;
+		this->MovementSpeed = MovementSpeed;
+		this->ArkShopPointsEntryFee = ArkShopPointsEntryFee;
 		FinalWarning = ConfigLoaded = false;
 	}
 
@@ -94,6 +97,10 @@ public:
 
 	bool HasConfigLoaded() { return ConfigLoaded; }
 	void ResetConfigLoaded() { ConfigLoaded = false; }
+
+	float GetMovementSpeed() { return MovementSpeed; }
+
+	int GetArkShopEntryFee() { return ArkShopPointsEntryFee; }
 
 	bool IsEventProtectedStructure(const FVector& StructurePos)
 	{ return StructureProtection && FVector::Distance(StructurePos, StructureProtectionPosition) < StructureProtectionDistance; }

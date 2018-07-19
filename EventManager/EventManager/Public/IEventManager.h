@@ -78,6 +78,7 @@ namespace EventManager
 		virtual FString GetCurrentEventName() = 0;
 		virtual EventState GetEventState() = 0;
 		virtual bool IsEventOverrideJoinAndLeave() = 0;
+		virtual int GetArkShopEntryFee() = 0;
 
 		virtual void AddEvent(Event* event) = 0;
 		virtual void RemoveEvent(Event* event) = 0;
@@ -114,14 +115,16 @@ namespace EventManager
 		void SendNotificationToAllEventPlayers(FLinearColor color, float display_scale,
 			float display_time, UTexture2D* icon, const T* msg, Args&&... args)
 		{
-			const FString text(FString::Format(msg, std::forward<Args>(args)...));
-			SendNotificationToAllEventPlayersInternal(color, display_scale, display_time, icon, text);
+			SendNotificationToAllEventPlayersInternal(color, display_scale, display_time, icon, FString::Format(msg, std::forward<Args>(args)...));
 		}
 
 		virtual bool GetEventQueueNotifications() = 0;
 
 		virtual void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
 				, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto) = 0;
+		virtual bool ArkShopSpendPoints(int amount, int PlayerID) = 0;
+		virtual int ArkShopGetPoints(int PlayerID) = 0;
+		virtual void ArkShopAddPoints(int amount, int PlayerID) = 0;
 
 		virtual bool CanTakeDamage(long long AttackerID, long long VictimID) = 0;
 		virtual bool OnPlayerDied(long long AttackerID, long long VictimID) = 0;

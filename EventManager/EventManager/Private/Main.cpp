@@ -1,5 +1,6 @@
 #include "EventManager.h"
 #pragma comment(lib, "ArkApi.lib")
+#pragma comment(lib, "ArkShop.lib")
 #include <fstream>
 #include "json.hpp"
 DECLARE_HOOK(APrimalStructure_IsAllowedToBuild, int, APrimalStructure*, APlayerController*, FVector, FRotator, FPlacementData*, bool, FRotator, bool);
@@ -9,7 +10,7 @@ DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEven
 DECLARE_HOOK(AShooterGameMode_Logout, void, AShooterGameMode*, AController*);
 
 FString EventJoinCommand, EventLeaveCommand, EventAdminStartEventConsoleCommand;
-FString Messages[11];
+FString Messages[12];
 
 void EventManagerUpdate()
 {
@@ -54,8 +55,8 @@ float _cdecl Hook_APrimalStructure_TakeDamage(APrimalStructure* _this, float Dam
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	return (EventManager::Get().IsEventRunning() && Killer && _this && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass())
-		&& EventManager::Get().OnPlayerDied(GetPlayerID(Killer), GetPlayerID(_this))) ? 0 : AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
+	return (EventManager::Get().IsEventRunning() && _this && EventManager::Get().OnPlayerDied(Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()) ? GetPlayerID(Killer) : -1, GetPlayerID(_this))) ? 0 :
+		AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
 }
 
 void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* Exiting)
@@ -82,6 +83,21 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 				return;
 			}
 		}
+
+		if (EventManager::Get().GetArkShopEntryFee() != 0)
+		{
+			const int mypoints = EventManager::Get().ArkShopGetPoints((int)player->LinkedPlayerIDField());
+			if (EventManager::Get().GetArkShopEntryFee() > mypoints)
+			{
+				ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[11], *EventManager::Get().GetCurrentEventName(), EventManager::Get().GetArkShopEntryFee(), mypoints);
+				return;
+			}
+			else
+			{
+				EventManager::Get().ArkShopSpendPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
+			}
+		}
+
 		if (EventManager::Get().AddPlayer(player))
 		{
 			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[0], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
@@ -97,6 +113,11 @@ void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 	{
 		if (EventManager::Get().RemovePlayer(player))
 		{
+			if (EventManager::Get().GetArkShopEntryFee() != 0)
+			{
+				EventManager::Get().ArkShopAddPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
+			}
+
 			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[3], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
 			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[4], *EventManager::Get().GetCurrentEventName());
 		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[5], *EventManager::Get().GetCurrentEventName());
@@ -136,7 +157,7 @@ void Pos(AShooterPlayerController* player, FString* message, int mode)
 	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 	Log::GetLog()->warn("{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
 	std::ofstream ofs;
-	ofs.open(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AAEventManager/PosDump.txt", std::ofstream::out | std::ofstream::app);
+	ofs.open(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AZEventManager/PosDump.txt", std::ofstream::out | std::ofstream::app);
 	char text[100];
 	sprintf(text, "%s         {  \n			\"Position\" : [\n				%f,\n				%f,\n				%f\n			]\n         }", (FirstPos ? "" : ",\n"), Pos.X, Pos.Y, Pos.Z);
 	ofs << text;
@@ -146,7 +167,7 @@ void Pos(AShooterPlayerController* player, FString* message, int mode)
 
 void InitConfig()
 {
-	const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AAEventManager/Config.json";
+	const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AZEventManager/Config.json";
 
 	std::ifstream file{ config_path };
 

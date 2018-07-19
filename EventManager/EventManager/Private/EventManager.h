@@ -34,6 +34,7 @@ namespace EventManager
 		FString GetCurrentEventName();
 		EventState GetEventState();
 		bool IsEventOverrideJoinAndLeave();
+		int GetArkShopEntryFee();
 
 		void AddEvent(Event* event);
 		void RemoveEvent(Event* event);
@@ -67,11 +68,15 @@ namespace EventManager
 
 		void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
 			, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto);
+		bool ArkShopSpendPoints(int amount, int PlayerID);
+		int ArkShopGetPoints(int PlayerID);
+		void ArkShopAddPoints(int amount, int PlayerID);
 
 		//Hooks
 		bool CanTakeDamage(long long AttackerID, long long VictimID);
 		bool OnPlayerDied(long long AttackerID, long long VictimID);
 		void OnPlayerLogg(AShooterPlayerController* Player);
 		bool IsEventProtectedStructure(const FVector& StructurePos);
+
 	};
 }

@@ -1,5 +1,6 @@
 #include "EventManager.h"
 #include "..\Public\Event.h"
+#include "Points.h"
 
 namespace EventManager
 {
@@ -29,6 +30,11 @@ namespace EventManager
 		return CurrentEvent ? CurrentEvent->IsEventOverrideJoinAndLeave() : false;
 	}
 
+	int EventManager::GetArkShopEntryFee()
+	{
+		return CurrentEvent ? CurrentEvent->GetArkShopEntryFee() : -1;
+	}
+
 	void EventManager::AddEvent(Event* event)
 	{
 		Events.Add(event);
@@ -55,7 +61,7 @@ namespace EventManager
 		if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
 		if (EventID == -1)
 		{
-			CurrentEvent = Events[FMath::RandRange(0, Events.Num()-1)];
+			CurrentEvent = Events[FMath::RandRange(0, Events.Num() - 1)];
 			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
 		}
 		else if (EventID < Events.Num())
@@ -100,7 +106,7 @@ namespace EventManager
 				if (LogToConsole) Log::GetLog()->info("{} Event Ended!", CurrentEvent->GetName().ToString().c_str());
 				Players.Empty();
 				CurrentEvent = nullptr;
-				if(!UseSchedule) NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
+				if (!UseSchedule) NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
 			}
 		}
 		else if (EventStartAuto && !UseSchedule && timeGetTime() > NextEventTime)
@@ -119,7 +125,7 @@ namespace EventManager
 			EventTeamData.Empty();
 			for (int i = 0; i < TeamCount; i++)
 			{
-				SpawnIndexs.Add(0); 
+				SpawnIndexs.Add(0);
 				EventTeamData.Add(EventTeam());
 			}
 			TeamBased = true;
@@ -129,7 +135,7 @@ namespace EventManager
 			for (int i = 0; i < TeamCount; i++) SpawnIndexs.Add(0);
 			TeamBased = false;
 		}
-		
+		const float MovementSpeed = CurrentEvent->GetMovementSpeed();
 		FVector Pos;
 		for (auto& itr : Players)
 		{
@@ -182,7 +188,7 @@ namespace EventManager
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
 						itr.EventPlayerStats.speed = *speed;
-						*speed = 0;
+						*speed = MovementSpeed;
 
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
 						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = true;
@@ -215,7 +221,7 @@ namespace EventManager
 
 		Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
 	}
-	
+
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
 	{
 		for (auto& itr : Players)
@@ -313,10 +319,10 @@ namespace EventManager
 				{
 					switch (item->MyItemTypeField())
 					{
-						case EPrimalItemType::Weapon:
-							if (SlotIndex == 10) continue;
-							item->AddToSlot(SlotIndex++, true);
-							item->UpdatedItem();
+					case EPrimalItemType::Weapon:
+						if (SlotIndex == 10) continue;
+						item->AddToSlot(SlotIndex++, true);
+						item->UpdatedItem();
 						break;
 					}
 				}
@@ -357,6 +363,7 @@ namespace EventManager
 				float* speed = charStatus->CurrentStatusValuesField()() + 9;
 				*speed = Player->EventPlayerStats.speed;
 			}
+			Player->ASPC->GetPlayerCharacter()->bIsSleeping() = false;
 		}
 	}
 
@@ -394,6 +401,21 @@ namespace EventManager
 		this->EventStartAuto = EventStartAuto;
 	}
 
+	bool EventManager::ArkShopSpendPoints(int amount, int PlayerID)
+	{
+		return ArkShop::Points::SpendPoints(amount, ArkApi::GetApiUtils().GetShooterGameMode()->GetSteamIDForPlayerID(PlayerID));
+	}
+
+	int EventManager::ArkShopGetPoints(int PlayerID)
+	{
+		return ArkShop::Points::GetPoints(ArkApi::GetApiUtils().GetShooterGameMode()->GetSteamIDForPlayerID(PlayerID));
+	}
+
+	void EventManager::ArkShopAddPoints(int amount, int PlayerID)
+	{
+		ArkShop::Points::AddPoints(amount, ArkApi::GetApiUtils().GetShooterGameMode()->GetSteamIDForPlayerID(PlayerID));
+	}
+
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)
 	{
 		if (!CurrentEvent) return true;
@@ -407,7 +429,7 @@ namespace EventManager
 		}
 		return true;
 	}
-	
+
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
 		if (VictimID != -1)
@@ -434,7 +456,7 @@ namespace EventManager
 	void EventManager::OnPlayerLogg(AShooterPlayerController* Player)
 	{
 		if (CurrentEvent && CurrentEvent->GetState() > EventState::TeleportingPlayers)
-		{			
+		{
 			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
@@ -444,7 +466,8 @@ namespace EventManager
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)EPlayer->ASPC->LinkedPlayerIDField(), true, true, true);
 					ResetPlayerStats(EPlayer);
 					EPlayer->ASPC->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
-				} else Player->ServerSuicide_Implementation();
+				}
+				else Player->ServerSuicide_Implementation();
 				RemovePlayer(Player);
 			}
 		}
