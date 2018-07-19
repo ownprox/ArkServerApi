@@ -154,8 +154,8 @@ void Pos(AShooterPlayerController* player, FString* message, int mode)
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->bIsAdmin()()) return;
 
 	FVector Pos = player->DefaultActorLocationField();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
-	Log::GetLog()->warn("{}, {}, {}", Pos.X, Pos.Y, Pos.Z);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"{0:.6f}, {1:.6f}, {2:.6f}", Pos.X, Pos.Y, Pos.Z);
+	Log::GetLog()->warn("{0:.6f}, {1:.6f}, {2:.6f}", Pos.X, Pos.Y, Pos.Z);
 	std::ofstream ofs;
 	ofs.open(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/AZEventManager/PosDump.txt", std::ofstream::out | std::ofstream::app);
 	char text[100];
