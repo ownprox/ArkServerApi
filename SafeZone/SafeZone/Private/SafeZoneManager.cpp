@@ -219,13 +219,13 @@ namespace SafeZones
 		}
 
 		// Update player positions
-		const auto& player_controllers = world->PlayerControllerListField()();
+		const auto& player_controllers = world->PlayerControllerListField();
 		for (TWeakObjectPtr<APlayerController> player_controller : player_controllers)
 		{
 			AShooterPlayerController* player = static_cast<AShooterPlayerController*>(player_controller.Get());
 			if (player)
 			{
-				const FVector pos = player->DefaultActorLocationField()();
+				const FVector pos = player->DefaultActorLocationField();
 
 				if (players_pos.find(player) == players_pos.end())
 				{
@@ -246,7 +246,7 @@ namespace SafeZones
 				}
 				else
 				{
-					if (player_pos.zone && !player_pos.in_zone && player_pos.zone->IsOverlappingActor(player->CharacterField()()))
+					if (player_pos.zone && !player_pos.in_zone && player_pos.zone->IsOverlappingActor(player->CharacterField()))
 					{
 						player_pos.in_zone = true;
 						continue;

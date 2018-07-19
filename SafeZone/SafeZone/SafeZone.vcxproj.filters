@@ -47,5 +47,8 @@
     <ClInclude Include="Private\SzTools.h">
       <Filter>Private</Filter>
     </ClInclude>
+    <ClInclude Include="Private\json.hpp">
+      <Filter>Private</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

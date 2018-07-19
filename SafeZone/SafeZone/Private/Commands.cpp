@@ -61,7 +61,9 @@ namespace SafeZones::Commands
 
 						FString fblueprint(blueprint.c_str());
 
-						player->GiveItem(&fblueprint, amount, quality, force_blueprint);
+						//player->GiveItem(&fblueprint, amount, quality, force_blueprint);
+						UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(player->CheatManagerField());
+						if (cheatManager) cheatManager->GiveItemToPlayer((int)player->LinkedPlayerIDField(), &fblueprint, amount, quality, force_blueprint);
 					}
 
 					// Give dinos

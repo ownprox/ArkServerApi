@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="Private\Commands.h" />
     <ClInclude Include="Private\Hooks.h" />
+    <ClInclude Include="Private\json.hpp" />
     <ClInclude Include="Private\SafeZones.h" />
     <ClInclude Include="Private\SafeZoneManager.h" />
     <ClInclude Include="Private\SzTools.h" />
@@ -60,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;SAFEZONE_EXPORTS;_WINDOWS;_USRDLL;ZONE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildStartupDirectory)\..\Permissions\Permissions\Public;$(MSBuildStartupDirectory)\..\..\ARK-Server-API\version\Core\Public</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\MichsPlugins\Permissions\Permissions\Public\;E:\ArkServerModding\ArkServerAPIREP\version\Core\Public\;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -68,6 +69,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../../../ArkServerAPIREP/x64/Release/;..\..\..\MichsPlugins\Permissions\x64\Release\;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

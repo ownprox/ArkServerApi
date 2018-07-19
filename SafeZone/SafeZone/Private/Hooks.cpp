@@ -44,13 +44,13 @@ namespace SafeZones::Hooks
 			return 0;
 		}
 		if (_this->IsA(APrimalDinoCharacter::GetPrivateStaticClass()) &&
-			_this->TargetingTeamField()() > 50000 &&
+			_this->TargetingTeamField() > 50000 &&
 			SafeZoneManager::Get().CheckActorAction(_this, 1))
 		{
 			return 0;
 		}
-		if (EventInstigator && EventInstigator->CharacterField()() &&
-			SafeZoneManager::Get().CheckActorAction(EventInstigator->CharacterField()(), 1))
+		if (EventInstigator && EventInstigator->CharacterField() &&
+			SafeZoneManager::Get().CheckActorAction(EventInstigator->CharacterField(), 1))
 		{
 			return 0;
 		}

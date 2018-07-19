@@ -64,7 +64,7 @@ namespace SafeZones
 					}
 					else
 					{
-						players_pos[player] = {this, true, player->DefaultActorLocationField()(), player->DefaultActorLocationField()()};
+						players_pos[player] = {this, true, player->DefaultActorLocationField(), player->DefaultActorLocationField()};
 					}
 				}
 
@@ -72,7 +72,7 @@ namespace SafeZones
 				                 success_color);
 			}
 		}
-		else if (kill_wild_dinos && other_actor->TargetingTeamField()() < 50000 &&
+		else if (kill_wild_dinos && other_actor->TargetingTeamField() < 50000 &&
 			other_actor->IsA(APrimalDinoCharacter::GetPrivateStaticClass()))
 		{
 			APrimalDinoCharacter* dino = static_cast<APrimalDinoCharacter*>(other_actor);
