@@ -89,13 +89,9 @@ namespace EventManager
 		return false;
 	}
 
-	bool EventManager::HasPlayer(AShooterPlayerController* player)
+	bool EventManager::HasPlayer(int PlayerID)
 	{
-		if (!FindPlayer(player->LinkedPlayerIDField()))
-		{
-			return true;
-		}
-		return false;
+		return FindPlayer(PlayerID) != nullptr;
 	}
 
 	bool EventManager::RemovePlayer(AShooterPlayerController* player)

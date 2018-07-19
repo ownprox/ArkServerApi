@@ -84,7 +84,7 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 			}
 		}
 
-		if (!EventManager::Get().HasPlayer(player))
+		if (!EventManager::Get().HasPlayer(player->LinkedPlayerIDField()))
 		{
 			if (EventManager::Get().GetArkShopEntryFee() != 0)
 			{

@@ -209,9 +209,9 @@ public:
 					
 					if (ArkShopPointsRewardMax > 0)
 					{
-						int Ammount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
-						Log::GetLog()->info("adding {} Points to winner!", Ammount);
-						EventManager::Get().ArkShopAddPoints(Ammount, (int)RewardPlayer->LinkedPlayerIDField());
+						int Amount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
+						Log::GetLog()->info("adding {} Points to winner!", Amount);
+						EventManager::Get().ArkShopAddPoints(Amount, (int)RewardPlayer->LinkedPlayerIDField());
 					}
 
 					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());

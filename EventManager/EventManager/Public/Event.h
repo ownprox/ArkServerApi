@@ -70,7 +70,7 @@ public:
 
 	void AddSpawn(FVector Spawn, int Team = 0)
 	{
-		auto& itr = Spawns.find(Team);
+		auto itr = Spawns.find(Team);
 		if (itr != Spawns.end()) itr->second.Add(Spawn);
 		else
 		{
