@@ -84,24 +84,27 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 			}
 		}
 
-		if (EventManager::Get().GetArkShopEntryFee() != 0)
+		if (!EventManager::Get().HasPlayer(player))
 		{
-			const int mypoints = EventManager::Get().ArkShopGetPoints((int)player->LinkedPlayerIDField());
-			if (EventManager::Get().GetArkShopEntryFee() > mypoints)
+			if (EventManager::Get().GetArkShopEntryFee() != 0)
 			{
-				ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[11], *EventManager::Get().GetCurrentEventName(), EventManager::Get().GetArkShopEntryFee(), mypoints);
-				return;
+				const int mypoints = EventManager::Get().ArkShopGetPoints((int)player->LinkedPlayerIDField());
+				if (EventManager::Get().GetArkShopEntryFee() > mypoints)
+				{
+					ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[11], *EventManager::Get().GetCurrentEventName(), EventManager::Get().GetArkShopEntryFee(), mypoints);
+					return;
+				}
+				else
+				{
+					EventManager::Get().ArkShopSpendPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
+				}
 			}
-			else
-			{
-				EventManager::Get().ArkShopSpendPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
-			}
-		}
 
-		if (EventManager::Get().AddPlayer(player))
-		{
+			EventManager::Get().AddPlayer(player);
+
 			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[0], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
 			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[1]);
+
 		} else ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[2], *EventManager::Get().GetCurrentEventName());
 	}
 }

@@ -86,6 +86,7 @@ namespace EventManager
 		virtual bool StartEvent(const int EventID = -1) = 0;
 
 		virtual bool AddPlayer(AShooterPlayerController* player) = 0;
+		virtual bool HasPlayer(AShooterPlayerController* player) = 0;
 		virtual bool RemovePlayer(AShooterPlayerController* player) = 0;
 
 		virtual TArray<EventPlayer>& GetEventPlayers() = 0;

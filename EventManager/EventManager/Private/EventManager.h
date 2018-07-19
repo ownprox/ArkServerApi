@@ -43,6 +43,7 @@ namespace EventManager
 
 		EventPlayer* FindPlayer(long long SteamID);
 		bool AddPlayer(AShooterPlayerController* player);
+		bool HasPlayer(AShooterPlayerController* player);
 		bool RemovePlayer(AShooterPlayerController* player);
 		TArray<EventPlayer>& GetEventPlayers() { return Players; }
 		int GetEventPlayersCount() { return (int)Players.Num(); }

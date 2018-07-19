@@ -89,6 +89,15 @@ namespace EventManager
 		return false;
 	}
 
+	bool EventManager::HasPlayer(AShooterPlayerController* player)
+	{
+		if (!FindPlayer(player->LinkedPlayerIDField()))
+		{
+			return true;
+		}
+		return false;
+	}
+
 	bool EventManager::RemovePlayer(AShooterPlayerController* player)
 	{
 		const int32 Removed = Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == player->LinkedPlayerIDField(); });
