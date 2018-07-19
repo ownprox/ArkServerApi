@@ -139,7 +139,10 @@ namespace EventManager
 		FVector Pos;
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
+			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && !itr.ASPC->GetPlayerCharacter()->bIsSleeping()() && !itr.ASPC->GetPlayerCharacter()->IsSitting(false)
+				&& !itr.ASPC->GetPlayerCharacter()->bIsCarriedAsPassenger()() && !itr.ASPC->GetPlayerCharacter()->bIsCarried()() && !itr.ASPC->GetPlayerCharacter()->bIsBeingDragged()() && !itr.ASPC->GetPlayerCharacter()->bIsDragging()()
+				&& !itr.ASPC->GetPlayerCharacter()->bIsDraggingWithGrapHook()() && !itr.ASPC->GetPlayerCharacter()->bIsImmobilized()() && !itr.ASPC->GetPlayerCharacter()->bIsBeingDraggedByDino()()
+				&& (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
 			{
 				if (WipeInventoryOrCheckIsNaked)
 				{
@@ -182,7 +185,7 @@ namespace EventManager
 					}
 
 					float* torpor = charStatus->CurrentStatusValuesField()() + 2;
-					*torpor = 0;
+					*torpor = 1;
 
 					if (ApplyFairMovementSpeed)
 					{
@@ -224,13 +227,14 @@ namespace EventManager
 
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
 	{
+		UShooterCheatManager* cheatManager;
 		for (auto& itr : Players)
 		{
 			if (itr.ASPC)
 			{
 				if (WipeInventory)
 				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
+					cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
 				ResetPlayerStats(&itr, false);
@@ -320,11 +324,11 @@ namespace EventManager
 					switch (item->MyItemTypeField())
 					{
 					case EPrimalItemType::Weapon:
-						if (SlotIndex == 10) continue;
 						item->AddToSlot(SlotIndex++, true);
 						item->UpdatedItem();
 						break;
 					}
+					if (SlotIndex == 10) break;
 				}
 			}
 		}
@@ -347,10 +351,10 @@ namespace EventManager
 			charStatus->bForceDefaultSpeed() = false;
 
 			float* health = charStatus->CurrentStatusValuesField()();
-			if (*health < 100.f || Player->EventPlayerStats.health != -1.f) *health = Player->EventPlayerStats.health == -1.f ? 100.f : Player->EventPlayerStats.health;//calculate max hp using base level ect
+			*health = Player->EventPlayerStats.health == -1.f ? 99.f : (Player->EventPlayerStats.health < 99.f ? 99.f : (Player->EventPlayerStats.health-1)); //for some reason to fix broken legs after event when your health was 100 you had to -1 health maybe find a function later to resync stuff related to injuries for now -1 health works.
 
 			float* torpor = charStatus->CurrentStatusValuesField()() + 2;
-			*torpor = 0;
+			*torpor = 1;
 
 			if (Player->EventPlayerStats.melee != -1.f)
 			{
@@ -363,7 +367,10 @@ namespace EventManager
 				float* speed = charStatus->CurrentStatusValuesField()() + 9;
 				*speed = Player->EventPlayerStats.speed;
 			}
+
 			Player->ASPC->GetPlayerCharacter()->bIsSleeping() = false;
+			Player->ASPC->GetPlayerCharacter()->bIsDead() = false;
+			charStatus->ServerSyncReplicatedValues();
 		}
 	}
 
@@ -413,7 +420,9 @@ namespace EventManager
 
 	void EventManager::ArkShopAddPoints(int amount, int PlayerID)
 	{
-		ArkShop::Points::AddPoints(amount, ArkApi::GetApiUtils().GetShooterGameMode()->GetSteamIDForPlayerID(PlayerID));
+		const uint64 steam_id = ArkApi::GetApiUtils().GetShooterGameMode()->GetSteamIDForPlayerID(PlayerID);
+		if (LogToConsole) Log::GetLog()->info("SteamID: {} adding {} Points!", steam_id, amount);
+		ArkShop::Points::AddPoints(amount, steam_id);
 	}
 
 	bool EventManager::CanTakeDamage(long long AttackerID, long long VictimID)

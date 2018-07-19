@@ -192,7 +192,7 @@ public:
 				EventManager::Get().TeleportWinningEventPlayersToStart(true);
 
 				AShooterPlayerController* RewardPlayer = EventManager::Get().GetEventPlayers()[0].ASPC;
-				if (RewardPlayer && RewardPlayer->GetPlayerCharacter() && !RewardPlayer->GetPlayerCharacter()->IsDead())
+				if (RewardPlayer && RewardPlayer->GetPlayerCharacter())
 				{
 					if (Rewards.Num() != 0)
 					{
@@ -207,7 +207,12 @@ public:
 						if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
 					}
 					
-					if (ArkShopPointsRewardMax > 0) EventManager::Get().ArkShopAddPoints(FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax), (int)RewardPlayer->LinkedPlayerIDField());
+					if (ArkShopPointsRewardMax > 0)
+					{
+						int Ammount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
+						Log::GetLog()->info("adding {} Points to winner!", Ammount);
+						EventManager::Get().ArkShopAddPoints(Ammount, (int)RewardPlayer->LinkedPlayerIDField());
+					}
 
 					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
 				}

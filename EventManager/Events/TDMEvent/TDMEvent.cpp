@@ -52,9 +52,9 @@ public:
 			const auto StructureProtectionPosition = config["TDM"]["StructureProtectionPosition"];
 			const int StructureProtectionDistacne = config["TDM"]["StructureProtectionDistance"];
 
-			Notifications = config["Deathmatch"]["TopNotifications"];
-			const float MovementSpeedAddon = config["Deathmatch"]["MovementSpeedAddon"];
-			const int ArkShopPointsEntryFee = config["Deathmatch"]["ArkShopPointsEntryFee"];
+			Notifications = config["TDM"]["TopNotifications"];
+			const float MovementSpeedAddon = config["TDM"]["MovementSpeedAddon"];
+			const int ArkShopPointsEntryFee = config["TDM"]["ArkShopPointsEntryFee"];
 
 			ArkShopPointsRewardMin = config["TDM"]["ArkShopPointsRewardMin"];
 			ArkShopPointsRewardMax = config["TDM"]["ArkShopPointsRewardMax"];
