@@ -32,7 +32,7 @@ namespace EventManager
 
 	int EventManager::GetArkShopEntryFee()
 	{
-		return CurrentEvent ? CurrentEvent->GetArkShopEntryFee() : -1;
+		return CurrentEvent ? CurrentEvent->GetArkShopEntryFee() : 0;
 	}
 
 	void EventManager::AddEvent(Event* event)
