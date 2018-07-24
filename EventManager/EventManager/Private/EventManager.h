@@ -16,9 +16,10 @@ namespace EventManager
 		FString JoinCommand, ServerName, Map, PlayerDeadMsg, InventoryNotFoundMsg, MustBeNakedMsg;
 		int32 MinStartEvent, MaxStartEvent;
 		TArray<EventTeam> EventTeamData;
+		int LastEquipmentIndex;
 		~EventManager() = default;
 		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
-			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true), TeamBased(false) {};
+			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true), TeamBased(false), LastEquipmentIndex(-1) {};
 	public:
 		static EventManager& Get();
 
@@ -58,6 +59,7 @@ namespace EventManager
 
 		std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player);
 
+		int GetRandomIndexNonRecurr(int TotalSize);
 		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
 		void ResetPlayerStats(EventPlayer* Player, bool PlayerDied = true);
 

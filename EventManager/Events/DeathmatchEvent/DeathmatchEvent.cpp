@@ -11,7 +11,7 @@ class DeathMatch : public Event
 {
 private:
 	bool Notifications;
-	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter;
+	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter, LastEquipmentIndex = -1;
 	FString JoinEventCommand, ServerName, Messages[10];
 
 	struct Reward
@@ -165,8 +165,7 @@ public:
 			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
 			if (Equipments.Num() > 0)
 			{
-				const int EquipIndex = (int)FMath::RandRange(0, Equipments.Num() - 1);
-				EventManager::Get().GiveEventPlayersEquipment(Equipments[EquipIndex]);
+				EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
 			}
 			SetState(EventState::WaitForFight);
 			break;
@@ -182,7 +181,7 @@ public:
 		case EventState::Fighting:
 			{
 				const int Players = EventManager::Get().GetEventPlayersCount();
-				if (Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 0), 1.f, 1.f, nullptr, *Messages[9], *GetName(), Players);
+				if (Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 0), 1.5f, 1.f, nullptr, *Messages[9], *GetName(), Players);
 				if (Players <= 1) SetState(EventState::Rewarding);
 			}
 			break;

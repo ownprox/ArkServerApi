@@ -178,10 +178,9 @@ namespace EventManager
 
 				itr.Team = TeamBased ? TeamIndex + 1 : 0;
 
-				if (itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+				UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
+				if (charStatus)
 				{
-					UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-
 					if (ApplyFairHp)
 					{
 						float* health = charStatus->CurrentStatusValuesField()();
@@ -197,9 +196,6 @@ namespace EventManager
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
 						itr.EventPlayerStats.speed = *speed;
 						*speed = MovementSpeed;
-
-						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bRunningUseDefaultSpeed() = true;
-						itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent()->bForceDefaultSpeed() = true;
 					}
 
 					if (ApplyFairMeleeDamage)
@@ -235,7 +231,7 @@ namespace EventManager
 		UShooterCheatManager* cheatManager;
 		for (auto& itr : Players)
 		{
-			if (itr.ASPC)
+			if (itr.ASPC && itr.ASPC->GetPlayerCharacter())
 			{
 				if (WipeInventory)
 				{
@@ -291,6 +287,30 @@ namespace EventManager
 			}
 
 		return {};
+	}
+
+	int EventManager::GetRandomIndexNonRecurr(int TotalSize)
+	{
+		TotalSize = TotalSize - 1;
+		int EquipIndex = 0;
+		if (TotalSize > 1)
+		{
+			EquipIndex = (int)FMath::RandRange(0, TotalSize);
+			if (EquipIndex == LastEquipmentIndex)
+			{
+				for (int i = 0; i < 5; i++)
+				{
+					if ((EquipIndex = (int)FMath::RandRange(0, TotalSize)) != LastEquipmentIndex) break;
+				}
+			}
+		}
+		else
+		{
+			EquipIndex = LastEquipmentIndex++;
+			if (EquipIndex > TotalSize) EquipIndex = 0;
+		}
+		LastEquipmentIndex = EquipIndex;
+		return EquipIndex;
 	}
 
 	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
@@ -351,9 +371,6 @@ namespace EventManager
 		if (Player->ASPC->GetPlayerCharacter() && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 		{
 			UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
-
-			charStatus->bRunningUseDefaultSpeed() = false;
-			charStatus->bForceDefaultSpeed() = false;
 
 			float* health = charStatus->CurrentStatusValuesField()();
 			*health = Player->EventPlayerStats.health == -1.f ? 99.f : (Player->EventPlayerStats.health < 99.f ? 99.f : (Player->EventPlayerStats.health-1)); //for some reason to fix broken legs after event when your health was 100 you had to -1 health maybe find a function later to resync stuff related to injuries for now -1 health works.
@@ -453,7 +470,7 @@ namespace EventManager
 
 			if ((Player = FindPlayer(VictimID)))
 			{
-				if (Player->ASPC)
+				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
 				{
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(Player->ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)Player->ASPC->LinkedPlayerIDField(), true, true, true);
@@ -474,7 +491,7 @@ namespace EventManager
 			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
-				else if (EPlayer->ASPC)
+				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
 				{
 					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(EPlayer->ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)EPlayer->ASPC->LinkedPlayerIDField(), true, true, true);

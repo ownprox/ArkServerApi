@@ -11,7 +11,7 @@ class TDMEvent : public Event
 {
 private:
 	bool Notifications;
-	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter;
+	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter, LastEquipmentIndex = -1;
 	FString JoinEventCommand, ServerName, Messages[13];
 
 	struct Reward
@@ -171,8 +171,7 @@ public:
 			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
 			if (Equipments.Num() > 0)
 			{
-				const int EquipIndex = (int)FMath::RandRange(0, Equipments.Num() - 1);
-				EventManager::Get().GiveEventPlayersEquipment(Equipments[EquipIndex]);
+				EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
 			}
 			SetState(EventState::WaitForFight);
 			break;

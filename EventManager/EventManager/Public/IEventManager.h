@@ -102,6 +102,7 @@ namespace EventManager
 
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
+		virtual int GetRandomIndexNonRecurr(int TotalSize) = 0;
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
 		virtual void ResetPlayerStats(EventPlayer* Player, bool PlayerDied = true) = 0;
 
