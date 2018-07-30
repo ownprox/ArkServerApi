@@ -1,12 +1,12 @@
-{
+{  
   "ServerName":"ServerNameHere",
   "NotificationScale":1.0,
   "NotificationDisplayTime":5.0,
   "AdminsIgnoreRestrictions":false,
-  "SafeZones":[
-    {
+  "SafeZones":[  
+    {  
       "Name":"Zone1",
-      "Position":[
+      "Position":[  
         -111820,
         233874,
         -14259.6
@@ -21,45 +21,45 @@
       "EnableEvents":true,
       "ScreenNotifications":true,
       "ChatNotifications":true,
-      "SuccessNotificationColor":[
+      "SuccessNotificationColor":[  
         0,
         1,
         0,
         1
       ],
-      "FailNotificationColor":[
+      "FailNotificationColor":[  
         1,
         0,
         0,
         1
       ],
-      "Messages":[
+      "Messages":[  
         "You have entered {0}",
         "You have left {0}",
         "This is a Community trade center you can not build here",
         "You are not allowed to enter",
         "You are not allowed to leave"
       ],
-      "ItemsConfig":{
-        "Items":[
-          {
+      "ItemsConfig":{  
+        "Items":[  
+          {  
             "Amount":1,
             "Quality":0,
             "ForceBlueprint":false,
             "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Items/Armor/Saddles/PrimalItemArmor_CarnoSaddle.PrimalItemArmor_CarnoSaddle'"
           }
         ],
-        "Dinos":[
-          {
+        "Dinos":[  
+          {  
             "Level":10,
             "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Carno/Carno_Character_BP.Carno_Character_BP'"
           }
         ]
       }
     },
-    {
+    {  
       "Name":"Zone2",
-      "Position":[
+      "Position":[  
         -107117,
         231616,
         -13854.6
@@ -74,19 +74,19 @@
       "EnableEvents":true,
       "ScreenNotifications":true,
       "ChatNotifications":true,
-      "SuccessNotificationColor":[
+      "SuccessNotificationColor":[  
         0,
         1,
         0,
         1
       ],
-      "FailNotificationColor":[
+      "FailNotificationColor":[  
         1,
         0,
         0,
         1
       ],
-      "Messages":[
+      "Messages":[  
         "You have entered {0}",
         "You have left {0}",
         "This is a Community trade center you can not build here",
@@ -94,5 +94,8 @@
         "You are not allowed to leave"
       ]
     }
+  ],
+  "OverrideSpawnPoint":[  
+  
   ]
 }

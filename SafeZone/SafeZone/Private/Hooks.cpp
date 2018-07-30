@@ -2,6 +2,7 @@
 
 #include "SafeZoneManager.h"
 #include "SafeZones.h"
+#include "SzTools.h"
 
 namespace SafeZones::Hooks
 {
@@ -13,7 +14,8 @@ namespace SafeZones::Hooks
 	DECLARE_HOOK(APrimalStructure_TakeDamage, float, APrimalStructure*, float, FDamageEvent*, AController*, AActor*);
 	DECLARE_HOOK(APrimalDinoCharacter_CanCarryCharacter, bool, APrimalDinoCharacter*, APrimalCharacter*);
 
-	//DECLARE_HOOK(AShooterCharacter_AuthPostSpawnInit, void, AShooterCharacter*);
+	DECLARE_HOOK(AShooterPlayerController_ServerRequestRespawnAtPoint_Impl, void, AShooterPlayerController *, int , int);
+	DECLARE_HOOK(AShooterPlayerState_ServerRequestCreateNewPlayer_Impl, void, AShooterPlayerState *, DWORD64);
 
 	void Hook_AShooterGameMode_InitGame(AShooterGameMode* a_shooter_game_mode, FString* map_name, FString* options,
 	                                    FString* error_message)
@@ -78,10 +80,8 @@ namespace SafeZones::Hooks
 		SafeZoneManager::Get().UpdateOverlaps();
 	}
 
-	/*void Hook_AShooterCharacter_AuthPostSpawnInit(AShooterCharacter* _this)
+	void TeleportPlayer(AShooterPlayerController* pc)
 	{
-		AShooterCharacter_AuthPostSpawnInit_original(_this);
-
 		auto spawn_points = config.value("OverrideSpawnPoint", nlohmann::json::array());
 		if (!spawn_points.empty())
 		{
@@ -89,17 +89,36 @@ namespace SafeZones::Hooks
 
 			auto config_position = spawn_points[num];
 
-			AShooterPlayerController* player = ArkApi::GetApiUtils().FindControllerFromCharacter(
-				static_cast<AShooterCharacter*>(_this));
-			if (player)
-			{
-				Log::GetLog()->info(player->LastSpawnPointIDField()());
-				Log::GetLog()->info(player->LastSpawnRegionIndexField()());
-				Log::GetLog()->info((DWORD64)player->SpawnAtBedField()().Get());
-				player->SetPlayerPos(config_position[0], config_position[1], config_position[2]);
-			}
+			pc->SetPlayerPos(config_position[0], config_position[1], config_position[2]);
 		}
-	}*/
+	}
+
+	void Hook_AShooterPlayerController_ServerRequestRespawnAtPoint_Impl(AShooterPlayerController* _this, int spawnPointID,
+	                                                                    int spawnRegionIndex)
+	{
+		AShooterPlayerController_ServerRequestRespawnAtPoint_Impl_original(_this, spawnPointID, spawnRegionIndex);
+
+		if (spawnPointID == -1)
+		{
+			TeleportPlayer(_this);
+		}
+	}
+
+	void Hook_AShooterPlayerState_ServerRequestCreateNewPlayer_Impl(AShooterPlayerState* _this,
+	                                                                DWORD64 PlayerCharacterConfig)
+	{
+		AShooterPlayerState_ServerRequestCreateNewPlayer_Impl_original(_this, PlayerCharacterConfig);
+
+		FUniqueNetIdSteam* steam_net_id = static_cast<FUniqueNetIdSteam*>(_this->MyPlayerDataField()->MyDataField()->UniqueIDField()
+			.UniqueNetId.Get());
+		const auto steam_id = steam_net_id->UniqueNetId;
+
+		AShooterPlayerController* pc = ArkApi::GetApiUtils().FindPlayerFromSteamId(steam_id);
+		if (pc)
+		{
+			Tools::Timer(15000, true, &TeleportPlayer, pc);
+		}
+	}
 
 	void InitHooks()
 	{
@@ -117,8 +136,12 @@ namespace SafeZones::Hooks
 		hooks.SetHook("APrimalDinoCharacter.CanCarryCharacter", &Hook_APrimalDinoCharacter_CanCarryCharacter,
 		              &APrimalDinoCharacter_CanCarryCharacter_original);
 
-		//hooks.SetHook("AShooterCharacter.AuthPostSpawnInit", &Hook_AShooterCharacter_AuthPostSpawnInit,
-		//&AShooterCharacter_AuthPostSpawnInit_original);
+		hooks.SetHook("AShooterPlayerController.ServerRequestRespawnAtPoint_Implementation",
+		              &Hook_AShooterPlayerController_ServerRequestRespawnAtPoint_Impl,
+		              &AShooterPlayerController_ServerRequestRespawnAtPoint_Impl_original);
+		hooks.SetHook("AShooterPlayerState.ServerRequestCreateNewPlayer_Implementation",
+		              &Hook_AShooterPlayerState_ServerRequestCreateNewPlayer_Impl,
+		              &AShooterPlayerState_ServerRequestCreateNewPlayer_Impl_original);
 
 		ArkApi::GetCommands().AddOnTimerCallback("SafeZoneTimer", &Timer);
 	}
@@ -134,7 +157,10 @@ namespace SafeZones::Hooks
 		hooks.DisableHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage);
 		hooks.DisableHook("APrimalDinoCharacter.CanCarryCharacter", &Hook_APrimalDinoCharacter_CanCarryCharacter);
 
-		//hooks.DisableHook("AShooterCharacter.AuthPostSpawnInit", &Hook_AShooterCharacter_AuthPostSpawnInit);
+		hooks.DisableHook("AShooterPlayerController.ServerRequestRespawnAtPoint_Implementation",
+		                  &Hook_AShooterPlayerController_ServerRequestRespawnAtPoint_Impl);
+		hooks.DisableHook("AShooterPlayerState.ServerRequestCreateNewPlayer_Implementation",
+		                  &Hook_AShooterPlayerState_ServerRequestCreateNewPlayer_Impl);
 
 		ArkApi::GetCommands().RemoveOnTimerCallback("SafeZoneTimer");
 	}
