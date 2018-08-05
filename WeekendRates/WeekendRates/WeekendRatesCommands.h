@@ -4,8 +4,8 @@
 
 inline void ReloadConfig(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() ||
-		!player->GetPlayerCharacter()->bIsServerAdminField()())
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() ||
+		!player->GetPlayerCharacter()->bIsServerAdminField())
 		return;
 
 	InitConfig();
