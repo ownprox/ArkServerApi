@@ -71,4 +71,6 @@ void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* E
 			if (PingLeaveItr != pingData.end()) pingData.erase(PingLeaveItr);
 		}
 	}
+
+	AShooterGameMode_Logout_original(_this, Exiting);
 }
