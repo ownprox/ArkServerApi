@@ -1,7 +1,7 @@
 {
   "FullName":"PingLimiter",
   "Description":"Limit Players ping allowed in the server",
-  "Version":1.0,
+  "Version":1.1,
   "MinApiVersion":2.5,
   "ResourceId":22
 }
