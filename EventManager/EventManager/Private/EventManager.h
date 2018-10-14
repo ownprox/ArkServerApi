@@ -8,7 +8,7 @@ namespace EventManager
 	class EventManager : public IEventManager
 	{
 	private:
-		bool LogToConsole, EventQueueNotifications, UseSchedule, EventStartAuto, TeamBased;
+		bool LogToConsole, EventQueueNotifications, UseSchedule, EventStartAuto, TeamBased, bCanRewardWinner;
 		TArray<EventPlayer> Players;
 		TArray<Event*> Events;
 		Event* CurrentEvent;
@@ -19,7 +19,7 @@ namespace EventManager
 		int LastEquipmentIndex;
 		~EventManager() = default;
 		EventManager() : LogToConsole(true), EventQueueNotifications(true), CurrentEvent(nullptr), UseSchedule(false), NextEventTime(timeGetTime() + 120000),
-			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true), TeamBased(false), LastEquipmentIndex(-1) {};
+			MinStartEvent(7200000), MaxStartEvent(21600000), EventStartAuto(true), TeamBased(false), LastEquipmentIndex(-1), bCanRewardWinner(false) {};
 	public:
 		static EventManager& Get();
 
@@ -44,24 +44,25 @@ namespace EventManager
 
 		EventPlayer* FindPlayer(long long SteamID);
 		bool AddPlayer(AShooterPlayerController* player);
-		bool HasPlayer(int PlayerID);
+		bool HasPlayer(const int PlayerID);
 		bool RemovePlayer(AShooterPlayerController* player);
 		TArray<EventPlayer>& GetEventPlayers() { return Players; }
 		int GetEventPlayersCount() { return (int)Players.Num(); }
 		int GetTeamAliveCount(const int Team) { return EventTeamData[Team].Alive; }
 		int GetTeamScore(const int Team) { return EventTeamData[Team].Score; }
+		bool CanRewardWinner() { return bCanRewardWinner;  }
 
 		void Update();
 
 		void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns);
 		void TeleportWinningEventPlayersToStart(const bool WipeInventory);
-		void EnableEventPlayersInputs();
+		void CheckPlayersTeledAndEnableInputs();
 
 		std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player);
 
 		int GetRandomIndexNonRecurr(int TotalSize);
 		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
-		void ResetPlayerStats(EventPlayer* Player, bool PlayerDied = true);
+		void ResetPlayerStats(EventPlayer* Player, const bool PlayerDied = true);
 
 		void SendChatMessageToAllEventPlayersInternal(const FString& sender_name, const FString& msg);
 		void SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,

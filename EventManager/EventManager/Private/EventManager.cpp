@@ -89,7 +89,7 @@ namespace EventManager
 		return false;
 	}
 
-	bool EventManager::HasPlayer(int PlayerID)
+	bool EventManager::HasPlayer(const int PlayerID)
 	{
 		return FindPlayer(PlayerID) != nullptr;
 	}
@@ -142,6 +142,7 @@ namespace EventManager
 		}
 		const float MovementSpeed = CurrentEvent->GetMovementSpeed();
 		FVector Pos;
+		bool RemovePlayers = false;
 		for (auto& itr : Players)
 		{
 			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && !itr.ASPC->GetPlayerCharacter()->bIsSleeping()() && !itr.ASPC->GetPlayerCharacter()->IsSitting(false)
@@ -207,7 +208,7 @@ namespace EventManager
 				}
 
 				itr.ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
-
+				itr.TeledPos = Pos;
 				if (TeamCount > 1)
 				{
 					EventTeamData[TeamIndex].Alive++;
@@ -219,11 +220,16 @@ namespace EventManager
 			}
 			else
 			{
-				itr.Delete = true;
+				RemovePlayers = itr.Delete = true;
+				if (LogToConsole) Log::GetLog()->info("Removing: {} is not at their start pos ({})!", ArkApi::GetApiUtils().GetCharacterName(itr.ASPC).ToString().c_str(), Players.Num());
 			}
 		}
 
-		Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
+		if (RemovePlayers)
+		{
+			Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
+			if (LogToConsole) Log::GetLog()->info("Players: {}!", Players.Num());
+		}
 	}
 
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
@@ -244,17 +250,33 @@ namespace EventManager
 		}
 	}
 
-	void EventManager::EnableEventPlayersInputs()
+	void EventManager::CheckPlayersTeledAndEnableInputs()
 	{
+		bool RemovePlayers = false;
 		for (auto& itr : Players)
 		{
 			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
 			{
 				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
 				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
+				if (FVector::Distance(ArkApi::GetApiUtils().GetPosition(itr.ASPC), itr.TeledPos) > 100.f)
+				{
+					RemovePlayers = itr.Delete = true;
+					if (LogToConsole) Log::GetLog()->info("Removing: {} is not at their start pos (Players: {})!", ArkApi::GetApiUtils().GetCharacterName(itr.ASPC).ToString().c_str(), Players.Num());
+				}
 			}
 		}
+
+		if (RemovePlayers)
+		{
+			Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
+			if (LogToConsole) Log::GetLog()->info("Players: {}!", Players.Num());
+		}
+
+		const int PlayersNeeded = (CurrentEvent && CurrentEvent->GetPlayersNeededToStart() || 1);
+		bCanRewardWinner = Players.Num() >= PlayersNeeded;
 	}
+
 
 	std::optional<FString> EventManager::CheckIfPlayersNaked(AShooterPlayerController* Player)
 	{
@@ -359,7 +381,7 @@ namespace EventManager
 		}
 	}
 
-	void EventManager::ResetPlayerStats(EventPlayer* Player, bool PlayerDied)
+	void EventManager::ResetPlayerStats(EventPlayer* Player, const bool PlayerDied)
 	{
 		Player->ASPC->bInputEnabled() = true;
 		if (TeamBased && PlayerDied)

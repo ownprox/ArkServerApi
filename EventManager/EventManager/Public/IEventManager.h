@@ -18,14 +18,14 @@ namespace EventManager
 	struct EventPlayer
 	{
 		const long long PlayerID;
-		FVector StartPos;
+		FVector StartPos, TeledPos;
 		int Kills, Team;
 		AShooterPlayerController* ASPC;
 		bool Delete;
 		EventPlayerStats_s EventPlayerStats;
 
 		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC) : PlayerID(PlayerID), ASPC(ASPC), StartPos(ArkApi::GetApiUtils().GetPosition(ASPC))
-			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()) {}
+			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()), TeledPos(FVector(0.f, 0.f, 0.f)) {}
 	};
 
 	struct EventTeam
@@ -86,25 +86,26 @@ namespace EventManager
 		virtual bool StartEvent(const int EventID = -1) = 0;
 
 		virtual bool AddPlayer(AShooterPlayerController* player) = 0;
-		virtual bool HasPlayer(int PlayerID) = 0;
+		virtual bool HasPlayer(const int PlayerID) = 0;
 		virtual bool RemovePlayer(AShooterPlayerController* player) = 0;
 
 		virtual TArray<EventPlayer>& GetEventPlayers() = 0;
 		virtual int GetEventPlayersCount() = 0;
 		virtual int GetTeamAliveCount(const int Team) = 0;
 		virtual int GetTeamScore(const int Team) = 0;
+		virtual bool CanRewardWinner() = 0;
 
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
 		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
-		virtual void EnableEventPlayersInputs() = 0;
+		virtual void CheckPlayersTeledAndEnableInputs() = 0;
 
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
 		virtual int GetRandomIndexNonRecurr(int TotalSize) = 0;
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
-		virtual void ResetPlayerStats(EventPlayer* Player, bool PlayerDied = true) = 0;
+		virtual void ResetPlayerStats(EventPlayer* Player, const bool PlayerDied = true) = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)

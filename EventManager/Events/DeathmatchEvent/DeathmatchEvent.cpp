@@ -66,7 +66,7 @@ public:
 			std::string Data;
 
 			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
-				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee);
+				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
 
 			const auto& Spawns = config["Deathmatch"]["Spawns"];
 			for (const auto& Spawn : Spawns)
@@ -173,7 +173,7 @@ public:
 			if(Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 1), 1.f, 1, nullptr, *Messages[8]);
 			if (WaitForTimer(30))
 			{
-				EventManager::Get().EnableEventPlayersInputs();
+				EventManager::Get().CheckPlayersTeledAndEnableInputs();
 				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[6], *GetName());
 				SetState(EventState::Fighting);
 			}
@@ -189,31 +189,33 @@ public:
 			if (EventManager::Get().GetEventPlayersCount() > 0)
 			{
 				EventManager::Get().TeleportWinningEventPlayersToStart(true);
-
-				AShooterPlayerController* RewardPlayer = EventManager::Get().GetEventPlayers()[0].ASPC;
-				if (RewardPlayer && RewardPlayer->GetPlayerCharacter())
+				if (EventManager::Get().CanRewardWinner())
 				{
-					if (Rewards.Num() != 0)
+					AShooterPlayerController* RewardPlayer = EventManager::Get().GetEventPlayers()[0].ASPC;
+					if (RewardPlayer && RewardPlayer->GetPlayerCharacter())
 					{
-						const Reward& reward = Rewards[FMath::RandRange(0, Rewards.Num() - 1)];
-						const int RandomQuantity = (reward.QuantityMin == reward.QuantityMax ? reward.QuantityMin : FMath::RandRange(reward.QuantityMin, reward.QuantityMax))
-							, RandomQuality = (reward.QualityMin == reward.QualityMax ? reward.QualityMin : FMath::RandRange(reward.QualityMin, reward.QualityMax));
-						const bool IsBP = (reward.MinIsBP == reward.MaxIsBP && reward.MinIsBP == 0 ? false : (reward.MinIsBP == reward.MaxIsBP ? true
-							: (FMath::RandRange(reward.MinIsBP, reward.MaxIsBP) == reward.MinIsBP)));
-						FString BP = reward.BP;
-						//RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
-						UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(RewardPlayer->CheatManagerField());
-						if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
-					}
-					
-					if (ArkShopPointsRewardMax > 0)
-					{
-						int Amount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
-						Log::GetLog()->info("adding {} Points to winner!", Amount);
-						EventManager::Get().ArkShopAddPoints(Amount, (int)RewardPlayer->LinkedPlayerIDField());
-					}
+						if (Rewards.Num() != 0)
+						{
+							const Reward& reward = Rewards[FMath::RandRange(0, Rewards.Num() - 1)];
+							const int RandomQuantity = (reward.QuantityMin == reward.QuantityMax ? reward.QuantityMin : FMath::RandRange(reward.QuantityMin, reward.QuantityMax))
+								, RandomQuality = (reward.QualityMin == reward.QualityMax ? reward.QualityMin : FMath::RandRange(reward.QualityMin, reward.QualityMax));
+							const bool IsBP = (reward.MinIsBP == reward.MaxIsBP && reward.MinIsBP == 0 ? false : (reward.MinIsBP == reward.MaxIsBP ? true
+								: (FMath::RandRange(reward.MinIsBP, reward.MaxIsBP) == reward.MinIsBP)));
+							FString BP = reward.BP;
+							//RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
+							UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(RewardPlayer->CheatManagerField());
+							if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
+						}
 
-					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
+						if (ArkShopPointsRewardMax > 0)
+						{
+							int Amount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
+							Log::GetLog()->info("adding {} Points to winner!", Amount);
+							EventManager::Get().ArkShopAddPoints(Amount, (int)RewardPlayer->LinkedPlayerIDField());
+						}
+
+						ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[7], *ArkApi::GetApiUtils().GetCharacterName(RewardPlayer), *GetName());
+					}
 				}
 			}
 			SetState(EventState::Finished);
