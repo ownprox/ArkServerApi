@@ -157,12 +157,12 @@ namespace ArkApi_Hook_Creator
                             {
                                 string[] Vars = Regex.Split(FunctionVariables, ", ");
                                 foreach (string s in Vars) Hook += ", " + s;
-                                HookFunc = Vars[0] + " _cdecl ";
+                                HookFunc = Vars[0] + " ";
                             }
                             else
                             {
                                 Hook += ", " + FunctionVariables;
-                                HookFunc = FunctionVariables + " _cdecl ";
+                                HookFunc = FunctionVariables + " ";
                             }
                             Hook += ");";
                             HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* " + LowerCase(StructCombo.Text);
