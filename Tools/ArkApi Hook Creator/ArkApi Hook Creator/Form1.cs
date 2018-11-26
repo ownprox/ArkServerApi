@@ -148,7 +148,7 @@ namespace ArkApi_Hook_Creator
                             string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1];
                             FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('>')).Replace(" * ", "* ");
                             string FriendlyHookName = FuncCombo.Text;
-                            FriendlyHookName = FriendlyHookName.Replace("* ", "").Replace("()", "");
+                            FriendlyHookName = FriendlyHookName.Replace("* ", "").Replace("()", "").Replace(")", "");
                             if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
                             if(FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
                             string Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
