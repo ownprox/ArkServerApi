@@ -88,7 +88,7 @@ namespace ArkApi_Hook_Creator
                     {
                         if (s.Length > 5)
                         {
-                            AddFunction(ClassIndex, StructName.Replace(" * ", "* "), FunctionIndex++, s.Replace("\t", ""));
+                            AddFunction(ClassIndex, StructName.Replace(" * ", "* ").Replace("__declspec(align(8)) ", ""), FunctionIndex++, s.Replace("\t", ""));
                         }
                     }
                     FunctionIndex = 0;
@@ -187,7 +187,7 @@ namespace ArkApi_Hook_Creator
                                 else HookFunc += ");\n}";
                                 richTextBox1.AppendText(Hook + Environment.NewLine + Environment.NewLine + HookFunc + Environment.NewLine + Environment.NewLine
                                     + "ArkApi::GetHooks().SetHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ", &" + StructCombo.Text + "_" + FriendlyHookName + "_original);" + Environment.NewLine + Environment.NewLine
-                                    + "ArkApi::GetHooks().DisableHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\");");
+                                    + "ArkApi::GetHooks().DisableHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ");");
                                 Clipboard.SetText(richTextBox1.Text);
                             }
                         }

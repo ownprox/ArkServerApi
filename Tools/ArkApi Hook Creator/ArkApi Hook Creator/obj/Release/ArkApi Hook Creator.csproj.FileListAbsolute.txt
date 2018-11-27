@@ -1,0 +1,9 @@
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\bin\Release\ArkApi Hook Creator.exe
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\bin\Release\ArkApi Hook Creator.pdb
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi_Hook_Creator.Form1.resources
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi_Hook_Creator.Properties.Resources.resources
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.csproj.GenerateResource.cache
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.csproj.CoreCompileInputs.cache
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.exe
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.pdb
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.csprojAssemblyReference.cache
