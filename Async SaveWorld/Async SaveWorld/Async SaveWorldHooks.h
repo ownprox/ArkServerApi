@@ -31,6 +31,6 @@ void Hook_AShooterGameMode_SaveWorld(AShooterGameMode* aShooterGameMode)
 		Saving = false;
 	});
 	
-	if (CPUAffinityEnabled) SetThreadAffinityMask(GetCurrentThread(), CPUAffinityMask);
+	if (CPUAffinityEnabled) SetThreadAffinityMask(SaveThread.native_handle(), CPUAffinityMask);
 	SaveThread.detach();
 }
