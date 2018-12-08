@@ -17,7 +17,7 @@ AShooterPlayerController* FindPlayerFromCharacterName(const FString& character_n
 	int LastNameLenDiff = 999;
 	FString char_name;
 	AShooterPlayerController* Player = nullptr, *PlayerCon;
-	const auto& player_controllers = ArkApi::GetApiUtils().GetWorld()->PlayerControllerListField()();
+	const auto& player_controllers = ArkApi::GetApiUtils().GetWorld()->PlayerControllerListField();
 	for (TWeakObjectPtr<APlayerController> player_controller : player_controllers)
 	{
 		PlayerCon = static_cast<AShooterPlayerController*>(player_controller.Get());

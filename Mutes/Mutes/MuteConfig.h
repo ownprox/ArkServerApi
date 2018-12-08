@@ -15,7 +15,7 @@ void InitConfig(bool Reload)
 	for (const auto& szitem : BLItemMap)
 	{
 		Data = szitem["Word"];
-		BadWord.push_back(BadWords(ArkApi::Tools::Utf8Decode(Data), szitem["Minutes"]));
+		BadWord.Add(BadWords(ArkApi::Tools::Utf8Decode(Data), szitem["Minutes"]));
 	}
 
 	int j = 0;

@@ -9,8 +9,11 @@ struct MuteData
 	MuteData(const uint64 SteamID, const DWORD MutedTill, const FString& IPAddress, const bool IPBan) : SteamID(SteamID), MutedTill(MutedTill), IPAddress(IPAddress), IPBan(IPBan), IsIP(!IPAddress.IsEmpty()) {}
 	bool HasMutePassed() { return timeGetTime() > MutedTill; }
 };
-std::vector<MuteData> muteData;
-std::vector<MuteData>::iterator GetMuteData(const uint64 SteamID, const FString& IPAddress = FString(), const bool CheckForIPBan = false) { return std::find_if(muteData.begin(), muteData.end(), [SteamID, IPAddress, CheckForIPBan](const MuteData& mute) -> bool { return CheckForIPBan ? (mute.IPBan && mute.IPAddress == IPAddress) : (mute.IsIP && !IPAddress.IsEmpty() ? (mute.IPAddress == IPAddress || mute.SteamID == SteamID) : mute.SteamID == SteamID); }); }
+TArray<MuteData> muteData;
+MuteData* GetMuteData(const uint64 SteamID, const FString& IPAddress = FString(), const bool CheckForIPBan = false)
+{
+	return muteData.FindByPredicate([SteamID, IPAddress, CheckForIPBan](const MuteData& mute) -> bool { return CheckForIPBan ? (mute.IPBan && mute.IPAddress == IPAddress) : (mute.IsIP && !IPAddress.IsEmpty() ? (mute.IPAddress == IPAddress || mute.SteamID == SteamID) : mute.SteamID == SteamID); });
+}
 
 struct BadWords
 {
@@ -19,10 +22,7 @@ struct BadWords
 	BadWords(const std::wstring Word, const int Minutes) : Word(FString(Word.c_str())), Minutes(Minutes) {}
 };
 
-typedef std::vector<BadWords> BadWordA;
-typedef BadWordA::iterator BadWordItr;
-BadWordA BadWord;
-
+TArray<BadWords> BadWord;
 
 void InitMutes()
 {
@@ -43,7 +43,7 @@ void InitMutes()
 			if (MutedTill > nNowTime)
 			{
 				const FString& FIP = IP.c_str();
-				muteData.push_back(MuteData(SteamID, (DWORD)MutedTill, FIP, IsIPBan == 1));
+				muteData.Add(MuteData(SteamID, (DWORD)MutedTill, FIP, IsIPBan == 1));
 			} else db << "DELETE FROM Mutes WHERE SteamId = ?;" << SteamID;
 		};
 	}
@@ -55,24 +55,24 @@ void InitMutes()
 
 void AddMute(const uint64 SteamID, const int MuteMins, const int MuteHours, const bool IPMute, const bool IsIpBan, const FString& IPAddress = FString(""))
 {
-
-	auto iter = GetMuteData(SteamID, IPAddress);
-
 	const DWORD MutedTill = timeGetTime() + ((MuteMins * 60000) + (MuteHours * 3600000));
-
-	if (iter == muteData.end()) muteData.push_back(MuteData(SteamID, MutedTill, IPAddress, IsIpBan));
+	auto muteddata = GetMuteData(SteamID, IPAddress);
+	if (!muteddata) muteData.Add(MuteData(SteamID, MutedTill, IPAddress, IsIpBan));
 	else
 	{
-		iter->MutedTill = MutedTill;
-		iter->IsIP = IPMute;
-		iter->IPBan = IsIpBan;
-		iter->IPAddress = IPAddress;
+		muteddata->MutedTill = MutedTill;
+		muteddata->IsIP = IPMute;
+		muteddata->IPBan = IsIpBan;
+		muteddata->IPAddress = IPAddress;
 	}
 
 	if (IsIpBan)
 	{
-		FString BanMsg = fmt::format(*Messages[3], MuteHours, MuteMins).c_str();
-		if (AShooterPlayerController* player; player = ArkApi::GetApiUtils().FindPlayerFromSteamId(SteamID)) ArkApi::GetApiUtils().GetShooterGameMode()->KickPlayerController(player, &BanMsg);
+		FString BanMsg = FString::Format(*Messages[3], MuteHours, MuteMins);
+		if (AShooterPlayerController* player; player = ArkApi::GetApiUtils().FindPlayerFromSteamId(SteamID))
+		{
+			ArkApi::GetApiUtils().GetShooterGameMode()->KickPlayerController(player, &BanMsg);
+		}
 	}
 
 	try
@@ -95,10 +95,10 @@ void AddMute(const uint64 SteamID, const int MuteMins, const int MuteHours, cons
 	}
 }
 
-void RemoveMute(const uint64 SteamID)
+bool RemoveMute(const uint64 SteamID)
 {
-	auto iter = GetMuteData(SteamID);
-	if (iter != muteData.end())
+	auto muteddata = GetMuteData(SteamID);
+	if (muteddata)
 	{
 		try
 		{
@@ -109,8 +109,10 @@ void RemoveMute(const uint64 SteamID)
 		{
 			Log::GetLog()->error("({} {}) Unexpected DB error {}", __FILE__, __FUNCTION__, exception.what());
 		}
-		muteData.erase(iter);
+		muteData.RemoveAll([SteamID](const MuteData& MD) { return MD.SteamID == SteamID; });
+		return true;
 	}
+	return false;
 }
 
 void ClearMutes()
@@ -124,20 +126,20 @@ void ClearMutes()
 	{
 		Log::GetLog()->error("({} {}) Unexpected DB error {}", __FILE__, __FUNCTION__, exception.what());
 	}
-	muteData.clear();
+	muteData.Empty();
 }
 
 int IsMuted(const uint64 SteamID, const FString& IPAddress, const bool CheckForIPBan)
 {
-	auto iter = GetMuteData(SteamID, IPAddress, CheckForIPBan);
-	if (iter != muteData.end())
+	auto muteddata = GetMuteData(SteamID, IPAddress, CheckForIPBan);
+	if (muteddata)
 	{
-		if (iter->HasMutePassed())
+		if (muteddata->HasMutePassed())
 		{
-			muteData.erase(iter);
+			muteData.RemoveAll([SteamID](const MuteData& MD) { return MD.SteamID == SteamID; });
 			return 0;
 		}
-		return (int)((iter->MutedTill - timeGetTime()) / 1000);
+		return (int)((muteddata->MutedTill - timeGetTime()) / 1000);
 	}
 	return 0;
 }

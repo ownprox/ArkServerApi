@@ -21,7 +21,7 @@ int SecCounter = 0;
 DWORD MuteTimePasted;
 void CleanUpLoggedOutPlayerPassedMutes()
 {
-	if (SecCounter++ == 14400)
+	if (SecCounter++ == 10/*14400*/)
 	{
 		if (!ArkApi::GetApiUtils().GetWorld())
 		{
@@ -29,7 +29,7 @@ void CleanUpLoggedOutPlayerPassedMutes()
 			return;
 		}
 		MuteTimePasted = timeGetTime();
-		for (MuteItr = muteData.begin(); MuteItr != muteData.end(); MuteItr++) if (MuteTimePasted > MuteItr->MutedTill) MuteItr = muteData.erase(MuteItr);
+		muteData.RemoveAll([](const MuteData& muteddata) { return MuteTimePasted > muteddata.MutedTill; });
 		SecCounter = 0;
 	}
 }
@@ -43,8 +43,8 @@ bool _cdecl Hook_AShooterGameMode_HandleNewPlayer(AShooterGameMode* _this, AShoo
 		{
 			const int hours = (Muted > 3600 ? (Muted / 3600) : 0), mins((hours > 0 && (Muted - (hours * 3600)) > 60) ? ((Muted - (hours * 3600)) / 60) : (Muted > 60 ? (Muted / 60) : 0));
 			FString BanMsg;
-			if ((mins != 0 || hours != 0)) BanMsg = fmt::format(*Messages[3], hours, mins).c_str();
-			else BanMsg = fmt::format(*Messages[4], Muted).c_str();
+			if ((mins != 0 || hours != 0)) BanMsg = FString::Format(*Messages[3], hours, mins);
+			else BanMsg = FString::Format(*Messages[4], Muted);
 			ArkApi::GetApiUtils().GetShooterGameMode()->KickPlayerController(NewPlayer, &BanMsg);
 			return false;
 		}
@@ -66,10 +66,10 @@ void _cdecl Hook_AShooterPlayerController_ServerSendChatMessage_Impl(AShooterPla
 			return;
 		}
 
-		if (BadWord.size() > 0)
+		if (BadWord.Num() > 0)
 		{
-			const auto& Itr = std::find_if(BadWord.begin(), BadWord.end(), [Message](const BadWords& bw) -> bool { return Message->Contains(bw.Word); });
-			if (Itr != BadWord.end())
+			const auto& Itr = BadWord.FindByPredicate([Message](const BadWords& bw) -> bool { return Message->Contains(bw.Word); });
+			if (Itr)
 			{
 				if (Itr->Minutes > 0)
 				{
