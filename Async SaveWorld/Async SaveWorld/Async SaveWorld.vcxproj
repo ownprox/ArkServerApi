@@ -23,7 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Async SaveWorld.h" />
+    <ClInclude Include="Async SaveWorldConfig.h" />
     <ClInclude Include="Async SaveWorldHooks.h" />
+    <ClInclude Include="json.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

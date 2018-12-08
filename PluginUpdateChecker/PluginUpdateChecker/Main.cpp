@@ -5,8 +5,9 @@ void PluginUpdateCheck()
 {
 	if (PluginsArray.Num() == 0) return;
 	SecCounter++;
-	if(SecCounter > (IsCheckingArray ? 0 : 21600))
+	if(SecCounter > (IsCheckingArray ? 2 : 86400))
 	{
+		SecCounter = 0;
 		if (!VerifyPost)
 		{
 			FHttpModule::Get()->CreateRequest(&request);
@@ -23,7 +24,7 @@ void PluginUpdateCheck()
 				case EHttpRequestStatus::Succeeded:
 				{
 					FString Response;
-					request->ResponseField()()->GetContentAsString(&Response);
+					request->ResponseField()->GetContentAsString(&Response);
 					request->FinishedRequest();
 
 					float Version = GetPluginVersion(Response);
@@ -31,12 +32,8 @@ void PluginUpdateCheck()
 					if (Version != 0.0f && PluginsArray[PluginIndex].Version != Version)
 					{
 						const long long& nNowTime = timeGetTime();
-						if (DiscordUseWebHooks && nNowTime > PluginsArray[PluginIndex].LastWarningMS)
-						{
-							PostDiscord(L"{{\"content\":\"{} {} is now available for download from https://arkserverapi.com/resources/{}/\",\"username\":\"Plugin Update Checker\",\"avatar_url\":null}}", PluginsArray[PluginIndex].Name.ToString().c_str(), Version, PluginsArray[PluginIndex].ResourceID);
-							Log::GetLog()->info("{} {} is now available for download from www.arkserverapi.com", PluginsArray[PluginIndex].Name.ToString().c_str(), Version);
-							PluginsArray[PluginIndex].LastWarningMS = nNowTime + 1800000;
-						}
+						if(DiscordUseWebHooks) PostDiscord(L"{{\"content\":\"{} {} is now available for download from https://arkserverapi.com/resources/{}/\",\"username\":\"Plugin Update Checker\",\"avatar_url\":null}}", PluginsArray[PluginIndex].Name.ToString().c_str(), Version, PluginsArray[PluginIndex].ResourceID);
+						Log::GetLog()->info("{} {} is now available for download from www.arkserverapi.com", PluginsArray[PluginIndex].Name.ToString().c_str(), Version);
 					}
 					PluginIndex++;
 					if (PluginIndex == PluginsArray.Num())

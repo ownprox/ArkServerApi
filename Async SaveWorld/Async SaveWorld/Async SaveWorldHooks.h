@@ -20,7 +20,7 @@ void Hook_AShooterGameMode_SaveWorld(AShooterGameMode* aShooterGameMode)
 		return;
 	}
 	Saving = true;
-	std::thread([aShooterGameMode]()
+	SaveThread = std::thread([aShooterGameMode]()
 	{
 		__try
 		{
@@ -29,5 +29,8 @@ void Hook_AShooterGameMode_SaveWorld(AShooterGameMode* aShooterGameMode)
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{ Log::GetLog()->error("Error failed to save!"); }
 		Saving = false;
-	}).detach();
+	});
+	
+	if (CPUAffinityEnabled) SetThreadAffinityMask(GetCurrentThread(), CPUAffinityMask);
+	SaveThread.detach();
 }

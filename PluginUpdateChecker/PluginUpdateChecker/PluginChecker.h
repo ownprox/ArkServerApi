@@ -8,15 +8,14 @@ const FString FindStarter = "muted\">";
 FString DiscordWebHookURL;
 TSharedRef<IHttpRequest, 0> request;
 bool VerifyPost = false, IsCheckingArray = true, DiscordUseWebHooks = false;
-int PluginIndex = 0, SecCounter;
+int PluginIndex = 0, SecCounter = 0;
 
 struct PluginS
 {
 	FString Name;
 	float Version;
 	int ResourceID;
-	long long LastWarningMS;
-	PluginS(FString Name, float Version, int ResourceID) : Name(Name), Version(Version), ResourceID(ResourceID), LastWarningMS(0) {}
+	PluginS(FString Name, float Version, int ResourceID) : Name(Name), Version(Version), ResourceID(ResourceID) {}
 };
 
 TArray<PluginS> PluginsArray;
@@ -55,7 +54,7 @@ void LoadAllPlugins()
 template <typename T, typename... Args>
 void PostDiscord(const T* msg, Args&&... args)
 {
-	static_cast<AShooterGameState*>(ArkApi::GetApiUtils().GetWorld()->GameStateField()())->HTTPPostRequest(DiscordWebHookURL, FString::Format(msg, std::forward<Args>(args)...));
+	static_cast<AShooterGameState*>(ArkApi::GetApiUtils().GetWorld()->GameStateField())->HTTPPostRequest(DiscordWebHookURL, FString::Format(msg, std::forward<Args>(args)...));
 }
 
 float GetPluginVersion(const FString& Response)
