@@ -18,8 +18,9 @@ namespace ArkApi_Hook_Creator
         }
 
         Dictionary<int, Dictionary<string, Dictionary<int, string>>> FunctionInfo = new Dictionary<int, Dictionary<string, Dictionary<int, string>>>();
-        Dictionary<string, Dictionary<int, string>> StructureSelector;
-        Dictionary<int, string> FunctionSelector;
+        Dictionary<string, Dictionary<int, string>> StructureSelector = new Dictionary<string, Dictionary<int, string>>();
+        Dictionary<int, string> FunctionSelector = new Dictionary<int, string>();
+        Dictionary<int, int> FunctionIndexer = new Dictionary<int, int>();
 
         private void AddFunction(int ClassIndex, string Structure, int FunctionIndex, string Function)
         {
@@ -50,19 +51,19 @@ namespace ArkApi_Hook_Creator
         {
             ClassCombo.Items.AddRange(new string[] { "Actor", "GameMode", "GameState", "Inventory", "Other", "PrimalStructure", "Tribe" });
 
-            int ClassIndex = 0;
+            int ClassIndex = 0, ClassCount = ClassCombo.Items.Count-1;
             foreach (string ArkHeader in ClassCombo.Items)
             {
                 using (WebClient wc = new WebClient())
                 {
                     int ClassId = ClassIndex++;
-                    wc.DownloadStringCompleted += (object s, DownloadStringCompletedEventArgs ea) => ParseArkHeader(ClassId, s, ea);
+                    wc.DownloadStringCompleted += (object s, DownloadStringCompletedEventArgs ea) => ParseArkHeader(ClassId, ClassId == ClassCount, s, ea);
                     wc.DownloadStringAsync(new Uri("https://raw.githubusercontent.com/Michidu/ARK-Server-API/master/version/Core/Public/API/ARK/" + ArkHeader + ".h"));
                 }
             }
         }
 
-        private void ParseArkHeader(int ClassIndex, object sender, DownloadStringCompletedEventArgs e)
+        private void ParseArkHeader(int ClassIndex, bool Completed, object sender, DownloadStringCompletedEventArgs e)
         {
             if (e.Error != null)
             {
@@ -95,6 +96,12 @@ namespace ArkApi_Hook_Creator
                     StructureIndex++;
                 }
             }
+
+            if(Completed)
+            {
+                ClassCombo.Enabled = true;
+                StructCombo.Enabled = true;
+            }
         }
 
         private void ClassCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -111,6 +118,7 @@ namespace ArkApi_Hook_Creator
 
         private void StructCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            FunctionIndexer.Clear();
             FuncCombo.Items.Clear();
             FuncCombo.Enabled = true;
             FuncCombo.Text = "";
@@ -118,10 +126,11 @@ namespace ArkApi_Hook_Creator
             {
                 if (StructureSelector.TryGetValue(StructCombo.Text, out FunctionSelector))
                 {
-                    foreach (string FunctionName in FunctionSelector.Values)
+                    foreach (KeyValuePair<int, string> func in FunctionSelector)
                     {
-                        if (FunctionName.Contains(" { ")) FuncCombo.Items.Add(Regex.Split(FunctionName, " { ")[0].Replace(" * ", "* "));
-                        else FuncCombo.Items.Add(FunctionName.Replace(" * ", "* "));
+                        FunctionIndexer.Add(FuncCombo.Items.Count, func.Key);
+                        if (func.Value.Contains(" { ")) FuncCombo.Items.Add(Regex.Split(func.Value, " { ")[0].Replace(" * ", "* "));
+                        else FuncCombo.Items.Add(func.Value.Replace(" * ", "* "));
                     }
                 }
             }
@@ -140,55 +149,59 @@ namespace ArkApi_Hook_Creator
             {
                 if (StructureSelector.TryGetValue(StructCombo.Text, out FunctionSelector))
                 {
-                    string FunctionData;
-                    if (FunctionSelector.TryGetValue(FuncCombo.SelectedIndex, out FunctionData))
+                    int FuncIndex;
+                    if (FunctionIndexer.TryGetValue(FuncCombo.SelectedIndex, out FuncIndex))
                     {
-                        if(FunctionData.Contains("NativeCall<"))
+                        string FunctionData;
+                        if (FunctionSelector.TryGetValue(FuncIndex, out FunctionData))
                         {
-                            string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1];
-                            FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('>')).Replace(" * ", "* ");
-                            string FriendlyHookName = FuncCombo.Text;
-                            FriendlyHookName = FriendlyHookName.Replace("* ", "").Replace("()", "").Replace(")", "");
-                            if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
-                            if(FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
-                            string Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
-                            string HookFunc = "";
-                            if (FunctionVariables.Contains(", "))
+                            if (FunctionData.Contains("NativeCall<"))
                             {
-                                string[] Vars = Regex.Split(FunctionVariables, ", ");
-                                foreach (string s in Vars) Hook += ", " + s;
-                                HookFunc = Vars[0] + " ";
-                            }
-                            else
-                            {
-                                Hook += ", " + FunctionVariables;
-                                HookFunc = FunctionVariables + " ";
-                            }
-                            Hook += ");";
-                            HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* " + LowerCase(StructCombo.Text);
-                            string Variables = FuncCombo.Text;
-                            int FindIndex;
-                            if((FindIndex = Variables.IndexOf('(')) != -1)
-                            {
-                                Variables = Variables.Remove(0, FindIndex + 1);
-                                FindIndex = Variables.IndexOf(')');
-                                Variables = Variables.Substring(0, FindIndex + 1);
-                                HookFunc += (Variables.Length > 1 ? ", " + Variables : ")") + "\n{\n" + (HookFunc.StartsWith("void") ? "    " : "   return ");
-                                HookFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(" + LowerCase(StructCombo.Text);
-                                if (Variables.Length > 1)
+                                string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1];
+                                FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('>')).Replace(" * ", "* ");
+                                string FriendlyHookName = FuncCombo.Text;
+                                FriendlyHookName = FriendlyHookName.Replace("* ", "").Replace("()", "").Replace(")", "");
+                                if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
+                                if (FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
+                                string Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
+                                string HookFunc = "";
+                                if (FunctionVariables.Contains(", "))
                                 {
-                                    string[] Vars = Regex.Split(Variables, ", ");
-                                    foreach (string s in Vars)
-                                    {
-                                       if (s.Contains(" ")) HookFunc += ", " + s.Split(' ')[1].Replace(")", "");
-                                    }
-                                    HookFunc += ");\n}";
+                                    string[] Vars = Regex.Split(FunctionVariables, ", ");
+                                    foreach (string s in Vars) Hook += ", " + s;
+                                    HookFunc = Vars[0] + " ";
                                 }
-                                else HookFunc += ");\n}";
-                                richTextBox1.AppendText(Hook + Environment.NewLine + Environment.NewLine + HookFunc + Environment.NewLine + Environment.NewLine
-                                    + "ArkApi::GetHooks().SetHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ", &" + StructCombo.Text + "_" + FriendlyHookName + "_original);" + Environment.NewLine + Environment.NewLine
-                                    + "ArkApi::GetHooks().DisableHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ");");
-                                Clipboard.SetText(richTextBox1.Text);
+                                else
+                                {
+                                    Hook += ", " + FunctionVariables;
+                                    HookFunc = FunctionVariables + " ";
+                                }
+                                Hook += ");";
+                                HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* " + LowerCase(StructCombo.Text);
+                                string Variables = FuncCombo.Text;
+                                int FindIndex;
+                                if ((FindIndex = Variables.IndexOf('(')) != -1)
+                                {
+                                    Variables = Variables.Remove(0, FindIndex + 1);
+                                    FindIndex = Variables.IndexOf(')');
+                                    Variables = Variables.Substring(0, FindIndex + 1);
+                                    HookFunc += (Variables.Length > 1 ? ", " + Variables : ")") + "\n{\n" + (HookFunc.StartsWith("void") ? "    " : "   return ");
+                                    HookFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(" + LowerCase(StructCombo.Text);
+                                    if (Variables.Length > 1)
+                                    {
+                                        string[] Vars = Regex.Split(Variables, ", ");
+                                        foreach (string s in Vars)
+                                        {
+                                            if (s.Contains(" ")) HookFunc += ", " + s.Split(' ')[1].Replace(")", "");
+                                        }
+                                        HookFunc += ");\n}";
+                                    }
+                                    else HookFunc += ");\n}";
+                                    richTextBox1.AppendText(Hook + Environment.NewLine + Environment.NewLine + HookFunc + Environment.NewLine + Environment.NewLine
+                                        + "ArkApi::GetHooks().SetHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ", &" + StructCombo.Text + "_" + FriendlyHookName + "_original);" + Environment.NewLine + Environment.NewLine
+                                        + "ArkApi::GetHooks().DisableHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ");");
+                                    Clipboard.SetText(richTextBox1.Text);
+                                }
                             }
                         }
                     }
@@ -211,24 +224,31 @@ namespace ArkApi_Hook_Creator
                 return;
             }
             FuncCombo.Items.Clear();
+            FunctionIndexer.Clear();
             if (FunctionInfo.TryGetValue(ClassCombo.SelectedIndex, out StructureSelector))
             {
                 if (StructureSelector.TryGetValue(StructCombo.Text, out FunctionSelector))
                 {
                     string FuncName;
-                    foreach (string FunctionName in FunctionSelector.Values)
+                    foreach (KeyValuePair<int, string> func in FunctionSelector)
                     {
-                        if (FunctionName.Contains(" { "))
+                        if (func.Value.Contains(" { "))
                         {
-                            FuncName = Regex.Split(FunctionName, " { ")[0].Replace(" * ", "* ");
+                            FuncName = Regex.Split(func.Value, " { ")[0].Replace(" * ", "* ");
                             if (FuncName.ToLower().Contains(FuncCombo.Text.ToLower()))
+                            {
+                                FunctionIndexer.Add(FuncCombo.Items.Count, func.Key);
                                 FuncCombo.Items.Add(FuncName);
+                            }
                         }
                         else
                         {
-                            FuncName = FunctionName.Replace(" * ", "* ");
+                            FuncName = func.Value.Replace(" * ", "* ");
                             if (FuncName.ToLower().Contains(FuncCombo.Text.ToLower()))
+                            {
+                                FunctionIndexer.Add(FuncCombo.Items.Count, func.Key);
                                 FuncCombo.Items.Add(FuncName);
+                            }
                         }
                     }
                 }

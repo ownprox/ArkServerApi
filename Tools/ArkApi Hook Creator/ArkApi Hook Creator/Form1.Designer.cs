@@ -41,6 +41,7 @@
             // StructCombo
             // 
             this.StructCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.StructCombo.Enabled = false;
             this.StructCombo.FormattingEnabled = true;
             this.StructCombo.Location = new System.Drawing.Point(466, 6);
             this.StructCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
@@ -98,6 +99,7 @@
             // ClassCombo
             // 
             this.ClassCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ClassCombo.Enabled = false;
             this.ClassCombo.FormattingEnabled = true;
             this.ClassCombo.Location = new System.Drawing.Point(90, 6);
             this.ClassCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
@@ -133,7 +135,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "Form1";
-            this.Text = "ArkApi Hook Creator v1.1";
+            this.Text = "ArkApi Hook Creator v1.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
