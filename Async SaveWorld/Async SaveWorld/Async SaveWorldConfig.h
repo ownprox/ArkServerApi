@@ -23,7 +23,7 @@ void InitConfig()
 			try
 			{
 				int ThreadIndex = std::stoi(*CpuThread);
-				if (ThreadIndex > ThreadCount)
+				if (ThreadIndex >= ThreadCount)
 				{
 					Log::GetLog()->warn("You tried using Cpu Thread #{} but the max threads your server supports is {}.", ThreadIndex, ThreadCount);
 				} else EnabledCPUThreads.Add(ThreadIndex);
