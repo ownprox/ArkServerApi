@@ -21,7 +21,7 @@ int SecCounter = 0;
 DWORD MuteTimePasted;
 void CleanUpLoggedOutPlayerPassedMutes()
 {
-	if (SecCounter++ == 10/*14400*/)
+	if (SecCounter++ == 14400)
 	{
 		if (!ArkApi::GetApiUtils().GetWorld())
 		{
