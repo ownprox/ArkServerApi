@@ -52,6 +52,8 @@
             // 
             // FuncCombo
             // 
+            this.FuncCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.FuncCombo.Enabled = false;
             this.FuncCombo.FormattingEnabled = true;
             this.FuncCombo.Location = new System.Drawing.Point(1024, 6);
@@ -135,7 +137,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "Form1";
-            this.Text = "ArkApi Hook Creator v1.2";
+            this.Text = "ArkApi Hook Creator v1.3";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

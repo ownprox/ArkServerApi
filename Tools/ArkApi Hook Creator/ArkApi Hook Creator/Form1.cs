@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -158,35 +154,45 @@ namespace ArkApi_Hook_Creator
                             if (FunctionData.Contains("NativeCall<"))
                             {
                                 string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1];
-                                FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('>')).Replace(" * ", "* ");
+                                FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('(')-1).Replace(" * ", "* ");
                                 string FriendlyHookName = FuncCombo.Text;
-                                FriendlyHookName = FriendlyHookName.Replace("* ", "").Replace("()", "").Replace(")", "");
+                                FriendlyHookName = FriendlyHookName.Replace("* >", "*>").Replace(" *>", "*>").Replace("()", "").Replace(")", "");
                                 if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
                                 if (FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
                                 string Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
                                 string HookFunc = "";
+                                // DECLARE_HOOK ARGS
                                 if (FunctionVariables.Contains(", "))
                                 {
+                                    bool AddedClass = false;
                                     string[] Vars = Regex.Split(FunctionVariables, ", ");
-                                    foreach (string s in Vars) Hook += ", " + s;
+                                    foreach (string s in Vars)
+                                    {
+                                        Hook += ", " + s;
+                                        if (!AddedClass) //Add Structure to args
+                                        {
+                                            Hook += ", " + StructCombo.Text + "*";
+                                            AddedClass = true;
+                                        }
+                                    }
                                     HookFunc = Vars[0] + " ";
                                 }
                                 else
-                                {
-                                    Hook += ", " + FunctionVariables;
+                                {                                   //Add Structure to args
+                                    Hook += ", " + FunctionVariables + ", " + StructCombo.Text + "*";
                                     HookFunc = FunctionVariables + " ";
                                 }
                                 Hook += ");";
-                                HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* " + LowerCase(StructCombo.Text);
+                                HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* _this";
                                 string Variables = FuncCombo.Text;
                                 int FindIndex;
                                 if ((FindIndex = Variables.IndexOf('(')) != -1)
                                 {
                                     Variables = Variables.Remove(0, FindIndex + 1);
                                     FindIndex = Variables.IndexOf(')');
-                                    Variables = Variables.Substring(0, FindIndex + 1);
-                                    HookFunc += (Variables.Length > 1 ? ", " + Variables : ")") + "\n{\n" + (HookFunc.StartsWith("void") ? "    " : "   return ");
-                                    HookFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(" + LowerCase(StructCombo.Text);
+                                    Variables = Variables.Substring(0, FindIndex + 1).Replace(" **", "**").Replace(" *", "*").Replace("enum ", "enum'");
+                                    HookFunc += (Variables.Length > 1 ? ", " + Variables.Replace("enum'", "enum ") : ")") + "\n{\n" + (HookFunc.StartsWith("void") ? "    " : "   return ");
+                                    HookFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(_this";
                                     if (Variables.Length > 1)
                                     {
                                         string[] Vars = Regex.Split(Variables, ", ");

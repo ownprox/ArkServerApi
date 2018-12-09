@@ -6,3 +6,4 @@ E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\o
 E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.csproj.CoreCompileInputs.cache
 E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.exe
 E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.pdb
+E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Release\ArkApi Hook Creator.csprojAssemblyReference.cache
