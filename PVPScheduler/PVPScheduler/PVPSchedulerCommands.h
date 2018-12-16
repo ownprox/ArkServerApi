@@ -1,7 +1,10 @@
 #pragma once
-void PVP(AShooterPlayerController* player, FString* message, int mode)
+/*
+inline void PVP(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || !player->GetPlayerCharacter()->bIsServerAdminField()()) return;
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->GetPlayerCharacter()->
+	                                                                                          bIsServerAdminField())
+		return;
 
 	int EndDaya = 0, EndHoura = 0;
 	if (PVPEnabled)
@@ -15,9 +18,12 @@ void PVP(AShooterPlayerController* player, FString* message, int mode)
 				EndDaya = std::stoi(Parsed[1].ToString().c_str());
 				EndHoura = std::stoi(Parsed[2].ToString().c_str());
 			}
-			catch (...) {}
-			EndDay = EndDaya;
-			EndHour = EndHoura;
+			catch (...)
+			{
+			}
+
+			//EndDay = EndDaya;
+			//EndHour = EndHoura;
 		}
 		else
 		{
@@ -25,25 +31,28 @@ void PVP(AShooterPlayerController* player, FString* message, int mode)
 			return;
 		}
 	}
+
 	PVPEnabled = !PVPEnabled;
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), "PVP: {}", (PVPEnabled ? "Enabled" : "Disabled"));
-}
 
-void PVPReloadConfig(AShooterPlayerController* player, FString* message, int mode)
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), "PVP: {}",
+	                                        (PVPEnabled ? "Enabled" : "Disabled"));
+}*/
+
+inline void PVPReloadConfig(APlayerController* player, FString*, bool)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter() || !player->GetPlayerCharacter()->bIsServerAdminField()()) return;
 	InitConfig();
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), "Config Reloaded!.");
+
+	ArkApi::GetApiUtils().SendServerMessage(static_cast<AShooterPlayerController*>(player), FLinearColor(0, 1, 0), "Config Reloaded!");
 }
 
-void InitCommands()
+inline void InitCommands()
 {
-	ArkApi::GetCommands().AddChatCommand("/pvp", &PVP);
-	ArkApi::GetCommands().AddChatCommand("/pvpreload", &PVPReloadConfig);
+	//ArkApi::GetCommands().AddChatCommand("/pvp", &PVP);
+	ArkApi::GetCommands().AddConsoleCommand("pvpreload", &PVPReloadConfig);
 }
 
-void RemoveCommands()
+inline void RemoveCommands()
 {
-	ArkApi::GetCommands().RemoveChatCommand("/pvp");
-	ArkApi::GetCommands().RemoveChatCommand("/pvpreload");
+	//ArkApi::GetCommands().RemoveChatCommand("/pvp");
+	ArkApi::GetCommands().RemoveConsoleCommand("pvpreload");
 }

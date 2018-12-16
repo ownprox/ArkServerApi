@@ -1,16 +1,19 @@
 {  
    "PVPScheduler":{  
+	  "ServerName":"ServerNameHere",
       "NotifyServer":true,
-      "Days":[  
+      "LogPvpSwitchAtConsole":true,
+      "Days":[
          {  
-            "StartDay":0,
-            "StartHour":11,
-            "PVPEnabledMinutes":10
-         },
-         {  
-            "StartDay":1,
-            "StartHour":11,
-            "PVPEnabledMinutes":10
+            "StartDay":5,
+            "StartHour":18,
+            "EndDay":0,
+			"EndHour":18,
+			"ProtectPlayers":true,
+			"ProtectDinos":true,
+			"ProtectStructures":true,
+			"PVPEnabledMessage":"<RichColor Color=\"1, 0, 0, 1\">PVP is Enabled!.</>",
+			"PVPDisabledMessage":"<RichColor Color=\"0, 1, 0, 1\">PVP is Disabled!.</>"
          }
       ]
    }
