@@ -8,6 +8,7 @@ namespace AtlasServerManager
 {
     public partial class AtlasServerManager : Form
     {
+        public string SteamPath = System.AppDomain.CurrentDomain.BaseDirectory + @"Steam\";
         public string ArkManagerPath = "", ServerPath = string.Empty;
         private static AtlasServerManager instance;
         public static AtlasServerManager GetInstance() { return instance; }
@@ -34,13 +35,15 @@ namespace AtlasServerManager
                     if (Path.GetFileNameWithoutExtension(file) == "ShooterGameServer") ServerPath = file;
                 }
             }
+
+            if (!checkAutoServerUpdate.Checked) Updating = false;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Worker.Destroy();
             Registry.SaveRegConfig(this);
-            if (UpdateProcess != null && (!UpdateProcess.HasExited || UpdateProcess.Id != 0)) UpdateProcess.Kill();
+            if (UpdateProcess != null && !UpdateProcess.HasExited && UpdateProcess.Id != 0) UpdateProcess.Kill();
         }
 
         private void addToolStripMenuItem_Click(object sender, EventArgs e)
@@ -94,6 +97,24 @@ namespace AtlasServerManager
         }
 
         private delegate void RichTextBoxUpdateEventHandler(string txt);
+
+        private void checkAutoServerUpdate_CheckedChanged(object sender, EventArgs e)
+        {
+            if(!checkAutoServerUpdate.Checked)
+            Updating = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if(Updating)
+            {
+                MessageBox.Show("Already Updating", "Update in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (File.Exists(SteamPath + "AtlasLatestVersion.txt")) File.Delete(SteamPath + "AtlasLatestVersion.txt");
+            Log("[Atlas] Forcing Update");
+            Worker.DestroyAndRecreateThread(this, Worker.WorkerType.ServerUpdateCheck);
+        }
 
         public void Log(string txt)
         {

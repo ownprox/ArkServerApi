@@ -29,7 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AtlasServerManager));
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.numServerMonitor = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
@@ -63,12 +65,10 @@
             this.manageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.commandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.announcementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.broadcastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabPage2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numServerMonitor)).BeginInit();
@@ -81,10 +81,14 @@
             this.tabPage1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button1);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.groupBox2);
@@ -92,10 +96,20 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(696, 318);
+            this.tabPage2.Size = new System.Drawing.Size(696, 317);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Options";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(298, 115);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(266, 99);
+            this.button1.TabIndex = 7;
+            this.button1.Text = "Force Update";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // groupBox1
             // 
@@ -162,7 +176,6 @@
             this.groupBox3.Controls.Add(this.numServerWarning);
             this.groupBox3.Controls.Add(this.checkAutoServerUpdate);
             this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Enabled = false;
             this.groupBox3.Location = new System.Drawing.Point(7, 7);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(266, 102);
@@ -206,6 +219,7 @@
             // 
             // numServerWarning
             // 
+            this.numServerWarning.Enabled = false;
             this.numServerWarning.Location = new System.Drawing.Point(205, 72);
             this.numServerWarning.Maximum = new decimal(new int[] {
             99999,
@@ -221,7 +235,7 @@
             this.numServerWarning.Size = new System.Drawing.Size(51, 24);
             this.numServerWarning.TabIndex = 1;
             this.numServerWarning.Value = new decimal(new int[] {
-            15,
+            30,
             0,
             0,
             0});
@@ -237,10 +251,12 @@
             this.checkAutoServerUpdate.TabIndex = 2;
             this.checkAutoServerUpdate.Text = "Automatically Update Server";
             this.checkAutoServerUpdate.UseVisualStyleBackColor = true;
+            this.checkAutoServerUpdate.CheckedChanged += new System.EventHandler(this.checkAutoServerUpdate_CheckedChanged);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
+            this.label5.Enabled = false;
             this.label5.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Black;
             this.label5.Location = new System.Drawing.Point(6, 74);
@@ -422,11 +438,9 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serverToolStripMenuItem,
-            this.manageToolStripMenuItem,
-            this.commandsToolStripMenuItem,
-            this.viewConsoleToolStripMenuItem});
+            this.manageToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(146, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(118, 48);
             // 
             // serverToolStripMenuItem
             // 
@@ -435,7 +449,7 @@
             this.removeToolStripMenuItem,
             this.editSettingsToolStripMenuItem});
             this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
-            this.serverToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.serverToolStripMenuItem.Text = "Server";
             // 
             // addToolStripMenuItem
@@ -465,7 +479,7 @@
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem});
             this.manageToolStripMenuItem.Name = "manageToolStripMenuItem";
-            this.manageToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.manageToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.manageToolStripMenuItem.Text = "Manage";
             // 
             // startToolStripMenuItem
@@ -482,33 +496,6 @@
             this.stopToolStripMenuItem.Text = "Stop";
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
-            // commandsToolStripMenuItem
-            // 
-            this.commandsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.announcementToolStripMenuItem,
-            this.broadcastToolStripMenuItem});
-            this.commandsToolStripMenuItem.Name = "commandsToolStripMenuItem";
-            this.commandsToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.commandsToolStripMenuItem.Text = "Commands";
-            // 
-            // announcementToolStripMenuItem
-            // 
-            this.announcementToolStripMenuItem.Name = "announcementToolStripMenuItem";
-            this.announcementToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.announcementToolStripMenuItem.Text = "Announcement";
-            // 
-            // broadcastToolStripMenuItem
-            // 
-            this.broadcastToolStripMenuItem.Name = "broadcastToolStripMenuItem";
-            this.broadcastToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.broadcastToolStripMenuItem.Text = "Broadcast";
-            // 
-            // viewConsoleToolStripMenuItem
-            // 
-            this.viewConsoleToolStripMenuItem.Name = "viewConsoleToolStripMenuItem";
-            this.viewConsoleToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
-            this.viewConsoleToolStripMenuItem.Text = "View Console";
-            // 
             // tabControl1
             // 
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -516,7 +503,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(-1, -1);
+            this.tabControl1.Location = new System.Drawing.Point(1, 3);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -525,23 +512,44 @@
             // 
             // richTextBox1
             // 
-            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox1.Location = new System.Drawing.Point(-1, 345);
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(704, 142);
+            this.richTextBox1.Size = new System.Drawing.Size(702, 129);
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
+            // 
+            // toolTip1
+            // 
+            this.toolTip1.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.toolTip1.ToolTipTitle = "Right Click Here!!!!!";
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.tabControl1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
+            this.splitContainer1.Size = new System.Drawing.Size(702, 483);
+            this.splitContainer1.SplitterDistance = 350;
+            this.splitContainer1.TabIndex = 2;
             // 
             // AtlasServerManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(702, 483);
-            this.Controls.Add(this.richTextBox1);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "AtlasServerManager";
             this.Text = "Atlas Server Managerr";
@@ -562,6 +570,9 @@
             this.tabPage1.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -575,9 +586,6 @@
         private System.Windows.Forms.ToolStripMenuItem manageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem commandsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem announcementToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem broadcastToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -590,7 +598,6 @@
         private System.Windows.Forms.ToolStripMenuItem addToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editSettingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewConsoleToolStripMenuItem;
         public Includes.ArkListView ServerList;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader4;
@@ -608,6 +615,9 @@
         private System.Windows.Forms.ColumnHeader columnHeader6;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.ColumnHeader columnHeader7;
+        private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
 

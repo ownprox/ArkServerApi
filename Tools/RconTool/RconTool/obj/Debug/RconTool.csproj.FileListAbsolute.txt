@@ -1,0 +1,6 @@
+C:\Users\ownpr\source\repos\RconTool\RconTool\bin\Debug\RconTool.exe
+C:\Users\ownpr\source\repos\RconTool\RconTool\bin\Debug\RconTool.pdb
+C:\Users\ownpr\source\repos\RconTool\RconTool\obj\Debug\RconTool.csprojAssemblyReference.cache
+C:\Users\ownpr\source\repos\RconTool\RconTool\obj\Debug\RconTool.csproj.CoreCompileInputs.cache
+C:\Users\ownpr\source\repos\RconTool\RconTool\obj\Debug\RconTool.exe
+C:\Users\ownpr\source\repos\RconTool\RconTool\obj\Debug\RconTool.pdb

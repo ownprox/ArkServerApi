@@ -7,7 +7,7 @@ namespace AtlasServerManager.Includes
 {
     class Worker
     {
-        private enum WorkerType
+        public enum WorkerType
         {
             StatusUdpdate = 0,
             ServerStatusCheck,
@@ -27,9 +27,14 @@ namespace AtlasServerManager.Includes
             Workers = new Thread[(int)WorkerType.Max];
             AddWorker(WorkerType.StatusUdpdate, new ParameterizedThreadStart(ArkServerStatusUpdate.UpdateStatus), form1);
             AddWorker(WorkerType.ServerStatusCheck, new ParameterizedThreadStart(ArkServerMonitor.CheckServerStatus), form1);
-            //AddWorker(WorkerType.ServerUpdateCheck, new ParameterizedThreadStart(ArkServerUpdater.CheckForUpdates), form1);
+            AddWorker(WorkerType.ServerUpdateCheck, new ParameterizedThreadStart(ArkServerUpdater.CheckForUpdates), form1);
         }
 
         public static void Destroy() { foreach (Thread w in Workers) if (w != null) w.Abort(); }
+        public static void DestroyAndRecreateThread(AtlasServerManager form1, WorkerType ThreadIndex)
+        {
+            if (Workers[(int)ThreadIndex] != null) Workers[(int)ThreadIndex].Abort();
+            AddWorker(ThreadIndex, new ParameterizedThreadStart(ArkServerStatusUpdate.UpdateStatus), form1);
+        }
     }
 }
