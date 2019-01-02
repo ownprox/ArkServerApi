@@ -13,6 +13,7 @@ namespace ArkApi_Hook_Creator
             InitializeComponent();
         }
 
+        bool LoadingHeaders = false;
         Dictionary<int, Dictionary<string, Dictionary<int, string>>> FunctionInfo = new Dictionary<int, Dictionary<string, Dictionary<int, string>>>();
         Dictionary<string, Dictionary<int, string>> StructureSelector = new Dictionary<string, Dictionary<int, string>>();
         Dictionary<int, string> FunctionSelector = new Dictionary<int, string>();
@@ -22,7 +23,16 @@ namespace ArkApi_Hook_Creator
         {
             if (FunctionInfo.TryGetValue(ClassIndex, out StructureSelector))
             {
-                if (StructureSelector.TryGetValue(Structure, out FunctionSelector)) FunctionSelector.Add(FunctionIndex, Function);
+                if (StructureSelector.TryGetValue(Structure, out FunctionSelector))
+                {
+                    if(FunctionSelector.ContainsKey(FunctionIndex))
+                    {
+                        MessageBox.Show(Structure + " - " + Function);
+                        return;
+                    }
+                    FunctionSelector.Add(FunctionIndex, Function);
+
+                }
                 else StructureSelector.Add(Structure, new Dictionary<int, string> { { FunctionIndex, Function } });
             }
             else FunctionInfo.Add(ClassIndex, new Dictionary<string, Dictionary<int, string>> { { Structure, new Dictionary<int, string> { { FunctionIndex, Function } } } });
@@ -30,17 +40,40 @@ namespace ArkApi_Hook_Creator
 
         private void Form1_Load(object sender, EventArgs e)
         {
-             ClassCombo.Items.AddRange(new string[] { "Actor", "GameMode", "GameState", "Inventory", "Other", "PrimalStructure", "Tribe" });
-             int ClassIndex = 0, ClassCount = ClassCombo.Items.Count-1;
-             foreach (string ArkHeader in ClassCombo.Items)
-             {
-                 using (WebClient wc = new WebClient())
-                 {
-                     int ClassId = ClassIndex++;
-                     wc.DownloadStringCompleted += (object s, DownloadStringCompletedEventArgs ea) => ParseArkHeader(ClassId, ClassId == ClassCount, s, ea);
-                     wc.DownloadStringAsync(new Uri("https://raw.githubusercontent.com/Michidu/ARK-Server-API/master/version/Core/Public/API/ARK/" + ArkHeader + ".h"));
-                 }
-             }
+            GameCombo.SelectedIndex = 0;
+        }
+
+        private void GameCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadHeaders();
+        }
+
+        private void LoadHeaders()
+        {
+            if (LoadingHeaders) return;
+            LoadingHeaders = true;
+            if (ClassCombo.Items.Count > 0)
+            {
+                ClassCombo.Items.Clear();
+                StructCombo.Items.Clear();
+                FuncCombo.Items.Clear();
+                FunctionInfo.Clear();
+                StructureSelector.Clear();
+                FunctionSelector.Clear();
+                FunctionIndexer.Clear();
+                GameCombo.Enabled = ClassCombo.Enabled = StructCombo.Enabled = false;
+            }
+            ClassCombo.Items.AddRange(new string[] { "Actor", "GameMode", "GameState", "Inventory", "Other", "PrimalStructure", "Tribe" });
+            int ClassIndex = 0, ClassCount = ClassCombo.Items.Count - 1;
+            foreach (string ArkHeader in ClassCombo.Items)
+            {
+                using (WebClient wc = new WebClient())
+                {
+                    int ClassId = ClassIndex++;
+                    wc.DownloadStringCompleted += (object s, DownloadStringCompletedEventArgs ea) => ParseArkHeader(ClassId, ClassId == ClassCount, s, ea);
+                    wc.DownloadStringAsync(new Uri("https://raw.githubusercontent.com/Michidu/ARK-Server-API/master/version/Core/Public/API/" + (GameCombo.SelectedIndex == 0 ? "ARK" : "Atlas") + "/" + ArkHeader + ".h"));
+                }
+            }
         }
 
         private void ParseArkHeader(int ClassIndex, bool Completed, object sender, DownloadStringCompletedEventArgs e)
@@ -51,7 +84,7 @@ namespace ArkApi_Hook_Creator
                 return;
             }
 
-            string HtmlData = e.Result;
+            string HtmlData = e.Result.Replace("TWeakObjectPtr<struct ", "TWeakObjectPtr<");
             int FindIndex = -1, StructureIndex = 0, FunctionIndex = 0, indexof = HtmlData.IndexOf("	struct ");
             //Remove structures within structures
             if (indexof != -1)
@@ -64,7 +97,7 @@ namespace ArkApi_Hook_Creator
                     if (indexof != -1) indexofend = HtmlData.IndexOf('}', indexof);
                 }
             }
-
+            
             string StructName = "";
             string[] splts = Regex.Split(HtmlData, "struct ");
             for (int i = 1; i < splts.Length; i++)
@@ -73,21 +106,27 @@ namespace ArkApi_Hook_Creator
                 FindIndex = splts[i].IndexOf("\n");
                 StructName = splts[i].Substring(0, FindIndex);
                 if ((FindIndex = StructName.IndexOf(" :")) != -1) StructName = StructName.Substring(0, FindIndex);
-
+                
                 //Find Functions
                 if ((FindIndex = splts[i].IndexOf("// Functions")) != -1)
                 {
                     FindIndex += 15;
-                    string[] splts2 = splts[i].Substring(FindIndex, splts[i].Length - FindIndex).Split('\n');
-                    foreach (string s in splts2)
-                        if (s.Length > 5)
-                            AddFunction(ClassIndex, StructName.Replace(" * ", "* ").Replace("__declspec(align(8)) ", ""), FunctionIndex++, s.Replace("\t", ""));
+                    string[] Functions = splts[i].Substring(FindIndex, splts[i].Length - FindIndex).Split('\n');
+                    foreach (string Function in Functions)
+                    {
+                        if (Function.StartsWith("	//")) continue;
+                        if (Function.Length > 5) AddFunction(ClassIndex, StructName.Replace(" * ", "* ").Replace("__declspec(align(8)) ", ""), FunctionIndex++, Function.Replace("\t", ""));
+                    }
                     FunctionIndex = 0;
                     StructureIndex++;
                 }
             }
 
-            if(Completed) ClassCombo.Enabled = StructCombo.Enabled = true;
+            if (Completed)
+            {
+                GameCombo.Enabled = ClassCombo.Enabled = StructCombo.Enabled = true;
+                LoadingHeaders = false;
+            }
         }
 
         private void ClassCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -125,14 +164,12 @@ namespace ArkApi_Hook_Creator
             && FunctionIndexer.TryGetValue(FuncCombo.SelectedIndex, out int FuncIndex) && FunctionSelector.TryGetValue(FuncIndex, out string FunctionData)
             && FunctionData.Contains("NativeCall<"))
             {
-                string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1];
+                string FunctionVariables = Regex.Split(FunctionData, "NativeCall<")[1], FriendlyHookName = FuncCombo.Text;
                 FunctionVariables = FunctionVariables.Substring(0, FunctionVariables.IndexOf('(') - 1).Replace(" * ", "* ");
-                string FriendlyHookName = FuncCombo.Text;
                 FriendlyHookName = FriendlyHookName.Replace("* >", "*>").Replace(" *>", "*>").Replace("()", "").Replace(")", "");
                 if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
                 if (FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
-                string Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
-                string HookFunc = "";
+                string HookFunc = "", Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
                 // DECLARE_HOOK ARGS
                 if (FunctionVariables.Contains(", "))
                 {
@@ -150,7 +187,7 @@ namespace ArkApi_Hook_Creator
                     HookFunc = Vars[0] + " ";
                 }
                 else
-                {                                   //Add Structure to args
+                {                                            //Add Structure to args
                     Hook += ", " + FunctionVariables + ", " + StructCombo.Text + "*";
                     HookFunc = FunctionVariables + " ";
                 }
@@ -183,20 +220,6 @@ namespace ArkApi_Hook_Creator
 
         private void FuncCombo_TextUpdate(object sender, EventArgs e)
         {
-            if(ClassCombo.SelectedIndex == -1)
-            {
-                FuncCombo.Text = "";
-                MessageBox.Show("Please Select a Class First!", "Class Not Selected!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
-
-            if (StructCombo.SelectedIndex == -1)
-            {
-                FuncCombo.Text = "";
-                MessageBox.Show("Please Select a Structure First!", "Structure Not Selected!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
-            }
-
             FuncCombo.Items.Clear();
             FunctionIndexer.Clear();
             if (FunctionInfo.TryGetValue(ClassCombo.SelectedIndex, out StructureSelector) && StructureSelector.TryGetValue(StructCombo.Text, out FunctionSelector))

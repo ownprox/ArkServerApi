@@ -36,6 +36,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.ClassCombo = new System.Windows.Forms.ComboBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.GameCombo = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // StructCombo
@@ -43,7 +45,7 @@
             this.StructCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.StructCombo.Enabled = false;
             this.StructCombo.FormattingEnabled = true;
-            this.StructCombo.Location = new System.Drawing.Point(466, 6);
+            this.StructCombo.Location = new System.Drawing.Point(658, 6);
             this.StructCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.StructCombo.Name = "StructCombo";
             this.StructCombo.Size = new System.Drawing.Size(415, 31);
@@ -56,11 +58,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FuncCombo.Enabled = false;
             this.FuncCombo.FormattingEnabled = true;
-            this.FuncCombo.Location = new System.Drawing.Point(1024, 6);
+            this.FuncCombo.Location = new System.Drawing.Point(1210, 6);
             this.FuncCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.FuncCombo.Name = "FuncCombo";
             this.FuncCombo.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.FuncCombo.Size = new System.Drawing.Size(569, 31);
+            this.FuncCombo.Size = new System.Drawing.Size(371, 31);
             this.FuncCombo.TabIndex = 2;
             this.FuncCombo.SelectedIndexChanged += new System.EventHandler(this.FuncCombo_SelectedIndexChanged);
             this.FuncCombo.TextUpdate += new System.EventHandler(this.FuncCombo_TextUpdate);
@@ -69,7 +71,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(348, 9);
+            this.label1.Location = new System.Drawing.Point(551, 9);
             this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(106, 23);
@@ -80,7 +82,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(912, 9);
+            this.label2.Location = new System.Drawing.Point(1110, 9);
             this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(100, 23);
@@ -91,7 +93,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(15, 9);
+            this.label3.Location = new System.Drawing.Point(206, 9);
             this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(67, 23);
@@ -103,7 +105,7 @@
             this.ClassCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ClassCombo.Enabled = false;
             this.ClassCombo.FormattingEnabled = true;
-            this.ClassCombo.Location = new System.Drawing.Point(90, 6);
+            this.ClassCombo.Location = new System.Drawing.Point(273, 6);
             this.ClassCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.ClassCombo.Name = "ClassCombo";
             this.ClassCombo.Size = new System.Drawing.Size(238, 31);
@@ -121,11 +123,39 @@
             this.richTextBox1.TabIndex = 3;
             this.richTextBox1.Text = "";
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(-1, 9);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(71, 23);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "Game:";
+            // 
+            // GameCombo
+            // 
+            this.GameCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.GameCombo.Enabled = false;
+            this.GameCombo.FormattingEnabled = true;
+            this.GameCombo.Items.AddRange(new object[] {
+            "Ark",
+            "Atlas"});
+            this.GameCombo.Location = new System.Drawing.Point(70, 6);
+            this.GameCombo.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            this.GameCombo.Name = "GameCombo";
+            this.GameCombo.Size = new System.Drawing.Size(103, 31);
+            this.GameCombo.TabIndex = 4;
+            this.GameCombo.SelectedIndexChanged += new System.EventHandler(this.GameCombo_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1608, 652);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.GameCombo);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.ClassCombo);
@@ -137,7 +167,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "Form1";
-            this.Text = "ArkApi Hook Creator v1.4";
+            this.Text = "ArkApi Hook Creator v1.5 ";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -153,6 +183,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox ClassCombo;
         private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox GameCombo;
     }
 }
 

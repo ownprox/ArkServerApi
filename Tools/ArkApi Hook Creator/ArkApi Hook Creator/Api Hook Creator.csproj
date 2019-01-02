@@ -7,7 +7,7 @@
     <ProjectGuid>{1970A077-F563-43CF-9688-50AE181E8707}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>ArkApi_Hook_Creator</RootNamespace>
-    <AssemblyName>ArkApi Hook Creator</AssemblyName>
+    <AssemblyName>Api Hook Creator</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
