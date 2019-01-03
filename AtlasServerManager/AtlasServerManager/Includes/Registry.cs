@@ -21,7 +21,7 @@ namespace AtlasServerManager.Includes
                     ArkMgr.checkAutoServerUpdate.Checked = (int)key.GetValue("AutoServerUpdate", ArkMgr.checkAutoServerUpdate.Checked ? 1 : 0) == 1 ? true : false;
                     ArkMgr.checkAutoModUpdate.Checked = (int)key.GetValue("AutoModUpdate", ArkMgr.checkAutoModUpdate.Checked ? 1 : 0) == 1 ? true : false;
                     ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("BootWhenOff", ArkMgr.checkBootWhenOff.Checked ? 1 : 0) == 1 ? true : false;
-
+                        
                     /* DECIMAL */
                     decimal value = 1.0M;
                     decimal.TryParse((string)key.GetValue("ServerUpdate", ArkMgr.numServerUpdate.Value.ToString()), out value);
@@ -136,6 +136,7 @@ namespace AtlasServerManager.Includes
                 Asd.ServerX = (int)key.GetValue("ServerX", Asd.ServerX);
                 Asd.ServerY = (int)key.GetValue("ServerY", Asd.ServerY);
                 Asd.PID = (int)key.GetValue("PID", Asd.PID);
+                Asd.ProcessPriority = (int)key.GetValue("ProcessPriority", 0);
 
                 /* STRING */
                 Asd.Pass = (string)key.GetValue("Pass", Asd.Pass);
@@ -201,6 +202,7 @@ namespace AtlasServerManager.Includes
                 key.SetValue("ServerX", Asd.ServerX, Microsoft.Win32.RegistryValueKind.DWord);
                 key.SetValue("ServerY", Asd.ServerY, Microsoft.Win32.RegistryValueKind.DWord);
                 key.SetValue("PID", Asd.PID, Microsoft.Win32.RegistryValueKind.DWord);
+                key.SetValue("ProcessPriority", Asd.ProcessPriority, Microsoft.Win32.RegistryValueKind.DWord);
 
                 /* STRING */
                 key.SetValue("Pass", Asd.Pass, Microsoft.Win32.RegistryValueKind.String);

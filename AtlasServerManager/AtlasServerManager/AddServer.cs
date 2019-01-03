@@ -59,6 +59,7 @@ namespace AtlasServerManager
             numericUpDown7.Value = ServerData.ServerY;
             numericUpDown6.Value = ServerData.ReservedPlayers;
             textBox1.Text = ServerData.ServerIp;
+            comboBox1.SelectedIndex = ServerData.ProcessPriority;
 
             /*Process Affinity*/
             if (ServerData.ProcessAffinity == null || ServerData.ProcessAffinity.Length == 0)
@@ -110,7 +111,8 @@ namespace AtlasServerManager
                 ServerX = (int)numericUpDown5.Value,
                 ServerY = (int)numericUpDown7.Value,
                 ReservedPlayers = (int)numericUpDown6.Value,
-                ServerIp = textBox1.Text
+                ServerIp = textBox1.Text,
+                ProcessPriority = comboBox1.SelectedIndex
             };
         }
 

@@ -116,6 +116,11 @@ namespace AtlasServerManager
             Worker.DestroyAndRecreateThread(this, Worker.WorkerType.ServerUpdateCheck);
         }
 
+        private void ServerList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
         public void Log(string txt)
         {
             if (richTextBox1.InvokeRequired)

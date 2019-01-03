@@ -11,7 +11,7 @@ namespace AtlasServerManager.Includes
         public SourceRcon RconConnection = new SourceRcon();
         public Process ServerProcess;
         public string Pass = "", CustomArgs = "", ServerPath = "", FinalServerPath = "", AltSaveDirectory = "", ServerIp = "";
-        public int ServerPort, QueryPort, RconPort, MaxPlayers, ReservedPlayers, ServerX, ServerY, PID = 0;
+        public int ServerPort, QueryPort, RconPort, MaxPlayers, ReservedPlayers, ServerX, ServerY, PID = 0, ProcessPriority;
         public bool[] ProcessAffinity;
         public bool Rcon, FTD, WildWipe, PVP, MapB, Gamma, Third, Crosshair, HitMarker, Imprint, Loaded, AutoStart;
         private bool HasMadeFirstContact;
@@ -70,6 +70,22 @@ namespace AtlasServerManager.Includes
                 int AffinityMask = 0;
                 for (int i = 0; i < ProcessAffinity.Length; i++) AffinityMask |= (ProcessAffinity[i] ? 1 : 0) << i;
                 ServerProcess.ProcessorAffinity = (System.IntPtr)AffinityMask;
+                switch(ProcessPriority)
+                {
+                    case 1:
+                        ServerProcess.PriorityClass = ProcessPriorityClass.AboveNormal;
+                        break;
+                    case 2:
+                        ServerProcess.PriorityClass = ProcessPriorityClass.High;
+                        break;
+                    case 3:
+                        ServerProcess.PriorityClass = ProcessPriorityClass.RealTime;
+                        break;
+                    default:
+                        ServerProcess.PriorityClass = ProcessPriorityClass.Normal;
+                        break;
+
+                }
                 PID = ServerProcess.Id;
             }
             catch (Exception e)

@@ -152,7 +152,7 @@ namespace AtlasServerManager.Includes
                 ArkMgr.Log("[Ark] Updating Path: " + UpdatePath);
                 ArkMgr.UpdateProcess = new Process()
                 {
-                    StartInfo = new ProcessStartInfo(ArkMgr.SteamPath + "steamcmd.exe", "+@NoPromptForPassword 1 +@sSteamCmdForcePlatformType windows +login anonymous +force_install_dir \"" + UpdatePath + "\" +app_update 376030 validate +quit")
+                    StartInfo = new ProcessStartInfo(ArkMgr.SteamPath + "steamcmd.exe", "+@NoPromptForPassword 1 +@sSteamCmdForcePlatformType windows +login anonymous +force_install_dir \"" + UpdatePath + "\" +app_update 1006030 validate +quit")
                     {
                         UseShellExecute = false,
                         RedirectStandardInput = true,
@@ -227,7 +227,7 @@ namespace AtlasServerManager.Includes
                     foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
                     {
                         if (!FirstRun) Thread.Sleep(4000);
-                        if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().ServerIp, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass)) continue;
+                        if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, /*ASLVI.GetServerData().ServerIp*/"127.0.0.1", ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass)) continue;
                         ASLVI.GetServerData().RconConnection.ServerCommand("broadcast " + Message);
                         FirstRun = false;
                     }

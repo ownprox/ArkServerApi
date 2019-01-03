@@ -9,7 +9,7 @@ namespace AtlasServerManager.Includes
             AtlasServerManager ArkMgr = (AtlasServerManager)Data;
             while (true)
             {
-                if (!ArkMgr.Updating)
+                if (!ArkMgr.Updating && ArkMgr.checkBootWhenOff.Checked)
                 {
                     ArkMgr.Invoke((System.Windows.Forms.MethodInvoker)delegate ()
                     {

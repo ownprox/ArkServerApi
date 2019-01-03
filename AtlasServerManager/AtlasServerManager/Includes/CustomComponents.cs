@@ -24,8 +24,13 @@ namespace AtlasServerManager.Includes
             SetServerData(ServerData);
             UseItemStyleForSubItems = false;
             Text = ServerData.ServerPort.ToString();
-            SubItems.AddRange(new string[] { ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0", "0%", "" });
+            SubItems.AddRange(new string[] { ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0", "0%", ServerData.AltSaveDirectory });
+            SubItems[0].ForeColor = Color.LightSlateGray;
+            SubItems[1].ForeColor = Color.LightSkyBlue;
             SubItems[2].ForeColor = Color.YellowGreen;
+            SubItems[4].ForeColor = Color.LightSeaGreen;
+            SubItems[5].ForeColor = Color.LightCoral;
+            SubItems[6].ForeColor = Color.LightSlateGray;
             UpdateStatus();
         }
 
@@ -33,9 +38,10 @@ namespace AtlasServerManager.Includes
         {
             if (SubItems.Count > 1)
             {
-                SubItems[1].Text = ServerData.ServerPort.ToString();
+                Text = ServerData.ServerPort.ToString();
                 SubItems[1].Text = ServerData.ServerX.ToString().ToString();
                 SubItems[2].Text = ServerData.ServerY.ToString();
+                SubItems[6].Text = ServerData.AltSaveDirectory;
             }
         }
 
