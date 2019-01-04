@@ -28,19 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddServer));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.ProcessPriotityCombo = new System.Windows.Forms.ComboBox();
+            this.ServerIPTextBox = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.numericUpDown7 = new System.Windows.Forms.NumericUpDown();
+            this.ServerYNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label9 = new System.Windows.Forms.Label();
-            this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
+            this.ReservedPlayersNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
+            this.ServerXNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
-            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.ProcessAffinityButton = new System.Windows.Forms.Button();
+            this.AltSaveDirectoryTextBox = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.checkBox17 = new System.Windows.Forms.CheckBox();
             this.checkBox16 = new System.Windows.Forms.CheckBox();
@@ -50,54 +51,57 @@
             this.checkBox12 = new System.Windows.Forms.CheckBox();
             this.checkBox11 = new System.Windows.Forms.CheckBox();
             this.checkBox10 = new System.Windows.Forms.CheckBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.AdditionalArgsTextBox = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
+            this.AdminPassMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.QueryPortNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.ServerPortNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.MaxPlayersNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
+            this.RconNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.AddServerButton = new System.Windows.Forms.Button();
+            this.CloseButton = new System.Windows.Forms.Button();
+            this.ResetDefaultButton = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.BrowseButton = new System.Windows.Forms.Button();
+            this.directoryPathTextBox = new System.Windows.Forms.TextBox();
+            this.ServerPathBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerYNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ReservedPlayersNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerXNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.QueryPortNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerPortNumericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.MaxPlayersNumericUpDown)).BeginInit();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RconNumericUpDown)).BeginInit();
             this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.comboBox1);
-            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.ProcessPriotityCombo);
+            this.groupBox1.Controls.Add(this.ServerIPTextBox);
             this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.numericUpDown7);
+            this.groupBox1.Controls.Add(this.ServerYNumericUpDown);
             this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.numericUpDown6);
+            this.groupBox1.Controls.Add(this.ReservedPlayersNumericUpDown);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.numericUpDown5);
+            this.groupBox1.Controls.Add(this.ServerXNumericUpDown);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.button5);
-            this.groupBox1.Controls.Add(this.textBox5);
+            this.groupBox1.Controls.Add(this.ProcessAffinityButton);
+            this.groupBox1.Controls.Add(this.AltSaveDirectoryTextBox);
             this.groupBox1.Controls.Add(this.label17);
             this.groupBox1.Controls.Add(this.checkBox17);
             this.groupBox1.Controls.Add(this.checkBox16);
@@ -107,16 +111,16 @@
             this.groupBox1.Controls.Add(this.checkBox12);
             this.groupBox1.Controls.Add(this.checkBox11);
             this.groupBox1.Controls.Add(this.checkBox10);
-            this.groupBox1.Controls.Add(this.textBox2);
+            this.groupBox1.Controls.Add(this.AdditionalArgsTextBox);
             this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.maskedTextBox1);
+            this.groupBox1.Controls.Add(this.AdminPassMaskedTextBox);
             this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.numericUpDown3);
+            this.groupBox1.Controls.Add(this.QueryPortNumericUpDown);
             this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.numericUpDown2);
+            this.groupBox1.Controls.Add(this.ServerPortNumericUpDown);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Controls.Add(this.numericUpDown1);
+            this.groupBox1.Controls.Add(this.MaxPlayersNumericUpDown);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Location = new System.Drawing.Point(12, 112);
             this.groupBox1.Name = "groupBox1";
@@ -135,26 +139,26 @@
             this.label11.TabIndex = 37;
             this.label11.Text = "Processor Priority:";
             // 
-            // comboBox1
+            // ProcessPriotityCombo
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.ProcessPriotityCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ProcessPriotityCombo.FormattingEnabled = true;
+            this.ProcessPriotityCombo.Items.AddRange(new object[] {
             "Normal",
             "Above Normal",
             "High",
             "Realtime"});
-            this.comboBox1.Location = new System.Drawing.Point(407, 289);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 24);
-            this.comboBox1.TabIndex = 36;
+            this.ProcessPriotityCombo.Location = new System.Drawing.Point(407, 289);
+            this.ProcessPriotityCombo.Name = "ProcessPriotityCombo";
+            this.ProcessPriotityCombo.Size = new System.Drawing.Size(121, 24);
+            this.ProcessPriotityCombo.TabIndex = 36;
             // 
-            // textBox1
+            // ServerIPTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(482, 105);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(170, 24);
-            this.textBox1.TabIndex = 35;
+            this.ServerIPTextBox.Location = new System.Drawing.Point(482, 105);
+            this.ServerIPTextBox.Name = "ServerIPTextBox";
+            this.ServerIPTextBox.Size = new System.Drawing.Size(170, 24);
+            this.ServerIPTextBox.TabIndex = 35;
             // 
             // label10
             // 
@@ -166,17 +170,17 @@
             this.label10.TabIndex = 34;
             this.label10.Text = "ServerIP:";
             // 
-            // numericUpDown7
+            // ServerYNumericUpDown
             // 
-            this.numericUpDown7.Location = new System.Drawing.Point(482, 77);
-            this.numericUpDown7.Maximum = new decimal(new int[] {
+            this.ServerYNumericUpDown.Location = new System.Drawing.Point(482, 77);
+            this.ServerYNumericUpDown.Maximum = new decimal(new int[] {
             65535,
             0,
             0,
             0});
-            this.numericUpDown7.Name = "numericUpDown7";
-            this.numericUpDown7.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown7.TabIndex = 33;
+            this.ServerYNumericUpDown.Name = "ServerYNumericUpDown";
+            this.ServerYNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.ServerYNumericUpDown.TabIndex = 33;
             // 
             // label9
             // 
@@ -188,18 +192,18 @@
             this.label9.TabIndex = 32;
             this.label9.Text = "ServerY:";
             // 
-            // numericUpDown6
+            // ReservedPlayersNumericUpDown
             // 
-            this.numericUpDown6.Location = new System.Drawing.Point(138, 47);
-            this.numericUpDown6.Maximum = new decimal(new int[] {
+            this.ReservedPlayersNumericUpDown.Location = new System.Drawing.Point(138, 47);
+            this.ReservedPlayersNumericUpDown.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
-            this.numericUpDown6.Name = "numericUpDown6";
-            this.numericUpDown6.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown6.TabIndex = 31;
-            this.numericUpDown6.Value = new decimal(new int[] {
+            this.ReservedPlayersNumericUpDown.Name = "ReservedPlayersNumericUpDown";
+            this.ReservedPlayersNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.ReservedPlayersNumericUpDown.TabIndex = 31;
+            this.ReservedPlayersNumericUpDown.Value = new decimal(new int[] {
             50,
             0,
             0,
@@ -215,17 +219,17 @@
             this.label1.TabIndex = 30;
             this.label1.Text = "Reserved Players:";
             // 
-            // numericUpDown5
+            // ServerXNumericUpDown
             // 
-            this.numericUpDown5.Location = new System.Drawing.Point(138, 77);
-            this.numericUpDown5.Maximum = new decimal(new int[] {
+            this.ServerXNumericUpDown.Location = new System.Drawing.Point(138, 77);
+            this.ServerXNumericUpDown.Maximum = new decimal(new int[] {
             65535,
             0,
             0,
             0});
-            this.numericUpDown5.Name = "numericUpDown5";
-            this.numericUpDown5.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown5.TabIndex = 29;
+            this.ServerXNumericUpDown.Name = "ServerXNumericUpDown";
+            this.ServerXNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.ServerXNumericUpDown.TabIndex = 29;
             // 
             // label2
             // 
@@ -237,23 +241,23 @@
             this.label2.TabIndex = 28;
             this.label2.Text = "ServerX:";
             // 
-            // button5
+            // ProcessAffinityButton
             // 
-            this.button5.Location = new System.Drawing.Point(556, 278);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(131, 44);
-            this.button5.TabIndex = 23;
-            this.button5.Text = "Process Affinity";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.ProcessAffinityButton.Location = new System.Drawing.Point(556, 278);
+            this.ProcessAffinityButton.Name = "ProcessAffinityButton";
+            this.ProcessAffinityButton.Size = new System.Drawing.Size(131, 44);
+            this.ProcessAffinityButton.TabIndex = 23;
+            this.ProcessAffinityButton.Text = "Process Affinity";
+            this.ProcessAffinityButton.UseVisualStyleBackColor = true;
+            this.ProcessAffinityButton.Click += new System.EventHandler(this.button5_Click);
             // 
-            // textBox5
+            // AltSaveDirectoryTextBox
             // 
-            this.textBox5.Location = new System.Drawing.Point(13, 248);
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(674, 24);
-            this.textBox5.TabIndex = 27;
-            this.textBox5.Text = "a6";
+            this.AltSaveDirectoryTextBox.Location = new System.Drawing.Point(13, 248);
+            this.AltSaveDirectoryTextBox.Name = "AltSaveDirectoryTextBox";
+            this.AltSaveDirectoryTextBox.Size = new System.Drawing.Size(674, 24);
+            this.AltSaveDirectoryTextBox.TabIndex = 27;
+            this.AltSaveDirectoryTextBox.Text = "a6";
             // 
             // label17
             // 
@@ -360,12 +364,12 @@
             this.checkBox10.Text = "PVP";
             this.checkBox10.UseVisualStyleBackColor = true;
             // 
-            // textBox2
+            // AdditionalArgsTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(13, 199);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(674, 24);
-            this.textBox2.TabIndex = 15;
+            this.AdditionalArgsTextBox.Location = new System.Drawing.Point(13, 199);
+            this.AdditionalArgsTextBox.Name = "AdditionalArgsTextBox";
+            this.AdditionalArgsTextBox.Size = new System.Drawing.Size(674, 24);
+            this.AdditionalArgsTextBox.TabIndex = 15;
             // 
             // label8
             // 
@@ -377,13 +381,13 @@
             this.label8.Text = "Additional Server Launch Arguments (Example: ?globalVoiceChat=true?proximityChat=" +
     "true)";
             // 
-            // maskedTextBox1
+            // AdminPassMaskedTextBox
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(138, 107);
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.PasswordChar = '*';
-            this.maskedTextBox1.Size = new System.Drawing.Size(170, 24);
-            this.maskedTextBox1.TabIndex = 13;
+            this.AdminPassMaskedTextBox.Location = new System.Drawing.Point(138, 107);
+            this.AdminPassMaskedTextBox.Name = "AdminPassMaskedTextBox";
+            this.AdminPassMaskedTextBox.PasswordChar = '*';
+            this.AdminPassMaskedTextBox.Size = new System.Drawing.Size(170, 24);
+            this.AdminPassMaskedTextBox.TabIndex = 13;
             // 
             // label6
             // 
@@ -395,18 +399,18 @@
             this.label6.TabIndex = 11;
             this.label6.Text = "Admin Password:";
             // 
-            // numericUpDown3
+            // QueryPortNumericUpDown
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point(482, 47);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
+            this.QueryPortNumericUpDown.Location = new System.Drawing.Point(482, 47);
+            this.QueryPortNumericUpDown.Maximum = new decimal(new int[] {
             65535,
             0,
             0,
             0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown3.TabIndex = 10;
-            this.numericUpDown3.Value = new decimal(new int[] {
+            this.QueryPortNumericUpDown.Name = "QueryPortNumericUpDown";
+            this.QueryPortNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.QueryPortNumericUpDown.TabIndex = 10;
+            this.QueryPortNumericUpDown.Value = new decimal(new int[] {
             57557,
             0,
             0,
@@ -422,18 +426,18 @@
             this.label5.TabIndex = 9;
             this.label5.Text = "Query Port:";
             // 
-            // numericUpDown2
+            // ServerPortNumericUpDown
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(482, 18);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
+            this.ServerPortNumericUpDown.Location = new System.Drawing.Point(482, 18);
+            this.ServerPortNumericUpDown.Maximum = new decimal(new int[] {
             65535,
             0,
             0,
             0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown2.TabIndex = 8;
-            this.numericUpDown2.Value = new decimal(new int[] {
+            this.ServerPortNumericUpDown.Name = "ServerPortNumericUpDown";
+            this.ServerPortNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.ServerPortNumericUpDown.TabIndex = 8;
+            this.ServerPortNumericUpDown.Value = new decimal(new int[] {
             5757,
             0,
             0,
@@ -461,18 +465,18 @@
             this.checkBox1.Text = "Wild Dino Wipe At Startup";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // numericUpDown1
+            // MaxPlayersNumericUpDown
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(138, 20);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.MaxPlayersNumericUpDown.Location = new System.Drawing.Point(138, 20);
+            this.MaxPlayersNumericUpDown.Maximum = new decimal(new int[] {
             9999,
             0,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown1.TabIndex = 5;
-            this.numericUpDown1.Value = new decimal(new int[] {
+            this.MaxPlayersNumericUpDown.Name = "MaxPlayersNumericUpDown";
+            this.MaxPlayersNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.MaxPlayersNumericUpDown.TabIndex = 5;
+            this.MaxPlayersNumericUpDown.Value = new decimal(new int[] {
             150,
             0,
             0,
@@ -490,8 +494,11 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label13);
+            this.groupBox2.Controls.Add(this.textBox1);
+            this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.checkBox3);
-            this.groupBox2.Controls.Add(this.numericUpDown4);
+            this.groupBox2.Controls.Add(this.RconNumericUpDown);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Location = new System.Drawing.Point(13, 448);
             this.groupBox2.Name = "groupBox2";
@@ -499,6 +506,34 @@
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Rcon Settings";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.label13.Location = new System.Drawing.Point(445, 25);
+            this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(233, 13);
+            this.label13.TabIndex = 40;
+            this.label13.Text = "Only needs setting if you have a 2nd NIC";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(516, 41);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(170, 24);
+            this.textBox1.TabIndex = 39;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(445, 45);
+            this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(64, 17);
+            this.label12.TabIndex = 38;
+            this.label12.Text = "RconIP:";
             // 
             // checkBox3
             // 
@@ -513,18 +548,18 @@
             this.checkBox3.UseVisualStyleBackColor = true;
             this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
-            // numericUpDown4
+            // RconNumericUpDown
             // 
-            this.numericUpDown4.Location = new System.Drawing.Point(102, 42);
-            this.numericUpDown4.Maximum = new decimal(new int[] {
+            this.RconNumericUpDown.Location = new System.Drawing.Point(102, 42);
+            this.RconNumericUpDown.Maximum = new decimal(new int[] {
             65535,
             0,
             0,
             0});
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(170, 24);
-            this.numericUpDown4.TabIndex = 15;
-            this.numericUpDown4.Value = new decimal(new int[] {
+            this.RconNumericUpDown.Name = "RconNumericUpDown";
+            this.RconNumericUpDown.Size = new System.Drawing.Size(170, 24);
+            this.RconNumericUpDown.TabIndex = 15;
+            this.RconNumericUpDown.Value = new decimal(new int[] {
             32300,
             0,
             0,
@@ -540,40 +575,40 @@
             this.label7.TabIndex = 14;
             this.label7.Text = "Rcon Port:";
             // 
-            // button1
+            // AddServerButton
             // 
-            this.button1.Location = new System.Drawing.Point(586, 527);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(131, 44);
-            this.button1.TabIndex = 19;
-            this.button1.Text = "Create Server";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.AddServerButton.Location = new System.Drawing.Point(586, 527);
+            this.AddServerButton.Name = "AddServerButton";
+            this.AddServerButton.Size = new System.Drawing.Size(131, 44);
+            this.AddServerButton.TabIndex = 19;
+            this.AddServerButton.Text = "Add Server";
+            this.AddServerButton.UseVisualStyleBackColor = true;
+            this.AddServerButton.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // CloseButton
             // 
-            this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button2.Location = new System.Drawing.Point(13, 527);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(131, 44);
-            this.button2.TabIndex = 20;
-            this.button2.Text = "Close";
-            this.button2.UseVisualStyleBackColor = true;
+            this.CloseButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.CloseButton.Location = new System.Drawing.Point(13, 527);
+            this.CloseButton.Name = "CloseButton";
+            this.CloseButton.Size = new System.Drawing.Size(131, 44);
+            this.CloseButton.TabIndex = 20;
+            this.CloseButton.Text = "Close";
+            this.CloseButton.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // ResetDefaultButton
             // 
-            this.button3.Location = new System.Drawing.Point(150, 527);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(131, 44);
-            this.button3.TabIndex = 21;
-            this.button3.Text = "Default";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.ResetDefaultButton.Location = new System.Drawing.Point(150, 527);
+            this.ResetDefaultButton.Name = "ResetDefaultButton";
+            this.ResetDefaultButton.Size = new System.Drawing.Size(131, 44);
+            this.ResetDefaultButton.TabIndex = 21;
+            this.ResetDefaultButton.Text = "Reset To Default";
+            this.ResetDefaultButton.UseVisualStyleBackColor = true;
+            this.ResetDefaultButton.Click += new System.EventHandler(this.button3_Click);
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.button4);
-            this.groupBox7.Controls.Add(this.textBox4);
+            this.groupBox7.Controls.Add(this.BrowseButton);
+            this.groupBox7.Controls.Add(this.directoryPathTextBox);
             this.groupBox7.Location = new System.Drawing.Point(12, 2);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(704, 104);
@@ -581,53 +616,66 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Server Path";
             // 
-            // button4
+            // BrowseButton
             // 
-            this.button4.Location = new System.Drawing.Point(567, 53);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(131, 44);
-            this.button4.TabIndex = 23;
-            this.button4.Text = "Browse";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.BrowseButton.Location = new System.Drawing.Point(567, 53);
+            this.BrowseButton.Name = "BrowseButton";
+            this.BrowseButton.Size = new System.Drawing.Size(131, 44);
+            this.BrowseButton.TabIndex = 23;
+            this.BrowseButton.Text = "Browse";
+            this.BrowseButton.UseVisualStyleBackColor = true;
+            this.BrowseButton.Click += new System.EventHandler(this.button4_Click);
             // 
-            // textBox4
+            // directoryPathTextBox
             // 
-            this.textBox4.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
-            this.textBox4.Location = new System.Drawing.Point(6, 23);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.ReadOnly = true;
-            this.textBox4.Size = new System.Drawing.Size(693, 20);
-            this.textBox4.TabIndex = 25;
-            this.textBox4.Text = ".\\AtlasServerData";
+            this.directoryPathTextBox.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.directoryPathTextBox.Location = new System.Drawing.Point(6, 23);
+            this.directoryPathTextBox.Name = "directoryPathTextBox";
+            this.directoryPathTextBox.ReadOnly = true;
+            this.directoryPathTextBox.Size = new System.Drawing.Size(693, 20);
+            this.directoryPathTextBox.TabIndex = 25;
+            this.directoryPathTextBox.Text = ".\\AtlasServerData";
+            // 
+            // ServerPathBrowserDialog
+            // 
+            this.ServerPathBrowserDialog.Description = "The Folder that cointains the ShooterGame Folder or a Folder that you want to ins" +
+    "tall the server to";
+            this.ServerPathBrowserDialog.RootFolder = System.Environment.SpecialFolder.Startup;
             // 
             // AddServer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(729, 574);
+            this.ControlBox = false;
             this.Controls.Add(this.groupBox7);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.ResetDefaultButton);
+            this.Controls.Add(this.CloseButton);
+            this.Controls.Add(this.AddServerButton);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "AddServer";
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AddServer";
             this.Load += new System.EventHandler(this.AddServer_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerYNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ReservedPlayersNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerXNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.QueryPortNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerPortNumericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.MaxPlayersNumericUpDown)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RconNumericUpDown)).EndInit();
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
             this.ResumeLayout(false);
@@ -638,18 +686,18 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown MaxPlayersNumericUpDown;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
+        private System.Windows.Forms.NumericUpDown QueryPortNumericUpDown;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown ServerPortNumericUpDown;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.MaskedTextBox AdminPassMaskedTextBox;
+        private System.Windows.Forms.TextBox AdditionalArgsTextBox;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.NumericUpDown numericUpDown4;
+        private System.Windows.Forms.NumericUpDown RconNumericUpDown;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox checkBox17;
         private System.Windows.Forms.CheckBox checkBox16;
@@ -659,25 +707,28 @@
         private System.Windows.Forms.CheckBox checkBox12;
         private System.Windows.Forms.CheckBox checkBox11;
         private System.Windows.Forms.CheckBox checkBox10;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button AddServerButton;
+        private System.Windows.Forms.Button CloseButton;
+        private System.Windows.Forms.Button ResetDefaultButton;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox directoryPathTextBox;
+        private System.Windows.Forms.Button BrowseButton;
+        private System.Windows.Forms.TextBox AltSaveDirectoryTextBox;
         private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.NumericUpDown numericUpDown7;
+        private System.Windows.Forms.Button ProcessAffinityButton;
+        private System.Windows.Forms.FolderBrowserDialog ServerPathBrowserDialog;
+        private System.Windows.Forms.NumericUpDown ServerYNumericUpDown;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.NumericUpDown numericUpDown6;
+        private System.Windows.Forms.NumericUpDown ReservedPlayersNumericUpDown;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.NumericUpDown numericUpDown5;
+        private System.Windows.Forms.NumericUpDown ServerXNumericUpDown;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TextBox ServerIPTextBox;
+        private System.Windows.Forms.ComboBox ProcessPriotityCombo;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label12;
     }
 }

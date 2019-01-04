@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
-
-namespace AtlasServerManager.Includes
+﻿namespace AtlasServerManager.Includes
 {
 	public class UPNP
 	{
@@ -12,32 +9,27 @@ namespace AtlasServerManager.Includes
             {
                 if (string.IsNullOrEmpty(_LocalIPAddress))
                 {
-                    IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+                    System.Net.IPHostEntry host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
                     if (host.AddressList.Length > 0)_LocalIPAddress = host.AddressList[0].ToString();
                 }
                 return _LocalIPAddress;
             }
         }
 
-        private static NATUPNPLib.UPnPNATClass UpnpNat;
+        private static NATUPNPLib.UPnPNAT UpnpNat;
         private static NATUPNPLib.IStaticPortMappingCollection UpnpMap;
-        private static List<int> MappedPorts;
 
 		public static void Init()
 		{
-            MappedPorts = new List<int>();
-			UpnpNat = new NATUPNPLib.UPnPNATClass();
+			UpnpNat = new NATUPNPLib.UPnPNAT();
             UpnpMap = UpnpNat.StaticPortMappingCollection;
 		}
 
-		public static bool AddUPNPServer(int ServerIndex, int ServerPort, int QueryPort)
+		public static bool AddUPNPServer(int ServerIndex, int ServerPort, int QueryPort, int X, int Y)
 		{
-            if (MappedPorts.Contains(ServerPort) || MappedPorts.Contains(ServerPort)) return false;
-            foreach (NATUPNPLib.IStaticPortMapping EMaps in UpnpMap) if (EMaps.ExternalPort == ServerPort || EMaps.InternalPort == ServerPort || EMaps.ExternalPort == QueryPort || EMaps.InternalPort == QueryPort) return false;
-			UpnpMap.Add(ServerPort, "UDP", ServerPort, LocalIPAddress, true, "Ark Server Port #" + ServerIndex.ToString());
-			UpnpMap.Add(QueryPort, "UDP", QueryPort, LocalIPAddress, true, "Ark Query Port #" + ServerIndex.ToString());
-            MappedPorts.Add(ServerPort);
-            MappedPorts.Add(QueryPort);
+            foreach (NATUPNPLib.IStaticPortMapping EMaps in UpnpMap) if (EMaps.ExternalPort == ServerPort || EMaps.ExternalPort == QueryPort) return false;
+			UpnpMap.Add(ServerPort, "UDP", ServerPort, LocalIPAddress, true, "Atlas Server X: " + X.ToString() + ", Y: " + Y.ToString());
+			UpnpMap.Add(QueryPort, "UDP", QueryPort, LocalIPAddress, true, "Atlas Query X: " + X.ToString() + ", Y: " + Y.ToString());
             return true;
 		}
 
@@ -45,14 +37,12 @@ namespace AtlasServerManager.Includes
 		{
             UpnpMap.Remove(ServerPort, "UDP");
             UpnpMap.Remove(QueryPort, "UDP");
-            MappedPorts.Remove(ServerPort);
-            MappedPorts.Remove(QueryPort);
 		}
 
         public static void Destroy()
         {
-            foreach (int Port in MappedPorts) UpnpMap.Remove(Port, "UDP");
-            MappedPorts.Clear();
+            foreach (NATUPNPLib.IStaticPortMapping EMaps in UpnpMap)
+                if (EMaps.Description.StartsWith("Atlas ")) UpnpMap.Remove(EMaps.ExternalPort, "UDP");
         }
-	}
+    }
 }

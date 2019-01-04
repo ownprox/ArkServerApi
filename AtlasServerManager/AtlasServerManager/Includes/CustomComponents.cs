@@ -23,14 +23,14 @@ namespace AtlasServerManager.Includes
             Checked = true;
             SetServerData(ServerData);
             UseItemStyleForSubItems = false;
-            Text = ServerData.ServerPort.ToString();
-            SubItems.AddRange(new string[] { ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0", "0%", ServerData.AltSaveDirectory });
+            Text = ServerData.AltSaveDirectory;
+            SubItems.AddRange(new string[] { ServerData.ServerPort.ToString(), ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0" });
             SubItems[0].ForeColor = Color.LightSlateGray;
             SubItems[1].ForeColor = Color.LightSkyBlue;
             SubItems[2].ForeColor = Color.YellowGreen;
-            SubItems[4].ForeColor = Color.LightSeaGreen;
-            SubItems[5].ForeColor = Color.LightCoral;
-            SubItems[6].ForeColor = Color.LightSlateGray;
+            SubItems[3].ForeColor = Color.LightSeaGreen;
+            SubItems[4].ForeColor = Color.LightCoral;
+            SubItems[5].ForeColor = Color.LightSlateGray;
             UpdateStatus();
         }
 
@@ -38,10 +38,10 @@ namespace AtlasServerManager.Includes
         {
             if (SubItems.Count > 1)
             {
-                Text = ServerData.ServerPort.ToString();
-                SubItems[1].Text = ServerData.ServerX.ToString().ToString();
-                SubItems[2].Text = ServerData.ServerY.ToString();
-                SubItems[6].Text = ServerData.AltSaveDirectory;
+                Text = ServerData.AltSaveDirectory;
+                SubItems[1].Text = ServerData.ServerPort.ToString();
+                SubItems[2].Text = ServerData.ServerX.ToString().ToString();
+                SubItems[3].Text = ServerData.ServerY.ToString();
             }
         }
 
@@ -49,13 +49,13 @@ namespace AtlasServerManager.Includes
         {
             if (ServerData.IsRunning())
             {
-                SubItems[3].ForeColor = Color.Green;
-                SubItems[3].Text = "Online";
+                SubItems[4].ForeColor = Color.Green;
+                SubItems[4].Text = "Online";
             }
             else
             {
-                SubItems[3].ForeColor = Color.Red;
-                SubItems[3].Text = "Offline";
+                SubItems[4].ForeColor = Color.Red;
+                SubItems[4].Text = "Offline";
             }
         }
     }

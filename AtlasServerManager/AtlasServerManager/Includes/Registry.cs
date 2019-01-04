@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace AtlasServerManager.Includes
 {
@@ -19,7 +18,6 @@ namespace AtlasServerManager.Includes
                 {
                     /* BOOL */
                     ArkMgr.checkAutoServerUpdate.Checked = (int)key.GetValue("AutoServerUpdate", ArkMgr.checkAutoServerUpdate.Checked ? 1 : 0) == 1 ? true : false;
-                    ArkMgr.checkAutoModUpdate.Checked = (int)key.GetValue("AutoModUpdate", ArkMgr.checkAutoModUpdate.Checked ? 1 : 0) == 1 ? true : false;
                     ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("BootWhenOff", ArkMgr.checkBootWhenOff.Checked ? 1 : 0) == 1 ? true : false;
                         
                     /* DECIMAL */
@@ -28,10 +26,6 @@ namespace AtlasServerManager.Includes
                     ArkMgr.numServerUpdate.Value = value;
                     decimal.TryParse((string)key.GetValue("ServerWarning", ArkMgr.numServerWarning.Value.ToString()), out value);
                     ArkMgr.numServerWarning.Value = value;
-                    decimal.TryParse((string)key.GetValue("AutoUpdateMod", ArkMgr.numAutoUpdateMod.Value.ToString()), out value);
-                    ArkMgr.numAutoUpdateMod.Value = value;
-                    decimal.TryParse((string)key.GetValue("AutoUpdateModWarning", ArkMgr.numAutoUpdateModWarning.Value.ToString()), out value);
-                    ArkMgr.numAutoUpdateModWarning.Value = value;
                     decimal.TryParse((string)key.GetValue("ServerMonitor", ArkMgr.numServerMonitor.Value.ToString()), out value);
                     ArkMgr.numServerMonitor.Value = value;
 
@@ -53,14 +47,11 @@ namespace AtlasServerManager.Includes
                 {
                     /* BOOL */
                     key.SetValue("AutoServerUpdate", ArkMgr.checkAutoServerUpdate.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
-                    key.SetValue("AutoModUpdate", ArkMgr.checkAutoModUpdate.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
                     key.SetValue("BootWhenOff", ArkMgr.checkBootWhenOff.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
 
                     /* DECIMAL */
                     key.SetValue("ServerUpdate", ArkMgr.numServerUpdate.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
                     key.SetValue("ServerWarning", ArkMgr.numServerWarning.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
-                    key.SetValue("AutoUpdateMod", ArkMgr.numAutoUpdateMod.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
-                    key.SetValue("AutoUpdateModWarning", ArkMgr.numAutoUpdateModWarning.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
                     key.SetValue("ServerMonitor", ArkMgr.numServerMonitor.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
 
                     /* STRING */
@@ -91,7 +82,7 @@ namespace AtlasServerManager.Includes
                 foreach (string Srv in Servers)
                     if (Srv.StartsWith("Server"))
                     {
-                        AtlasServerData ASD = LoadRegServer(ArkMgr, Srv);
+                        AtlasServerData ASD = LoadRegServer(Srv);
                         try
                         {
                             if (ASD.PID != 0) ASD.ServerProcess = Process.GetProcessById(ASD.PID);
@@ -103,7 +94,7 @@ namespace AtlasServerManager.Includes
             }
         }
 
-        public static AtlasServerData LoadRegServer(AtlasServerManager ArkMgr, string Srv)
+        public static AtlasServerData LoadRegServer(string Srv)
         {
             AtlasServerData Asd = new AtlasServerData();
             key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\AtlasServerManager\\Servers\\" + Srv);
@@ -157,13 +148,13 @@ namespace AtlasServerManager.Includes
             if (key != null)
             {
                 int ActIndex = 0, CurActIndex;
-                foreach (AtlasServerData Asd in ArkMgr.ServerList.GetServerList()) if (SaveRegServer(ArkMgr, Asd, ActIndex)) ActIndex++;
+                foreach (AtlasServerData Asd in ArkMgr.ServerList.GetServerList()) if (SaveRegServer(Asd, ActIndex)) ActIndex++;
                 foreach (string s in key.GetSubKeyNames()) if ((s.Contains("Server")) && int.TryParse(s.Replace("Server", ""), out CurActIndex) && CurActIndex > ActIndex) key.DeleteSubKey("Server" + CurActIndex);
                 key.Close();
             }
         }
 
-        public static bool SaveRegServer(AtlasServerManager ArkMgr, AtlasServerData Asd, int ActIndex, bool DefaultServerSave = false, bool SaveLastOverride = false)
+        public static bool SaveRegServer(AtlasServerData Asd, int ActIndex, bool DefaultServerSave = false, bool SaveLastOverride = false)
         {
             key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("SOFTWARE\\AtlasServerManager\\Servers\\" + (DefaultServerSave ? (SaveLastOverride ? "LastSaved" : "Default") : "Server" + ActIndex), true);
             if (key == null) key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\AtlasServerManager\\Servers\\" + (DefaultServerSave ? (SaveLastOverride ? "LastSaved" : "Default") : "Server" + ActIndex));

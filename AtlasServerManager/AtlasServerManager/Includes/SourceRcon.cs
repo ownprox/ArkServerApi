@@ -3,9 +3,102 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections;
+using System.Threading;
 
 namespace AtlasServerManager.Includes
 {
+    public class SourceRconTools
+    {
+        public static bool ConnectToRcon(SourceRcon Sr, string IP, int Port, string Pass)
+        {
+            if (Sr != null && !Sr.Connected)
+            {
+                int DotCount = 0;
+                for (int i = 0; i < IP.Length; i++) if (IP[i] == '.') DotCount++;
+                if (DotCount != 3)
+                {
+                    IPAddress[] ips = Dns.GetHostAddresses(IP);
+                    if (ips.Length > 0) IP = ips[0].ToString();
+                }
+
+                bool Connect = Sr.Connect(new IPEndPoint(IPAddress.Parse(IP), Port), Pass);
+                int Counter = 0;
+                while (!Sr.Connected)
+                {
+                    Thread.Sleep(1000);
+                    if (Counter++ > 3)
+                    {
+                        AtlasServerManager.GetInstance().Log("[Rcon->ConnectToRcon] Something is wrong with connection");
+                        return false;
+                    }
+                    else if (Sr.Connected) break;
+                }
+            }
+            return true;
+        }
+
+        public static bool SendCommand(string Command, ArkServerListViewItem ASLVI)
+        {
+            try
+            {
+                if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().RCONIP == string.Empty ? ASLVI.GetServerData().ServerIp : ASLVI.GetServerData().RCONIP, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass))
+                    return false;
+                ASLVI.GetServerData().RconConnection.ServerCommand(Command);
+                return true;
+            }
+            catch (Exception e)
+            {
+                AtlasServerManager.GetInstance().Log("[Rcon->BroadCastMessage] Connection failed: " + e.Message);
+                return false;
+            }
+        }
+
+        public static bool SendCommandToAll(string Command)
+        {
+            try
+            {
+                bool FirstRun = true;
+                AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
+                {
+                    foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
+                    {
+                        if (!FirstRun) Thread.Sleep(4000);
+                        if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().RCONIP == string.Empty ? ASLVI.GetServerData().ServerIp : ASLVI.GetServerData().RCONIP, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass)) continue;
+                        ASLVI.GetServerData().RconConnection.ServerCommand(Command);
+                        FirstRun = false;
+                    }
+                });
+                return true;
+            }
+            catch (Exception e)
+            {
+                AtlasServerManager.GetInstance().Log("[Rcon->BroadCastMessage] Connection failed: " + e.Message);
+                return false;
+            }
+        }
+
+        public static bool SaveWorld()
+        {
+            bool FirstRun = true;
+            int FailCount = 0;
+            AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
+            {
+                foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
+                {
+                    if (!FirstRun) Thread.Sleep(4000);
+                    if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().RCONIP == string.Empty ? ASLVI.GetServerData().ServerIp : ASLVI.GetServerData().RCONIP, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass))
+                    {
+                        FailCount++;
+                        continue;
+                    }
+                    ASLVI.GetServerData().RconConnection.ServerCommand("DoExit");
+                    FirstRun = false;
+                }
+            });
+            return FailCount != AtlasServerManager.GetInstance().ServerList.Items.Count;
+        }
+    }
+
     /// <summary>
     /// Summary description for SourceRcon.
     /// </summary>
@@ -13,7 +106,6 @@ namespace AtlasServerManager.Includes
     {
         public SourceRcon()
         {
-
 #if DEBUG
             TempPackets = new ArrayList();
 #endif

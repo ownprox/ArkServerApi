@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace AtlasServerManager.Includes
@@ -10,7 +9,7 @@ namespace AtlasServerManager.Includes
     {
         public SourceRcon RconConnection = new SourceRcon();
         public Process ServerProcess;
-        public string Pass = "", CustomArgs = "", ServerPath = "", FinalServerPath = "", AltSaveDirectory = "", ServerIp = "";
+        public string Pass = "", CustomArgs = "", ServerPath = "", FinalServerPath = "", AltSaveDirectory = "", ServerIp = "", RCONIP = "";
         public int ServerPort, QueryPort, RconPort, MaxPlayers, ReservedPlayers, ServerX, ServerY, PID = 0, ProcessPriority;
         public bool[] ProcessAffinity;
         public bool Rcon, FTD, WildWipe, PVP, MapB, Gamma, Third, Crosshair, HitMarker, Imprint, Loaded, AutoStart;
@@ -24,7 +23,7 @@ namespace AtlasServerManager.Includes
             return ServerProcess.PagedMemorySize64.ToString("#.## KB");
         }
 
-        public void InitStartServer(AtlasServerManager ArkMgr)
+        public void InitStartServer()
         {
             string ArkManagerPath = AtlasServerManager.GetInstance().ArkManagerPath;
             FinalServerPath = ServerPath;
@@ -44,6 +43,7 @@ namespace AtlasServerManager.Includes
 
         public void StartServer()
         {
+            if (FinalServerPath == string.Empty) InitStartServer();
             HasMadeFirstContact = false;
             string ExePath = ServerPath;
             if (ExePath.StartsWith("./") || ExePath.StartsWith(@".\"))
@@ -55,6 +55,7 @@ namespace AtlasServerManager.Includes
                 ExePath = Path.Combine(ExePath, "ShooterGameServer.exe");
             if (!File.Exists(ExePath))
                 return;
+            if (IsRunning()) StopServer();
             try
             {
                 ServerProcess = new Process

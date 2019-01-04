@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -34,30 +32,30 @@ namespace AtlasServerManager.Includes
                             if (!SkipAnnounce && Process.GetProcessesByName("ShooterGameServer").Length > 0)
                             {
                                 ArkMgr.Log("[Atlas] Update Broadcasting 30 Minutes");
-                                BroadCastMessage("Atlas To Version: " + UpdateVersion + ", in 30 Minutes!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas To Version: " + UpdateVersion + ", in 30 Minutes!");
                                 Thread.Sleep(900000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 15 Minutes");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 15 Minutes!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 15 Minutes!");
                                 Thread.Sleep(300000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 10 Minutes");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 10 Minutes!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 10 Minutes!");
                                 Thread.Sleep(300000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 5 Minutes");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 5 Minutes!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 5 Minutes!");
                                 Thread.Sleep(180000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 2 Minutes");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 2 Minutes!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 2 Minutes!");
                                 Thread.Sleep(60000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 1 Minute");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 1 Minute!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 1 Minute!");
                                 Thread.Sleep(30000);
                                 ArkMgr.Log("[Atlas] Update Broadcasting 30 Seconds");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + ", in 30 Seconds!");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 30 Seconds!");
                                 Thread.Sleep(30000);
                                 ArkMgr.Log("[Atlas] Update Saving World");
-                                BroadCastMessage("Atlas Updating To Version: " + UpdateVersion + "!, Please relaunch and update your games.");
+                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + "!, Please relaunch and update your games.");
                                 Thread.Sleep(5000);
-                                if (!SaveWorld())
+                                if (!SourceRconTools.SaveWorld())
                                 {
                                     ArkMgr.Log("[Atlas] Failed Saving World, Not Updating!");
                                     continue;
@@ -79,7 +77,8 @@ namespace AtlasServerManager.Includes
                                 continue;
                             }
                             ArkMgr.Log("[Atlas] Updated, Launching Servers!");
-                            FirstLaunch = ArkMgr.Updating = false;
+                            FirstLaunch = true;
+                            ArkMgr.Updating = false;
                             StartServers(ArkMgr);
                         }
                         else ArkMgr.Updating = false;
@@ -174,9 +173,7 @@ namespace AtlasServerManager.Includes
             ArkMgr.Invoke((System.Windows.Forms.MethodInvoker)delegate ()
             {
                 foreach (ArkServerListViewItem ASLVI in ArkMgr.ServerList.Items)
-                {
                     ASLVI.GetServerData().StartServer();
-                }
             });
         }
 
@@ -187,79 +184,6 @@ namespace AtlasServerManager.Includes
                 if (input.Contains("Error! App ")) UpdateError = true;
                 AtlasServerManager.GetInstance().Log("[Update]" + input);
             }
-        }
-
-        static bool ConnectToRcon(SourceRcon Sr, string IP, int Port, string Pass)
-        {
-            if (Sr != null && !Sr.Connected)
-            {
-                int DotCount = 0;
-                for (int i = 0; i < IP.Length; i++) if (IP[i] == '.') DotCount++;
-                if (DotCount != 3)
-                {
-                    IPAddress[] ips = Dns.GetHostAddresses(IP);
-                    if (ips.Length > 0) IP = ips[0].ToString();
-                }
-
-                bool Connect = Sr.Connect(new IPEndPoint(IPAddress.Parse(IP), Port), Pass);
-                int Counter = 0;
-                while (!Sr.Connected)
-                {
-                    Thread.Sleep(1000);
-                    if (Counter++ > 30)
-                    {
-                        AtlasServerManager.GetInstance().Log("[Rcon->ConnectToRcon] Something is wrong with connection");
-                        return false;
-                    }
-                    else if (Sr.Connected) break;
-                }
-            }
-            return true;
-        }
-
-        static bool BroadCastMessage(string Message)
-        {
-            try
-            {
-                bool FirstRun = true;
-                AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
-                {
-                    foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
-                    {
-                        if (!FirstRun) Thread.Sleep(4000);
-                        if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, /*ASLVI.GetServerData().ServerIp*/"127.0.0.1", ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass)) continue;
-                        ASLVI.GetServerData().RconConnection.ServerCommand("broadcast " + Message);
-                        FirstRun = false;
-                    }
-                });
-                return true;
-            }
-            catch (Exception e)
-            {
-                AtlasServerManager.GetInstance().Log("[Rcon->BroadCastMessage] Connection failed: " + e.Message);
-                return false;
-            }
-        }
-
-        static bool SaveWorld()
-        {
-            bool FirstRun = true;
-            int FailCount = 0;
-            AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
-            {
-                foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
-                {
-                    if (!FirstRun) Thread.Sleep(4000);
-                    if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().ServerIp, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass))
-                    {
-                        FailCount++;
-                        continue;
-                    }
-                    ASLVI.GetServerData().RconConnection.ServerCommand("DoExit");
-                    FirstRun = false;
-                }
-            });
-            return FailCount != AtlasServerManager.GetInstance().ServerList.Items.Count;
         }
     }
 }

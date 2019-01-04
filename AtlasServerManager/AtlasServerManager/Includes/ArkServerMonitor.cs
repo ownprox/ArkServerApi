@@ -18,11 +18,6 @@ namespace AtlasServerManager.Includes
                             if (ASLVI.Checked && !ASLVI.GetServerData().IsRunning())
                             {
                                 ArkMgr.Log("Server Port: " + ASLVI.Text + " Was Offline Booting Now!");
-                                if (ASLVI.GetServerData().ServerProcess != null && !ASLVI.GetServerData().ServerProcess.HasExited && ASLVI.GetServerData().ServerProcess.Id != 0)
-                                {
-                                    ASLVI.GetServerData().ServerProcess.Kill();
-                                    ASLVI.GetServerData().ServerProcess = null;
-                                }
                                 ASLVI.GetServerData().StartServer();
                             }
                             ASLVI.UpdateStatus();
