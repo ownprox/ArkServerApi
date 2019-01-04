@@ -9,7 +9,7 @@ namespace AtlasServerManager
     public partial class AtlasServerManager : Form
     {
         public string SteamPath = System.AppDomain.CurrentDomain.BaseDirectory + @"Steam\";
-        public string ArkManagerPath = "", ServerPath = string.Empty;
+        public string ArkManagerPath = "", ServerPath = string.Empty, ASMTitle;
         public static AtlasServerManager GetInstance() { return instance; }
         public bool Updating = true;
         public Process UpdateProcess = null;
@@ -25,6 +25,7 @@ namespace AtlasServerManager
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            ASMTitle = Text;
             ArkManagerPath = (Application.StartupPath + @"\").Replace(@"\\", @"\");
             Worker.Start(this);
             Registry.LoadRegConfig(this);
@@ -34,7 +35,11 @@ namespace AtlasServerManager
                 string[] Files = Directory.GetFiles(ArkManagerPath, "*.exe", SearchOption.AllDirectories);
                 foreach (string file in Files)
                 {
-                    if (Path.GetFileNameWithoutExtension(file) == "ShooterGameServer") ServerPath = file;
+                    if (Path.GetFileNameWithoutExtension(file) == "ShooterGameServer")
+                    {
+                        ServerPath = file;
+                        break;
+                    }
                 }
             }
             if (!checkAutoServerUpdate.Checked) Updating = false;

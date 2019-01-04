@@ -631,7 +631,6 @@
             this.directoryPathTextBox.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
             this.directoryPathTextBox.Location = new System.Drawing.Point(6, 23);
             this.directoryPathTextBox.Name = "directoryPathTextBox";
-            this.directoryPathTextBox.ReadOnly = true;
             this.directoryPathTextBox.Size = new System.Drawing.Size(693, 20);
             this.directoryPathTextBox.TabIndex = 25;
             this.directoryPathTextBox.Text = ".\\AtlasServerData";
@@ -664,7 +663,6 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AddServer";
-            this.Load += new System.EventHandler(this.AddServer_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ServerYNumericUpDown)).EndInit();

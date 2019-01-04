@@ -19,7 +19,7 @@ namespace AtlasServerManager.Includes
         {
             AtlasServerManager form1 = (AtlasServerManager)Data;
             PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total"), MemA = new PerformanceCounter("Memory", "Available KBytes");
-
+            int Players = 0, TotalPlayers = 0;
             double AMem;
             GetPhysicallyInstalledSystemMemory(out TotalMemA);
             TotalMem = TotalMemA / 1048576;
@@ -27,27 +27,43 @@ namespace AtlasServerManager.Includes
             {
                 bool CountPlayers = CountPlayerTick++ >= 3;
                 cpu.NextValue();
-                Thread.Sleep(5000);
-                AMem = (TotalMemA - MemA.NextValue()) / 104857;
-                form1.Invoke((MethodInvoker)delegate ()
+                Thread.Sleep(3000);
+                AMem = (TotalMemA - MemA.NextValue()) / 1048576;
+                if (CountPlayers)
                 {
-                    form1.Text = "Atlas Server Manager | CPU: " + (int)cpu.NextValue() + "%, Mem: " + AMem.ToString("#.##") + " GB / " + TotalMem + " GB";
-                    if (form1.ServerList.Items.Count > 0)
+                    form1.Invoke((MethodInvoker)delegate ()
                     {
-                        try
+                        if (form1.ServerList.Items.Count > 0)
                         {
-                            foreach (ArkServerListViewItem ASD in form1.ServerList.Items)
+                            if (TotalPlayers > 0)
                             {
-                                if (ASD.GetServerData().IsRunning())
-                                    if(CountPlayers) ASD.GetServerData().GetPlayersOnline(form1, ASD);
+                                foreach (ArkServerListViewItem ASD in form1.ServerList.Items)
+                                {
+                                    int.TryParse(ASD.SubItems[5].Text, out Players);
+                                    TotalPlayers += Players;
+                                }
+                            }
+
+                            try
+                            {
+                                foreach (ArkServerListViewItem ASD in form1.ServerList.Items)
+                                {
+                                    if (ASD.GetServerData().IsRunning())
+                                    {
+                                        ASD.GetServerData().GetPlayersOnline(form1, ASD);
+                                        TotalPlayers = 1;
+                                    }
+                                }
+                            }
+                            catch
+                            {
                             }
                         }
-                        catch
-                        {
-                        }
-                    }
-                });
-                if (CountPlayers) CountPlayerTick = 0;
+                    });
+                    CountPlayerTick = 0;
+                }
+                form1.Text = form1.ASMTitle + " | CPU: " + (int)cpu.NextValue() + "%, Mem: " + AMem.ToString("#.##") + " GB / " + TotalMem + " GB - Players Online: " + TotalPlayers;
+                TotalPlayers = 0;
             }
         }
     }

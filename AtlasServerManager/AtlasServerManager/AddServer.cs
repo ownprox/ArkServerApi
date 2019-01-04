@@ -83,7 +83,7 @@ namespace AtlasServerManager
             {
                 directoryPathTextBox.Text = @".\AtlasServerData";
             }
-
+            int OldPid = ServerData != null ? ServerData.PID : 0;
             ServerData = new AtlasServerData()
             {
                 ServerPath = directoryPathTextBox.Text,
@@ -112,7 +112,9 @@ namespace AtlasServerManager
                 ServerY = (int)ServerYNumericUpDown.Value,
                 ReservedPlayers = (int)ReservedPlayersNumericUpDown.Value,
                 ServerIp = ServerIPTextBox.Text,
-                ProcessPriority = ProcessPriotityCombo.SelectedIndex
+                ProcessPriority = ProcessPriotityCombo.SelectedIndex,
+
+                PID = OldPid
             };
         }
 
@@ -163,11 +165,6 @@ namespace AtlasServerManager
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
             if (!checkBox3.Checked && MessageBox.Show("Disabling this will disable auto updates, Are you sure you want to disable this?", "Warning !!!", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.No) checkBox3.Checked = true;
-        }
-
-        private void AddServer_Load(object sender, EventArgs e)
-        {
-            PA.DrawCheckboxs();
         }
 
         private void button3_Click(object sender, EventArgs e)

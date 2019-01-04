@@ -23,8 +23,8 @@ namespace AtlasServerManager.Includes
             Checked = true;
             SetServerData(ServerData);
             UseItemStyleForSubItems = false;
-            Text = ServerData.AltSaveDirectory;
-            SubItems.AddRange(new string[] { ServerData.ServerPort.ToString(), ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0" });
+            Text = ServerData.ServerPort.ToString();
+            SubItems.AddRange(new string[] { ServerData.AltSaveDirectory, ServerData.ServerX.ToString().ToString(), ServerData.ServerY.ToString(), "Offline", "0" });
             SubItems[0].ForeColor = Color.LightSlateGray;
             SubItems[1].ForeColor = Color.LightSkyBlue;
             SubItems[2].ForeColor = Color.YellowGreen;

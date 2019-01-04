@@ -10,6 +10,11 @@ namespace AtlasServerManager.Includes
     {
         private static bool UpdateError = false, SkipAnnounce = false, FirstLaunch = true;
 
+        public static string GenerateUpdateMessage(AtlasServerManager ArkMgr, int SleepTime, string time = "Minutes")
+        {
+            return ArkMgr.ServerUpdateMessage.Text.Replace("{time}", SleepTime.ToString() + " " + time);
+        }
+
         public static void CheckForUpdates(object Data)
         {
             AtlasServerManager ArkMgr = (AtlasServerManager)Data;
@@ -28,32 +33,29 @@ namespace AtlasServerManager.Includes
                         if (CurrentVer != UpdateVersion)
                         {
                             ArkMgr.Updating = true;
-                            ArkMgr.Log("BuildID " + UpdateVersion + " Released!");
+                            ArkMgr.Log("[Atlas] BuildID " + UpdateVersion + " Released!");
                             if (!SkipAnnounce && Process.GetProcessesByName("ShooterGameServer").Length > 0)
                             {
-                                ArkMgr.Log("[Atlas] Update Broadcasting 30 Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas To Version: " + UpdateVersion + ", in 30 Minutes!");
-                                Thread.Sleep(900000);
-                                ArkMgr.Log("[Atlas] Update Broadcasting 15 Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 15 Minutes!");
-                                Thread.Sleep(300000);
-                                ArkMgr.Log("[Atlas] Update Broadcasting 10 Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 10 Minutes!");
-                                Thread.Sleep(300000);
-                                ArkMgr.Log("[Atlas] Update Broadcasting 5 Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 5 Minutes!");
-                                Thread.Sleep(180000);
-                                ArkMgr.Log("[Atlas] Update Broadcasting 2 Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 2 Minutes!");
-                                Thread.Sleep(60000);
-                                ArkMgr.Log("[Atlas] Update Broadcasting 1 Minute");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 1 Minute!");
-                                Thread.Sleep(30000);
+                                int SleepTime = (int)ArkMgr.numServerUpdate.Value / 2;
+                                ArkMgr.Log("[Atlas] Update Broadcasting " + (int)ArkMgr.numServerUpdate.Value + " Minutes");
+                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, (int)ArkMgr.numServerUpdate.Value));
+                                Thread.Sleep(SleepTime * 60000);
+
+                                ArkMgr.Log("[Atlas] Update Broadcasting " + SleepTime + " Minutes");
+                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, SleepTime));                                
+                                SleepTime = (int)ArkMgr.numServerUpdate.Value / 4;
+                                Thread.Sleep(SleepTime * 60000);
+
+                                ArkMgr.Log("[Atlas] Update Broadcasting " + SleepTime + " Minutes");
+                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, SleepTime));
+                                SleepTime = (int)ArkMgr.numServerUpdate.Value / 4;
+                                Thread.Sleep(SleepTime * 60000);
+
                                 ArkMgr.Log("[Atlas] Update Broadcasting 30 Seconds");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + ", in 30 Seconds!");
+                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, 30, "Seconds"));
                                 Thread.Sleep(30000);
                                 ArkMgr.Log("[Atlas] Update Saving World");
-                                SourceRconTools.SendCommandToAll("broadcast Atlas Updating To Version: " + UpdateVersion + "!, Please relaunch and update your games.");
+                                SourceRconTools.SendCommandToAll("broadcast " + ArkMgr.ServerUpdatingMessage.Text);
                                 Thread.Sleep(5000);
                                 if (!SourceRconTools.SaveWorld())
                                 {

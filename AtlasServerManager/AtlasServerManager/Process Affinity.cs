@@ -14,6 +14,7 @@ namespace AtlasServerManager
         {
             InitializeComponent();
             StartControlIndex = Controls.Count;
+            DrawCheckboxs();
         }
 
         public void DrawCheckboxs()
@@ -35,7 +36,7 @@ namespace AtlasServerManager
                 chkbox.Size = new Size(70, 20);
                 chkbox.Checked = true;
                 Controls.Add(chkbox);
-            }            
+            }
         }
 
         public void UpdateCheckBoxs(bool[] PAPA)

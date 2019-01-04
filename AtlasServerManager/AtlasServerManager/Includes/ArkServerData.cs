@@ -16,13 +16,6 @@ namespace AtlasServerManager.Includes
         private bool HasMadeFirstContact;
         private DateTime LastSourceQueryReply;
 
-        public string GetMemory()
-        {
-            if (ServerProcess.PagedMemorySize64 > 1048575) return ((ServerProcess.PagedMemorySize64 >> 10) / 1024).ToString("#.## GB");
-            else if (ServerProcess.PagedMemorySize64 > 1023) return (ServerProcess.PagedMemorySize64 / 1024).ToString("#.## MB");
-            return ServerProcess.PagedMemorySize64.ToString("#.## KB");
-        }
-
         public void InitStartServer()
         {
             string ArkManagerPath = AtlasServerManager.GetInstance().ArkManagerPath;
