@@ -65,13 +65,13 @@
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.createButton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.browseButton = new System.Windows.Forms.Button();
+            this.filePathBox = new System.Windows.Forms.TextBox();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
@@ -540,15 +540,15 @@
             this.label7.TabIndex = 14;
             this.label7.Text = "Rcon Port:";
             // 
-            // button1
+            // createButton
             // 
-            this.button1.Location = new System.Drawing.Point(586, 527);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(131, 44);
-            this.button1.TabIndex = 19;
-            this.button1.Text = "Create Server";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.createButton.Location = new System.Drawing.Point(586, 527);
+            this.createButton.Name = "createButton";
+            this.createButton.Size = new System.Drawing.Size(131, 44);
+            this.createButton.TabIndex = 19;
+            this.createButton.Text = "Create Server";
+            this.createButton.UseVisualStyleBackColor = true;
+            this.createButton.Click += new System.EventHandler(this.CreateServer_Click);
             // 
             // button2
             // 
@@ -568,12 +568,12 @@
             this.button3.TabIndex = 21;
             this.button3.Text = "Default";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.CreateButton_Click);
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.button4);
-            this.groupBox7.Controls.Add(this.textBox4);
+            this.groupBox7.Controls.Add(this.browseButton);
+            this.groupBox7.Controls.Add(this.filePathBox);
             this.groupBox7.Location = new System.Drawing.Point(12, 2);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(704, 104);
@@ -581,25 +581,32 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Server Path";
             // 
-            // button4
+            // browseButton
             // 
-            this.button4.Location = new System.Drawing.Point(567, 53);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(131, 44);
-            this.button4.TabIndex = 23;
-            this.button4.Text = "Browse";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.browseButton.Location = new System.Drawing.Point(567, 53);
+            this.browseButton.Name = "browseButton";
+            this.browseButton.Size = new System.Drawing.Size(131, 44);
+            this.browseButton.TabIndex = 23;
+            this.browseButton.Text = "Browse";
+            this.browseButton.UseVisualStyleBackColor = true;
+            this.browseButton.Click += new System.EventHandler(this.BrowseButton_Click);
             // 
-            // textBox4
+            // filePathBox
             // 
-            this.textBox4.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
-            this.textBox4.Location = new System.Drawing.Point(6, 23);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.ReadOnly = true;
-            this.textBox4.Size = new System.Drawing.Size(693, 20);
-            this.textBox4.TabIndex = 25;
-            this.textBox4.Text = ".\\AtlasServerData";
+            this.filePathBox.AllowDrop = true;
+            this.filePathBox.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.filePathBox.Location = new System.Drawing.Point(6, 23);
+            this.filePathBox.Name = "filePathBox";
+            this.filePathBox.ReadOnly = true;
+            this.filePathBox.Size = new System.Drawing.Size(693, 20);
+            this.filePathBox.TabIndex = 25;
+            this.filePathBox.Text = "ShooterGameServer.exe";
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.DefaultExt = "exe";
+            this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.Filter = "Exe files (*.exe)|*.exe";
             // 
             // AddServer
             // 
@@ -609,7 +616,7 @@
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.createButton);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold);
@@ -659,16 +666,15 @@
         private System.Windows.Forms.CheckBox checkBox12;
         private System.Windows.Forms.CheckBox checkBox11;
         private System.Windows.Forms.CheckBox checkBox10;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button createButton;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox filePathBox;
+        private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.NumericUpDown numericUpDown7;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.NumericUpDown numericUpDown6;
@@ -679,5 +685,6 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }

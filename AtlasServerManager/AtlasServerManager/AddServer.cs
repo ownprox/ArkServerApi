@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows.Forms;
 using AtlasServerManager.Includes;
 
@@ -7,10 +6,10 @@ namespace AtlasServerManager
 {
     public partial class AddServer : Form
     {
+        private readonly Process_Affinity Pa = new Process_Affinity();
+        public bool Create;
         public AtlasServerData ServerData;
-        public bool Create = true;
-        string ServerPath = string.Empty;
-        Process_Affinity PA = new Process_Affinity();
+        private string ServerPath = string.Empty;
 
         public AddServer(string ServerPath)
         {
@@ -20,10 +19,13 @@ namespace AtlasServerManager
             CopyServerData();
             Registry.SaveRegServer(AtlasServerManager.GetInstance(), ServerData, 0, true);
             ServerData = Registry.LoadRegServer(AtlasServerManager.GetInstance(), "LastSaved");
-            if (ServerData.Loaded) UpdateComponents(ServerData);
+            if (ServerData.Loaded)
+            {
+                UpdateComponents(ServerData);
+            }
             else if (ServerPath != string.Empty)
             {
-                textBox4.Text = ServerPath;
+                filePathBox.Text = ServerPath;
                 this.ServerPath = ServerPath;
             }
         }
@@ -35,62 +37,60 @@ namespace AtlasServerManager
             UpdateComponents(ServerData);
         }
 
-        private void UpdateComponents(AtlasServerData ServerData)
+        private void UpdateComponents(AtlasServerData Data)
         {
-            this.ServerData = ServerData;
-            textBox4.Text = ServerData.ServerPath;
-            ServerPath = ServerData.ServerPath;
-            textBox5.Text = ServerData.AltSaveDirectory;
-            numericUpDown1.Value = ServerData.MaxPlayers;
-            numericUpDown3.Value = ServerData.QueryPort;
-            numericUpDown2.Value = ServerData.ServerPort;
-            maskedTextBox1.Text = ServerData.Pass;
-            checkBox1.Checked = ServerData.WildWipe;
-            checkBox10.Checked = ServerData.PVP;
-            checkBox11.Checked = ServerData.MapB;
-            checkBox12.Checked = ServerData.Gamma;
-            checkBox13.Checked = ServerData.Third;
-            checkBox14.Checked = ServerData.Crosshair;
-            checkBox15.Checked = ServerData.HitMarker;
-            checkBox16.Checked = ServerData.Imprint;
-            checkBox17.Checked = ServerData.FTD;
-            textBox2.Text = ServerData.CustomArgs;
-            numericUpDown5.Value = ServerData.ServerX;
-            numericUpDown7.Value = ServerData.ServerY;
-            numericUpDown6.Value = ServerData.ReservedPlayers;
-            textBox1.Text = ServerData.ServerIp;
-            comboBox1.SelectedIndex = ServerData.ProcessPriority;
+            ServerData = Data;
+            filePathBox.Text = Data.ServerPath;
+            ServerPath = Data.ServerPath;
+            textBox5.Text = Data.AltSaveDirectory;
+            numericUpDown1.Value = Data.MaxPlayers;
+            numericUpDown3.Value = Data.QueryPort;
+            numericUpDown2.Value = Data.ServerPort;
+            maskedTextBox1.Text = Data.Pass;
+            checkBox1.Checked = Data.WildWipe;
+            checkBox10.Checked = Data.PVP;
+            checkBox11.Checked = Data.MapB;
+            checkBox12.Checked = Data.Gamma;
+            checkBox13.Checked = Data.Third;
+            checkBox14.Checked = Data.Crosshair;
+            checkBox15.Checked = Data.HitMarker;
+            checkBox16.Checked = Data.Imprint;
+            checkBox17.Checked = Data.FTD;
+            textBox2.Text = Data.CustomArgs;
+            numericUpDown5.Value = Data.ServerX;
+            numericUpDown7.Value = Data.ServerY;
+            numericUpDown6.Value = Data.ReservedPlayers;
+            textBox1.Text = Data.ServerIp;
+            comboBox1.SelectedIndex = Data.ProcessPriority;
 
             /*Process Affinity*/
-            if (ServerData.ProcessAffinity == null || ServerData.ProcessAffinity.Length == 0)
-                ServerData.ProcessAffinity = new bool[Environment.ProcessorCount];
-            PA.UpdateCheckBoxs(ServerData.ProcessAffinity);
+            if (Data.ProcessAffinity == null || Data.ProcessAffinity.Length == 0)
+                Data.ProcessAffinity = new bool[Environment.ProcessorCount];
+            Pa.UpdateCheckBoxs(Data.ProcessAffinity);
 
             /*Rcon*/
-            
-            checkBox3.Checked = ServerData.Rcon;
-            numericUpDown4.Value = ServerData.RconPort;
+
+            checkBox3.Checked = Data.Rcon;
+            numericUpDown4.Value = Data.RconPort;
             if (!Create)
             {
-                Text = "Edit: ServerX: " + ServerData.ServerX + ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort;
-                button1.Text = "Save Settings";
+                Text = "Edit: ServerX: " + Data.ServerX + ", ServerY: " + Data.ServerX + ", Port: " +
+                       Data.ServerPort;
+                createButton.Text = "Save Settings";
             }
         }
 
         private void CopyServerData()
         {
-            if(textBox4.Text == string.Empty)
-            {
-                textBox4.Text = @".\AtlasServerData";
-            }
+            if (filePathBox.Text == string.Empty) filePathBox.Text = @".\AtlasServerData\ShooterGame\Binaries\Win64\ShooterGameServer.exe";
 
-            ServerData = new AtlasServerData()
+            ServerData = new AtlasServerData
             {
-                ServerPath = textBox4.Text,
+                ServerPath = filePathBox.Text,
                 AltSaveDirectory = textBox5.Text,
-                MaxPlayers = (int)numericUpDown1.Value,
-                QueryPort = (int)numericUpDown3.Value,
-                ServerPort = (int)numericUpDown2.Value,
+                MaxPlayers = (int) numericUpDown1.Value,
+                QueryPort = (int) numericUpDown3.Value,
+                ServerPort = (int) numericUpDown2.Value,
                 Pass = maskedTextBox1.Text,
                 WildWipe = checkBox1.Checked,
                 PVP = checkBox10.Checked,
@@ -103,54 +103,58 @@ namespace AtlasServerManager
                 FTD = checkBox17.Checked,
                 CustomArgs = textBox2.Text,
                 /*Process Affinity*/
-                ProcessAffinity = PA.ProcessAffinity,
+                ProcessAffinity = Pa.ProcessAffinity,
                 /*Rcon*/
                 Rcon = checkBox3.Checked,
-                RconPort = (int)numericUpDown4.Value,
+                RconPort = (int) numericUpDown4.Value,
                 AutoStart = true,
-                ServerX = (int)numericUpDown5.Value,
-                ServerY = (int)numericUpDown7.Value,
-                ReservedPlayers = (int)numericUpDown6.Value,
+                ServerX = (int) numericUpDown5.Value,
+                ServerY = (int) numericUpDown7.Value,
+                ReservedPlayers = (int) numericUpDown6.Value,
                 ServerIp = textBox1.Text,
                 ProcessPriority = comboBox1.SelectedIndex
             };
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void CreateServer_Click(object sender, EventArgs e)
         {
             string Error = string.Empty;
-            foreach (AtlasServerData Asd in AtlasServerManager.GetInstance().ServerList.GetServerList())
+            foreach (AtlasServerData Data in AtlasServerManager.GetInstance().ServerList.GetServerList())
             {
-                if (Asd.ServerPort == ServerData.ServerPort && Asd.QueryPort == ServerData.QueryPort && Asd.RconPort == ServerData.RconPort) continue;
-                if (Asd.ServerPort == (int)numericUpDown2.Value)
+                if (Data.ServerPort == ServerData.ServerPort && Data.QueryPort == ServerData.QueryPort &&
+                    Data.RconPort == ServerData.RconPort) continue;
+                if (Data.ServerPort == (int) numericUpDown2.Value)
                 {
-                    Error = "Server Port " + Asd.ServerPort + " is already in use by ServerX: " + ServerData.ServerX + ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort + ", Please change it";
+                    Error = "Server Port " + Data.ServerPort + " is already in use by ServerX: " + ServerData.ServerX +
+                            ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort +
+                            ", Please change it";
                     break;
                 }
-                if (Asd.QueryPort == (int)numericUpDown3.Value)
+
+                if (Data.QueryPort == (int) numericUpDown3.Value)
                 {
-                    Error = "Query Port " + Asd.QueryPort + " is already in use by " + ServerData.ServerX + ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort + ", Please change it";
+                    Error = "Query Port " + Data.QueryPort + " is already in use by " + ServerData.ServerX +
+                            ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort +
+                            ", Please change it";
                     break;
                 }
-                if (Asd.RconPort == (int)numericUpDown4.Value)
+
+                if (Data.RconPort == (int) numericUpDown4.Value)
                 {
-                    Error = "Rcon Port " + Asd.RconPort + " is already in use by " + ServerData.ServerX + ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort + ", Please change it";
+                    Error = "Rcon Port " + Data.RconPort + " is already in use by " + ServerData.ServerX +
+                            ", ServerY: " + ServerData.ServerX + ", Port: " + ServerData.ServerPort +
+                            ", Please change it";
                     break;
                 }
             }
 
-            if(textBox1.Text == string.Empty || !textBox1.Text.Contains("."))
+            if (textBox1.Text == string.Empty || !textBox1.Text.Contains(".")) Error = "Please set a Server IP!";
+            if (textBox5.Text == string.Empty) Error = "Please set a Alt Save Directory!";
+
+            if (Error != string.Empty)
             {
-                Error = "Please set a Server IP!";
+                MessageBox.Show(Error);
             }
-
-            if (textBox5.Text == string.Empty)
-            {
-                Error = "Please set a Alt Save Directory!";
-            }
-
-
-            if (Error != string.Empty) MessageBox.Show(Error);
             else
             {
                 CopyServerData();
@@ -162,33 +166,33 @@ namespace AtlasServerManager
 
         private void checkBox3_CheckedChanged(object sender, EventArgs e)
         {
-            if (!checkBox3.Checked && MessageBox.Show("Disabling this will disable auto updates, Are you sure you want to disable this?", "Warning !!!", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.No) checkBox3.Checked = true;
+            if (!checkBox3.Checked &&
+                MessageBox.Show("Disabling this will disable auto updates, Are you sure you want to disable this?",
+                    "Warning !!!", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
+                DialogResult.No) checkBox3.Checked = true;
         }
 
         private void AddServer_Load(object sender, EventArgs e)
         {
-            PA.DrawCheckboxs();
+            Pa.DrawCheckboxs();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void CreateButton_Click(object sender, EventArgs e)
         {
             ServerData = Registry.LoadRegServer(AtlasServerManager.GetInstance(), "Default");
             UpdateComponents(ServerData);
             Registry.SaveRegServer(AtlasServerManager.GetInstance(), ServerData, 0, true, true);
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void BrowseButton_Click(object sender, EventArgs e)
         {
-            if (ServerPath != string.Empty) folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK && Directory.Exists(folderBrowserDialog1.SelectedPath)) textBox4.Text = folderBrowserDialog1.SelectedPath;
+            if (openFileDialog1.ShowDialog() == DialogResult.OK) filePathBox.Text = openFileDialog1.FileName;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            if(PA.ShowDialog() == DialogResult.OK)
-            {
-                ServerData.ProcessAffinity = PA.ProcessAffinity;
-            }
+            if (Pa.ShowDialog() == DialogResult.OK) ServerData.ProcessAffinity = Pa.ProcessAffinity;
         }
+
     }
 }

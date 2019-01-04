@@ -1,9 +1,0 @@
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\AtlasServerManager.csprojAssemblyReference.cache
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\Interop.NATUPNPLib.dll
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\AtlasServerManager.csproj.ResolveComReference.cache
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\ArkManager.AddServer.resources
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\ArkManager.ArkManager.resources
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\ArkManager.Process_Affinity.resources
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\AtlasServerManager.Properties.Resources.resources
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\AtlasServerManager.csproj.GenerateResource.cache
-D:\Projects\AtlasServerManager\AtlasServerManager\obj\x86\Debug\AtlasServerManager.csproj.CoreCompileInputs.cache
