@@ -2,7 +2,7 @@
 using System.Net;
 
 namespace AtlasServerManager.Includes
-{/*
+{
 	public class UPNP
 	{
         private static string _LocalIPAddress = string.Empty;
@@ -54,5 +54,5 @@ namespace AtlasServerManager.Includes
             foreach (int Port in MappedPorts) UpnpMap.Remove(Port, "UDP");
             MappedPorts.Clear();
         }
-	}*/
+	}
 }
