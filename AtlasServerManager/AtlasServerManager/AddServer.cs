@@ -83,7 +83,7 @@ namespace AtlasServerManager
             {
                 directoryPathTextBox.Text = @".\AtlasServerData";
             }
-            int OldPid = ServerData != null ? ServerData.PID : 0;
+            System.Diagnostics.Process OldProcess = ServerData?.ServerProcess;
             ServerData = new AtlasServerData()
             {
                 ServerPath = directoryPathTextBox.Text,
@@ -114,7 +114,8 @@ namespace AtlasServerManager
                 ServerIp = ServerIPTextBox.Text,
                 ProcessPriority = ProcessPriotityCombo.SelectedIndex,
 
-                PID = OldPid
+                ServerProcess = OldProcess,
+                PID = OldProcess != null ? OldProcess.Id : 0
             };
         }
 

@@ -35,7 +35,7 @@ namespace AtlasServerManager
                 string[] Files = Directory.GetFiles(ArkManagerPath, "*.exe", SearchOption.AllDirectories);
                 foreach (string file in Files)
                 {
-                    if (Path.GetFileNameWithoutExtension(file) == "ShooterGameServer")
+                    if (!file.Contains("steamapps") && Path.GetFileNameWithoutExtension(file) == "ShooterGameServer")
                     {
                         ServerPath = file;
                         break;

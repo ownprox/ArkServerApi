@@ -35,7 +35,7 @@ namespace AtlasServerManager.Includes
                     {
                         if (form1.ServerList.Items.Count > 0)
                         {
-                            if (TotalPlayers > 0)
+                            if (TotalPlayers == -1)
                             {
                                 foreach (ArkServerListViewItem ASD in form1.ServerList.Items)
                                 {
@@ -51,7 +51,7 @@ namespace AtlasServerManager.Includes
                                     if (ASD.GetServerData().IsRunning())
                                     {
                                         ASD.GetServerData().GetPlayersOnline(form1, ASD);
-                                        TotalPlayers = 1;
+                                        TotalPlayers = -1;
                                     }
                                 }
                             }
@@ -62,8 +62,11 @@ namespace AtlasServerManager.Includes
                     });
                     CountPlayerTick = 0;
                 }
-                form1.Text = form1.ASMTitle + " | CPU: " + (int)cpu.NextValue() + "%, Mem: " + AMem.ToString("#.##") + " GB / " + TotalMem + " GB - Players Online: " + TotalPlayers;
-                TotalPlayers = 0;
+                form1.Invoke((MethodInvoker)delegate ()
+                {
+                    form1.Text = form1.ASMTitle + " | CPU: " + (int)cpu.NextValue() + "%, Mem: " + AMem.ToString("#.##") + " GB / " + TotalMem + " GB - Players Online: " + TotalPlayers;
+                    TotalPlayers = 0;
+                });
             }
         }
     }

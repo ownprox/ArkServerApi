@@ -9,9 +9,9 @@ namespace AtlasServerManager.Includes
             AtlasServerManager ArkMgr = (AtlasServerManager)Data;
             while (true)
             {
-                if (!ArkMgr.Updating && ArkMgr.checkBootWhenOff.Checked)
+                ArkMgr.Invoke((System.Windows.Forms.MethodInvoker)delegate ()
                 {
-                    ArkMgr.Invoke((System.Windows.Forms.MethodInvoker)delegate ()
+                    if (!ArkMgr.Updating && ArkMgr.checkBootWhenOff.Checked)
                     {
                         foreach (ArkServerListViewItem ASLVI in ArkMgr.ServerList.Items)
                         {
@@ -22,8 +22,8 @@ namespace AtlasServerManager.Includes
                             }
                             ASLVI.UpdateStatus();
                         }
-                    });
-                }
+                    }
+                });
                 Thread.Sleep((int)(ArkMgr.numServerMonitor.Value) * 1000);
             }
         }

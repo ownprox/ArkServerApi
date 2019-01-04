@@ -18,7 +18,7 @@ namespace AtlasServerManager.Includes
         public static void CheckForUpdates(object Data)
         {
             AtlasServerManager ArkMgr = (AtlasServerManager)Data;
-            ArkMgr.Log("[Atlas] Checking for updates, can take up to 30 seconds...");
+            if (ArkMgr.checkAutoServerUpdate.Checked)  ArkMgr.Log("[Atlas] Checking for updates, can take up to 30 seconds...");
             string CurrentVersion = "";
             int UpdateVersion = 0, CurrentVer = 0;
             while (true)

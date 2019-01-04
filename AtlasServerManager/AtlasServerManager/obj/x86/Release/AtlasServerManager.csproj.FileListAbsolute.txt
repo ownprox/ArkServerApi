@@ -27,3 +27,6 @@ E:\ArkServerModding\ArkServerApi\AtlasServerManager\AtlasServerManager\obj\x86\R
 E:\ArkServerModding\ArkServerApi\AtlasServerManager\AtlasServerManager\obj\x86\Release\AtlasServerManager.exe
 E:\ArkServerModding\ArkServerApi\AtlasServerManager\AtlasServerManager\obj\x86\Release\AtlasServerManager.pdb
 E:\ArkServerModding\ArkServerApi\AtlasServerManager\AtlasServerManager\obj\x86\Release\AtlasServerManager.csprojAssemblyReference.cache
+E:\Servers\Atlas\AtlasServerManager.exe.config
+E:\Servers\Atlas\AtlasServerManager.exe
+E:\Servers\Atlas\AtlasServerManager.pdb
