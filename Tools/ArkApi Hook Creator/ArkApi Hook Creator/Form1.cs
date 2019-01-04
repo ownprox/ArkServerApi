@@ -4,7 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace ArkApi_Hook_Creator
+namespace TrampolineCreator
 {
     public partial class Form1 : Form
     {
@@ -26,12 +26,8 @@ namespace ArkApi_Hook_Creator
                 if (StructureSelector.TryGetValue(Structure, out FunctionSelector))
                 {
                     if(FunctionSelector.ContainsKey(FunctionIndex))
-                    {
-                        MessageBox.Show(Structure + " - " + Function);
                         return;
-                    }
                     FunctionSelector.Add(FunctionIndex, Function);
-
                 }
                 else StructureSelector.Add(Structure, new Dictionary<int, string> { { FunctionIndex, Function } });
             }
@@ -83,7 +79,6 @@ namespace ArkApi_Hook_Creator
                 MessageBox.Show("Error: " + e.Error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
             string HtmlData = e.Result.Replace("TWeakObjectPtr<struct ", "TWeakObjectPtr<");
             int FindIndex = -1, StructureIndex = 0, FunctionIndex = 0, indexof = HtmlData.IndexOf("	struct ");
             //Remove structures within structures
@@ -169,7 +164,7 @@ namespace ArkApi_Hook_Creator
                 FriendlyHookName = FriendlyHookName.Replace("* >", "*>").Replace(" *>", "*>").Replace("()", "").Replace(")", "");
                 if (FriendlyHookName.Contains(" ")) FriendlyHookName = FriendlyHookName.Split(' ')[1];
                 if (FriendlyHookName.Contains("(")) FriendlyHookName = FriendlyHookName.Split('(')[0];
-                string HookFunc = "", Hook = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
+                string TrampFunc = "", Tramp = "DECLARE_HOOK(" + StructCombo.Text + "_" + FriendlyHookName;
                 // DECLARE_HOOK ARGS
                 if (FunctionVariables.Contains(", "))
                 {
@@ -177,22 +172,22 @@ namespace ArkApi_Hook_Creator
                     string[] Vars = Regex.Split(FunctionVariables, ", ");
                     foreach (string s in Vars)
                     {
-                        Hook += ", " + s;
+                        Tramp += ", " + s;
                         if (!AddedClass) //Add Structure to args
                         {
-                            Hook += ", " + StructCombo.Text + "*";
+                            Tramp += ", " + StructCombo.Text + "*";
                             AddedClass = true;
                         }
                     }
-                    HookFunc = Vars[0] + " ";
+                    TrampFunc = Vars[0] + " ";
                 }
                 else
                 {                                            //Add Structure to args
-                    Hook += ", " + FunctionVariables + ", " + StructCombo.Text + "*";
-                    HookFunc = FunctionVariables + " ";
+                    Tramp += ", " + FunctionVariables + ", " + StructCombo.Text + "*";
+                    TrampFunc = FunctionVariables + " ";
                 }
-                Hook += ");";
-                HookFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* _this";
+                Tramp += ");";
+                TrampFunc += " Hook_" + StructCombo.Text + "_" + FriendlyHookName + "(" + StructCombo.Text + "* _this";
                 string Variables = FuncCombo.Text;
                 int FindIndex;
                 if ((FindIndex = Variables.IndexOf('(')) != -1)
@@ -200,17 +195,17 @@ namespace ArkApi_Hook_Creator
                     Variables = Variables.Remove(0, FindIndex + 1);
                     FindIndex = Variables.IndexOf(')');
                     Variables = Variables.Substring(0, FindIndex + 1).Replace(" **", "**").Replace(" *", "*").Replace("enum ", "enum'");
-                    HookFunc += (Variables.Length > 1 ? ", " + Variables.Replace("enum'", "enum ") : ")") + "\n{\n" + (HookFunc.StartsWith("void") ? "    " : "   return ");
-                    HookFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(_this";
+                    TrampFunc += (Variables.Length > 1 ? ", " + Variables.Replace("enum'", "enum ") : ")") + "\n{\n" + (TrampFunc.StartsWith("void") ? "    " : "   return ");
+                    TrampFunc += StructCombo.Text + "_" + FriendlyHookName + "_original(_this";
                     if (Variables.Length > 1)
                     {
                         string[] Vars = Regex.Split(Variables, ", ");
                         foreach (string s in Vars)
-                            if (s.Contains(" ")) HookFunc += ", " + s.Split(' ')[1].Replace(")", "");
-                        HookFunc += ");\n}";
+                            if (s.Contains(" ")) TrampFunc += ", " + s.Split(' ')[1].Replace(")", "");
+                        TrampFunc += ");\n}";
                     }
-                    else HookFunc += ");\n}";
-                    richTextBox1.AppendText(Hook + Environment.NewLine + Environment.NewLine + HookFunc + Environment.NewLine + Environment.NewLine
+                    else TrampFunc += ");\n}";
+                    richTextBox1.AppendText(Tramp + Environment.NewLine + Environment.NewLine + TrampFunc + Environment.NewLine + Environment.NewLine
                         + "ArkApi::GetHooks().SetHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ", &" + StructCombo.Text + "_" + FriendlyHookName + "_original);" + Environment.NewLine + Environment.NewLine
                         + "ArkApi::GetHooks().DisableHook(\"" + StructCombo.Text + "." + FriendlyHookName + "\", &Hook_" + StructCombo.Text + "_" + FriendlyHookName + ");");
                     Clipboard.SetText(richTextBox1.Text);
