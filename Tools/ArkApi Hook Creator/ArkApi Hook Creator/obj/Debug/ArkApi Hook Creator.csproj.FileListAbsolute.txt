@@ -1,9 +1,0 @@
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\bin\Debug\ArkApi Hook Creator.exe
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\bin\Debug\ArkApi Hook Creator.pdb
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi Hook Creator.csprojAssemblyReference.cache
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi_Hook_Creator.Form1.resources
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi_Hook_Creator.Properties.Resources.resources
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi Hook Creator.csproj.GenerateResource.cache
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi Hook Creator.csproj.CoreCompileInputs.cache
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi Hook Creator.exe
-E:\ArkServerModding\ArkServerApi\Tools\ArkApi Hook Creator\ArkApi Hook Creator\obj\Debug\ArkApi Hook Creator.pdb
