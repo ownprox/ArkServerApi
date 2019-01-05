@@ -246,6 +246,14 @@ namespace AtlasServerManager
             unloadPluginToolStripMenuItem3.Click += (e, a) => RconPlugin(true, false);
         }
 
+        void changeLine(int line, string text)
+        {
+            int s1 = richTextBox1.GetFirstCharIndexFromLine(line);
+            int s2 = line < richTextBox1.Lines.Length - 1 ? richTextBox1.GetFirstCharIndexFromLine(line + 1) - 1 : richTextBox1.Text.Length;
+            richTextBox1.Select(s1, s2 - s1);
+            richTextBox1.SelectedText = text;
+        }
+
         bool bFirst = true;
         public void Log(string txt)
         {
