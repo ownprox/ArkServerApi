@@ -33,6 +33,8 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GamePortCheck = new System.Windows.Forms.CheckBox();
+            this.QueryPortCheck = new System.Windows.Forms.CheckBox();
             this.numServerMonitor = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.checkBootWhenOff = new System.Windows.Forms.CheckBox();
@@ -45,6 +47,13 @@
             this.checkAutoServerUpdate = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.ServerList = new Includes.ArkListView();
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,13 +102,6 @@
             this.customCommandToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.loadPluginToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.unloadPluginToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.ServerList = new Includes.ArkListView();
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPage2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numServerMonitor)).BeginInit();
@@ -121,17 +123,17 @@
             this.tabPage2.Controls.Add(this.button1);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.groupBox3);
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(676, 264);
+            this.tabPage2.Size = new System.Drawing.Size(676, 267);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Options";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(298, 146);
+            this.button1.Location = new System.Drawing.Point(367, 146);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(266, 99);
             this.button1.TabIndex = 7;
@@ -140,19 +142,45 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.GamePortCheck);
+            this.groupBox1.Controls.Add(this.QueryPortCheck);
             this.groupBox1.Controls.Add(this.numServerMonitor);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.checkBootWhenOff);
-            this.groupBox1.Location = new System.Drawing.Point(298, 7);
+            this.groupBox1.Location = new System.Drawing.Point(367, 7);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(266, 75);
+            this.groupBox1.Size = new System.Drawing.Size(266, 133);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Automatic Atlas Server Monitor";
             // 
+            // GamePortCheck
+            // 
+            this.GamePortCheck.AutoSize = true;
+            this.GamePortCheck.Checked = true;
+            this.GamePortCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.GamePortCheck.Location = new System.Drawing.Point(10, 70);
+            this.GamePortCheck.Name = "GamePortCheck";
+            this.GamePortCheck.Size = new System.Drawing.Size(146, 21);
+            this.GamePortCheck.TabIndex = 6;
+            this.GamePortCheck.Text = "Check Game Port";
+            this.GamePortCheck.UseVisualStyleBackColor = true;
+            // 
+            // QueryPortCheck
+            // 
+            this.QueryPortCheck.AutoSize = true;
+            this.QueryPortCheck.Checked = true;
+            this.QueryPortCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.QueryPortCheck.Location = new System.Drawing.Point(10, 46);
+            this.QueryPortCheck.Name = "QueryPortCheck";
+            this.QueryPortCheck.Size = new System.Drawing.Size(149, 21);
+            this.QueryPortCheck.TabIndex = 5;
+            this.QueryPortCheck.Text = "Check Query Port";
+            this.QueryPortCheck.UseVisualStyleBackColor = true;
+            // 
             // numServerMonitor
             // 
-            this.numServerMonitor.Location = new System.Drawing.Point(209, 45);
+            this.numServerMonitor.Location = new System.Drawing.Point(209, 100);
             this.numServerMonitor.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -177,7 +205,7 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Black;
-            this.label1.Location = new System.Drawing.Point(7, 47);
+            this.label1.Location = new System.Drawing.Point(7, 102);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(176, 17);
@@ -205,7 +233,7 @@
             this.groupBox3.Controls.Add(this.numServerWarning);
             this.groupBox3.Controls.Add(this.checkAutoServerUpdate);
             this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Location = new System.Drawing.Point(7, 7);
+            this.groupBox3.Location = new System.Drawing.Point(43, 7);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(266, 238);
             this.groupBox3.TabIndex = 5;
@@ -321,6 +349,62 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Servers";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // ServerList
+            // 
+            this.ServerList.AllowColumnReorder = true;
+            this.ServerList.BackColor = System.Drawing.SystemColors.Window;
+            this.ServerList.CheckBoxes = true;
+            this.ServerList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader3,
+            this.columnHeader1,
+            this.columnHeader6,
+            this.columnHeader7,
+            this.columnHeader4,
+            this.columnHeader5});
+            this.ServerList.ContextMenuStrip = this.contextMenuStrip1;
+            this.ServerList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ServerList.FullRowSelect = true;
+            this.ServerList.GridLines = true;
+            this.ServerList.Location = new System.Drawing.Point(4, 4);
+            this.ServerList.Margin = new System.Windows.Forms.Padding(4);
+            this.ServerList.MultiSelect = false;
+            this.ServerList.Name = "ServerList";
+            this.ServerList.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.ServerList.Size = new System.Drawing.Size(668, 256);
+            this.ServerList.TabIndex = 0;
+            this.ServerList.UseCompatibleStateImageBehavior = false;
+            this.ServerList.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "AltSaveDir";
+            this.columnHeader3.Width = 214;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Server Port";
+            this.columnHeader1.Width = 90;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "ServerX";
+            this.columnHeader6.Width = 90;
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "ServerY";
+            this.columnHeader7.Width = 90;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Status";
+            this.columnHeader4.Width = 90;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Players";
+            this.columnHeader5.Width = 90;
             // 
             // contextMenuStrip1
             // 
@@ -688,62 +772,6 @@
             this.unloadPluginToolStripMenuItem3.Size = new System.Drawing.Size(176, 22);
             this.unloadPluginToolStripMenuItem3.Text = "Unload Plugin";
             // 
-            // ServerList
-            // 
-            this.ServerList.AllowColumnReorder = true;
-            this.ServerList.BackColor = System.Drawing.SystemColors.Window;
-            this.ServerList.CheckBoxes = true;
-            this.ServerList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader3,
-            this.columnHeader1,
-            this.columnHeader6,
-            this.columnHeader7,
-            this.columnHeader4,
-            this.columnHeader5});
-            this.ServerList.ContextMenuStrip = this.contextMenuStrip1;
-            this.ServerList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ServerList.FullRowSelect = true;
-            this.ServerList.GridLines = true;
-            this.ServerList.Location = new System.Drawing.Point(4, 4);
-            this.ServerList.Margin = new System.Windows.Forms.Padding(4);
-            this.ServerList.MultiSelect = false;
-            this.ServerList.Name = "ServerList";
-            this.ServerList.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.ServerList.Size = new System.Drawing.Size(668, 256);
-            this.ServerList.TabIndex = 0;
-            this.ServerList.UseCompatibleStateImageBehavior = false;
-            this.ServerList.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "AltSaveDir";
-            this.columnHeader3.Width = 214;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "Server Port";
-            this.columnHeader1.Width = 90;
-            // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "ServerX";
-            this.columnHeader6.Width = 90;
-            // 
-            // columnHeader7
-            // 
-            this.columnHeader7.Text = "ServerY";
-            this.columnHeader7.Width = 90;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Status";
-            this.columnHeader4.Width = 90;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "Players";
-            this.columnHeader5.Width = 90;
-            // 
             // AtlasServerManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -755,7 +783,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "AtlasServerManager";
-            this.Text = "Atlas Server Manager 1.8";
+            this.Text = "Atlas Server Manager 2.1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabPage2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
@@ -851,6 +879,8 @@
         private System.Windows.Forms.ToolStripMenuItem unloadPluginToolStripMenuItem3;
         public System.Windows.Forms.TextBox ServerUpdateMessage;
         public System.Windows.Forms.TextBox ServerUpdatingMessage;
+        public System.Windows.Forms.CheckBox GamePortCheck;
+        public System.Windows.Forms.CheckBox QueryPortCheck;
     }
 }
 

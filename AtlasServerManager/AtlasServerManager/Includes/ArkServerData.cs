@@ -13,9 +13,8 @@ namespace AtlasServerManager.Includes
         public int ServerPort, QueryPort, RconPort, MaxPlayers, ReservedPlayers, ServerX, ServerY, PID = 0, ProcessPriority;
         public bool[] ProcessAffinity;
         public bool Rcon, FTD, WildWipe, PVP, MapB, Gamma, Third, Crosshair, HitMarker, Imprint, Loaded, AutoStart;
-        private bool HasMadeFirstContact;
-        private DateTime LastSourceQueryReply;
-
+        private bool HasMadeFirstContact, AttemptRconSave = false, GamePortWasOpen = false;
+        private DateTime LastSourceQueryReply, RconSavedEstimate;
         public void InitStartServer()
         {
             string ArkManagerPath = AtlasServerManager.GetInstance().ArkManagerPath;
@@ -47,8 +46,14 @@ namespace AtlasServerManager.Includes
             if (!ExePath.ToLower().EndsWith("shootergameserver.exe"))
                 ExePath = Path.Combine(ExePath, "ShooterGameServer.exe");
             if (!File.Exists(ExePath))
+            {
+                MessageBox.Show(ExePath + "  Is Not found!!!", "ShooterGameServer.exe Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+            }
+
             if (IsRunning()) StopServer();
+
+            GamePortWasOpen = false;
             try
             {
                 ServerProcess = new Process
@@ -97,7 +102,7 @@ namespace AtlasServerManager.Includes
                 {
                     if (server != null)
                     {
-                        server.SubItems[4].Text = SrvData.Players.ToString();
+                        server.SubItems[5].Text = SrvData.Players.ToString();
                         HasMadeFirstContact = true;
                         LastSourceQueryReply = DateTime.Now;
                     }
@@ -105,11 +110,45 @@ namespace AtlasServerManager.Includes
             }).Dispose();
         }
 
-        public bool IsRunning()
+        private bool CheckGamePort()
         {
-            if (ServerProcess != null && (ServerProcess.HasExited || ServerProcess.Id == 0) || HasMadeFirstContact && DateTime.Now.Subtract(LastSourceQueryReply).TotalSeconds > 60) return false;
-            return ServerProcess != null;
+            bool IsConnected = false;
+            try
+            {
+                System.Net.Sockets.Socket sock = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp);
+                sock.Connect(ServerIp, ServerPort);
+                IsConnected = sock.Connected;
+                sock.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                sock.Close();
+            } catch {}
+            if (!GamePortWasOpen && IsConnected) GamePortWasOpen = true;
+            return IsConnected;
         }
+
+        public int IsRunning(AtlasServerManager ArkMgr)
+        {
+            if (AttemptRconSave && DateTime.Now.Subtract(RconSavedEstimate).TotalSeconds <= 0) return 1;
+            if (ServerProcess != null && (ServerProcess.HasExited || ServerProcess.Id == 0)) return 0;
+            if (HasMadeFirstContact && ArkMgr != null)
+            {
+                if (ArkMgr.QueryPortCheck.Checked && DateTime.Now.Subtract(LastSourceQueryReply).TotalSeconds > 60) return 2;
+                if (ArkMgr.GamePortCheck.Checked && GamePortWasOpen && !CheckGamePort())
+                {
+                    if(!AttemptRconSave)
+                    {
+                        AttemptRconSave = true;
+                        SourceRconTools.SendCommand("DoExit", this);
+                        RconSavedEstimate = DateTime.Now.AddMinutes(1);
+                        return 4;
+                    }
+                    AttemptRconSave = false;
+                    return 3;
+                }
+            }
+            return ServerProcess == null ? 0 : 1;
+        }
+
+        public bool IsRunning() { return IsRunning(null) == 1; }
 
         public void StopServer()
         {

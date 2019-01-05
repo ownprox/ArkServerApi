@@ -8,7 +8,9 @@ namespace AtlasServerManager.Includes
 {
     class ArkServerUpdater
     {
-        private static bool UpdateError = false, SkipAnnounce = false, FirstLaunch = true;
+        private static bool UpdateError = false, FirstLaunch = true;
+        private static string DownloadSizeString;
+        private static ulong DownloadSizeBytes = 0;
 
         public static string GenerateUpdateMessage(AtlasServerManager ArkMgr, int SleepTime, string time = "Minutes")
         {
@@ -18,38 +20,42 @@ namespace AtlasServerManager.Includes
         public static void CheckForUpdates(object Data)
         {
             AtlasServerManager ArkMgr = (AtlasServerManager)Data;
-            if (ArkMgr.checkAutoServerUpdate.Checked)  ArkMgr.Log("[Atlas] Checking for updates, can take up to 30 seconds...");
+            if (ArkMgr.checkAutoServerUpdate.Checked || ArkMgr.ForcedUpdate) ArkMgr.Log("[Atlas] Checking for updates, can take up to 30 seconds...");
             string CurrentVersion = "";
             int UpdateVersion = 0, CurrentVer = 0;
             while (true)
             {
-                if (ArkMgr.checkAutoServerUpdate.Checked)
+                if (ArkMgr.checkAutoServerUpdate.Checked || ArkMgr.ForcedUpdate)
                 {
                     UpdateVersion = GetAtlasServerBuildID(ArkMgr);
                     if (UpdateVersion != 0)
                     {
                         if (File.Exists(ArkMgr.SteamPath + "AtlasLatestVersion.txt")) using (StreamReader r = new StreamReader(ArkMgr.SteamPath + "AtlasLatestVersion.txt")) CurrentVersion = r.ReadLine();
                         int.TryParse(CurrentVersion, out CurrentVer);
+                        bool ServerStillOpen = false;
                         if (CurrentVer != UpdateVersion)
                         {
                             ArkMgr.Updating = true;
                             ArkMgr.Log("[Atlas] BuildID " + UpdateVersion + " Released!");
-                            if (!SkipAnnounce && Process.GetProcessesByName("ShooterGameServer").Length > 0)
+                            foreach (ArkServerListViewItem ASLVI in ArkMgr.ServerList.Items)
+                                if (ASLVI.GetServerData().IsRunning()) ServerStillOpen = true;
+                            if (ServerStillOpen)
                             {
-                                int SleepTime = (int)ArkMgr.numServerUpdate.Value / 2;
-                                ArkMgr.Log("[Atlas] Update Broadcasting " + (int)ArkMgr.numServerUpdate.Value + " Minutes");
-                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, (int)ArkMgr.numServerUpdate.Value));
+                                int SleepTime = (int)ArkMgr.numServerWarning.Value / 2;
+                                ArkMgr.Log("[Atlas] Update Broadcasting " + (int)ArkMgr.numServerWarning.Value + " Minutes");
+                                SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, (int)ArkMgr.numServerWarning.Value));
+
                                 Thread.Sleep(SleepTime * 60000);
 
                                 ArkMgr.Log("[Atlas] Update Broadcasting " + SleepTime + " Minutes");
                                 SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, SleepTime));                                
-                                SleepTime = (int)ArkMgr.numServerUpdate.Value / 4;
+                                SleepTime = (int)ArkMgr.numServerWarning.Value / 4;
                                 Thread.Sleep(SleepTime * 60000);
 
                                 ArkMgr.Log("[Atlas] Update Broadcasting " + SleepTime + " Minutes");
                                 SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, SleepTime));
-                                SleepTime = (int)ArkMgr.numServerUpdate.Value / 4;
-                                Thread.Sleep(SleepTime * 60000);
+                                SleepTime = (int)ArkMgr.numServerWarning.Value / 4;
+                                Thread.Sleep((SleepTime * 60000) - 35000);
 
                                 ArkMgr.Log("[Atlas] Update Broadcasting 30 Seconds");
                                 SourceRconTools.SendCommandToAll("broadcast " + GenerateUpdateMessage(ArkMgr, 30, "Seconds"));
@@ -63,11 +69,13 @@ namespace AtlasServerManager.Includes
                                     continue;
                                 }
                             }
-                            bool ServerStillOpen = true;
+
                             while (ServerStillOpen)
                             {
-                                Thread.Sleep(1000);
-                                ServerStillOpen = Process.GetProcessesByName("ShooterGameServer").Length > 0;
+                                ServerStillOpen = false;
+                                foreach (ArkServerListViewItem ASLVI in ArkMgr.ServerList.Items)
+                                    if (ASLVI.GetServerData().IsRunning()) ServerStillOpen = true;
+                                Thread.Sleep(3000);
                                 if (!ServerStillOpen) break;
                             }
                             ArkMgr.Log("[Atlas] Current BuildID: " + CurrentVersion + ", Updating To BuildID: " + UpdateVersion);
@@ -80,7 +88,7 @@ namespace AtlasServerManager.Includes
                             }
                             ArkMgr.Log("[Atlas] Updated, Launching Servers!");
                             FirstLaunch = true;
-                            ArkMgr.Updating = false;
+                            ArkMgr.ForcedUpdate = ArkMgr.Updating = false;
                             StartServers(ArkMgr);
                         }
                         else ArkMgr.Updating = false;
@@ -133,6 +141,7 @@ namespace AtlasServerManager.Includes
         private static List<string> UpdatePaths = new List<string>();
         private static void UpdateArk(AtlasServerManager ArkMgr, string UpdateVersion)
         {
+            ArkMgr.FirstDl = false;
             ArkMgr.Invoke((System.Windows.Forms.MethodInvoker)delegate ()
             {
                 foreach (ArkServerListViewItem ASLVI in ArkMgr.ServerList.Items)
@@ -183,9 +192,57 @@ namespace AtlasServerManager.Includes
         {
             if (input != null && input.Length > 1)
             {
-                if (input.Contains("Error! App ")) UpdateError = true;
+                if (input.Contains("Error! App "))
+                {
+                    UpdateError = true;
+                    if(input.Contains("606") || input.Contains("602"))
+                    {
+                        AtlasServerManager.GetInstance().Log("[Update] Attempting to fix update error!");
+                        try
+                        {
+                            Directory.Delete(AtlasServerManager.GetInstance().SteamPath + @"steamapps\", true);
+                            Directory.Delete(AtlasServerManager.GetInstance().SteamPath + @"steamapps\", true);
+                        }
+                        catch
+                        { }
+                    }
+                }
+                if (input.Contains("progress: "))
+                {
+                    string PercentText = Regex.Split(input, "progress: ")[1];
+                    PercentText = PercentText.Substring(0, PercentText.IndexOf(' '));
+                    string[] splts = input.Split('(');
+                    if (splts.Length == 3 && splts[2].Contains("/"))
+                    {
+                        splts = Regex.Split(splts[2].Replace(")", ""), " / ");
+                        if (splts.Length == 2)
+                        {
+                            if (splts[0] != "0" && splts[1] != "0")
+                            {
+                                DownloadSizeBytes = ulong.Parse(splts[1]);
+                                DownloadSizeString = FormatBytes((long)DownloadSizeBytes);
+                                input = input.Replace(splts[0], FormatBytes(long.Parse(splts[0]))).Replace(splts[1], DownloadSizeString);
+                            }
+                            else if (splts[1] != "0")
+                            {
+                                DownloadSizeBytes = ulong.Parse(splts[1]);
+                                DownloadSizeString = FormatBytes((long)DownloadSizeBytes);
+                                input = input.Replace(splts[1], DownloadSizeString);
+                            }
+                        }
+                    }
+                }
                 AtlasServerManager.GetInstance().Log("[Update]" + input);
             }
+        }
+
+        private static string FormatBytes(System.Int64 bytes)
+        {
+
+            if (bytes >= 0x40000000) return string.Format("{0:F2} GB", (double)(bytes >> 20) / 1024);
+            if (bytes >= 0x100000) return string.Format("{0:F2} MB", (double)(bytes >> 10) / 1024);
+            if (bytes >= 0x400) return string.Format("{0:F2} KB", (double)bytes / 1024);
+            return string.Format("{0:F2} Bytes", bytes);
         }
     }
 }

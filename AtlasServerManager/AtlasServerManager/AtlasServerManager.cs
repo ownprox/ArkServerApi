@@ -11,7 +11,7 @@ namespace AtlasServerManager
         public string SteamPath = System.AppDomain.CurrentDomain.BaseDirectory + @"Steam\";
         public string ArkManagerPath = "", ServerPath = string.Empty, ASMTitle;
         public static AtlasServerManager GetInstance() { return instance; }
-        public bool Updating = true;
+        public bool Updating = true, FirstDl = false, ForcedUpdate = false;
         public Process UpdateProcess = null;
         private static AtlasServerManager instance;
         private delegate void RichTextBoxUpdateEventHandler(string txt);
@@ -213,7 +213,7 @@ namespace AtlasServerManager
                 }
                 if (File.Exists(SteamPath + "AtlasLatestVersion.txt")) File.Delete(SteamPath + "AtlasLatestVersion.txt");
                 Log("[Atlas] Forcing Update");
-                Worker.DestroyAndRecreateThread(this, Worker.WorkerType.ServerUpdateCheck);
+                Worker.ForceUpdaterRestart(this);
             };
 
             broadcastToolStripMenuItem.Click += (e, a) => RconBroadcast(false);
@@ -246,6 +246,15 @@ namespace AtlasServerManager
             unloadPluginToolStripMenuItem3.Click += (e, a) => RconPlugin(true, false);
         }
 
+        void changeLine(int line, string text)
+        {
+            int s1 = richTextBox1.GetFirstCharIndexFromLine(line);
+            int s2 = line < richTextBox1.Lines.Length - 1 ? richTextBox1.GetFirstCharIndexFromLine(line + 1) - 1 : richTextBox1.Text.Length;
+            richTextBox1.Select(s1, s2 - s1);
+            richTextBox1.SelectedText = text;
+        }
+
+        bool bFirst = true;
         public void Log(string txt)
         {
             if (richTextBox1.InvokeRequired)
@@ -254,14 +263,28 @@ namespace AtlasServerManager
             }
             else
             {
-                if (txt.Contains("downloading") && richTextBox1.Lines[richTextBox1.Lines.Length - 1].Contains("downloading"))
+                if (txt == null || txt == string.Empty || txt.Length < 8) return;
+                if (txt.Contains("downloading") || txt.Contains("validat") || txt.Contains("committing"))
                 {
-                    richTextBox1.Lines[richTextBox1.Lines.Length - 1] = txt;
+                    if(!FirstDl)
+                    {
+                        FirstDl = true;
+                        richTextBox1.AppendText(string.Format("\n[{0}] {1}", DateTime.Now.ToString("hh:mm"), txt));
+                        richTextBox1.ScrollToCaret();
+                    }
+                    else
+                    {
+                        string[] lines = richTextBox1.Lines;
+                        lines[lines.Length - 1] = string.Format("[{0}] {1}", DateTime.Now.ToString("hh:mm"), txt);
+                        richTextBox1.Lines = lines;
+                        richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                    }
                 }
                 else
                 {
-                    richTextBox1.AppendText(string.Format("[{0}] {1}", DateTime.Now.ToString("hh:mm"), txt) + Environment.NewLine);
+                    richTextBox1.AppendText(string.Format("{0}[{1}] {2}", (bFirst ? "" : "\n"), DateTime.Now.ToString("hh:mm"), txt));
                     richTextBox1.ScrollToCaret();
+                    bFirst = false;
                 }
             }
         }

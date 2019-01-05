@@ -18,8 +18,10 @@ namespace AtlasServerManager.Includes
                 {
                     /* BOOL */
                     ArkMgr.checkAutoServerUpdate.Checked = (int)key.GetValue("AutoServerUpdate", ArkMgr.checkAutoServerUpdate.Checked ? 1 : 0) == 1 ? true : false;
-                    ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("BootWhenOff", ArkMgr.checkBootWhenOff.Checked ? 1 : 0) == 1 ? true : false;
-                        
+                    ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("BootWhenOff", 1) == 1 ? true : false;
+                    ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("QueryPortCheck", 1) == 1 ? true : false;
+                    ArkMgr.checkBootWhenOff.Checked = (int)key.GetValue("GamePortCheck", 1) == 1 ? true : false;
+
                     /* DECIMAL */
                     decimal value = 1.0M;
                     decimal.TryParse((string)key.GetValue("ServerUpdate", ArkMgr.numServerUpdate.Value.ToString()), out value);
@@ -31,6 +33,8 @@ namespace AtlasServerManager.Includes
 
                     /* STRING */
                     ArkMgr.ServerPath = (string)key.GetValue("ServerDataPath", string.Empty);
+                    ArkMgr.ServerUpdateMessage.Text = (string)key.GetValue("ServerUpdateMessage", ArkMgr.ServerUpdateMessage.Text);
+                    ArkMgr.ServerUpdatingMessage.Text = (string)key.GetValue("ServerUpdatingMessage", ArkMgr.ServerUpdatingMessage.Text);
 
                     LoadRegServers(ArkMgr);
                 }
@@ -48,6 +52,8 @@ namespace AtlasServerManager.Includes
                     /* BOOL */
                     key.SetValue("AutoServerUpdate", ArkMgr.checkAutoServerUpdate.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
                     key.SetValue("BootWhenOff", ArkMgr.checkBootWhenOff.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
+                    key.SetValue("QueryPortCheck", ArkMgr.QueryPortCheck.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
+                    key.SetValue("GamePortCheck", ArkMgr.GamePortCheck.Checked ? 1 : 0, Microsoft.Win32.RegistryValueKind.DWord);
 
                     /* DECIMAL */
                     key.SetValue("ServerUpdate", ArkMgr.numServerUpdate.Value.ToString(), Microsoft.Win32.RegistryValueKind.String);
@@ -56,6 +62,8 @@ namespace AtlasServerManager.Includes
 
                     /* STRING */
                     key.SetValue("ServerDataPath", ArkMgr.ServerPath, Microsoft.Win32.RegistryValueKind.String);
+                    key.SetValue("ServerUpdateMessage", ArkMgr.ServerUpdateMessage.Text, Microsoft.Win32.RegistryValueKind.String);
+                    key.SetValue("ServerUpdatingMessage", ArkMgr.ServerUpdatingMessage.Text, Microsoft.Win32.RegistryValueKind.String);
 
                     SaveRegServers(ArkMgr);
                 }

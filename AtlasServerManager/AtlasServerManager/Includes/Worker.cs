@@ -31,10 +31,11 @@ namespace AtlasServerManager.Includes
         }
 
         public static void Destroy() { foreach (Thread w in Workers) if (w != null) w.Abort(); }
-        public static void DestroyAndRecreateThread(AtlasServerManager form1, WorkerType ThreadIndex)
+
+        public static void ForceUpdaterRestart(AtlasServerManager form1)
         {
-            if (Workers[(int)ThreadIndex] != null) Workers[(int)ThreadIndex].Abort();
-            AddWorker(ThreadIndex, new ParameterizedThreadStart(ArkServerStatusUpdate.UpdateStatus), form1);
+            if (Workers[(int)WorkerType.ServerUpdateCheck] != null) Workers[(int)WorkerType.ServerUpdateCheck].Abort();
+            AddWorker(WorkerType.ServerUpdateCheck, new ParameterizedThreadStart(ArkServerUpdater.CheckForUpdates), form1);
         }
     }
 }

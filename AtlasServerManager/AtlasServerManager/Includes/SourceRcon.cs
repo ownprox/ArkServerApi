@@ -11,29 +11,31 @@ namespace AtlasServerManager.Includes
     {
         public static bool ConnectToRcon(SourceRcon Sr, string IP, int Port, string Pass)
         {
-            if (Sr != null && !Sr.Connected)
-            {
-                int DotCount = 0;
-                for (int i = 0; i < IP.Length; i++) if (IP[i] == '.') DotCount++;
-                if (DotCount != 3)
+                if (Sr != null && !Sr.Connected)
                 {
-                    IPAddress[] ips = Dns.GetHostAddresses(IP);
-                    if (ips.Length > 0) IP = ips[0].ToString();
-                }
-
-                bool Connect = Sr.Connect(new IPEndPoint(IPAddress.Parse(IP), Port), Pass);
-                int Counter = 0;
-                while (!Sr.Connected)
-                {
-                    Thread.Sleep(1000);
-                    if (Counter++ > 3)
+                    int DotCount = 0;
+                    for (int i = 0; i < IP.Length; i++) if (IP[i] == '.') DotCount++;
+                    if (DotCount != 3)
                     {
-                        AtlasServerManager.GetInstance().Log("[Rcon->ConnectToRcon] Something is wrong with connection");
-                        return false;
+                        IPAddress[] ips = Dns.GetHostAddresses(IP);
+                        if (ips.Length > 0) IP = ips[0].ToString();
                     }
-                    else if (Sr.Connected) break;
+                    if (IPAddress.TryParse(IP, out IPAddress iP))
+                    {
+                        bool Connect = Sr.Connect(new IPEndPoint(iP, Port), Pass);
+                        int Counter = 0;
+                        while (!Sr.Connected)
+                        {
+                            Thread.Sleep(1000);
+                            if (Counter++ > 3)
+                            {
+                                AtlasServerManager.GetInstance().Log("[Rcon->ConnectToRcon] Something is wrong with connection");
+                                return false;
+                            }
+                            else if (Sr.Connected) break;
+                        }
+                    }
                 }
-            }
             return true;
         }
 
@@ -53,21 +55,39 @@ namespace AtlasServerManager.Includes
             }
         }
 
+
+        public static bool SendCommand(string Command, AtlasServerData ASD)
+        {
+            try
+            {
+                if (!ConnectToRcon(ASD.RconConnection, ASD.RCONIP == string.Empty ? ASD.ServerIp : ASD.RCONIP, ASD.RconPort, ASD.Pass))
+                    return false;
+                ASD.RconConnection.ServerCommand(Command);
+                return true;
+            }
+            catch (Exception e)
+            {
+                AtlasServerManager.GetInstance().Log("[Rcon->BroadCastMessage] Connection failed: " + e.Message + ", " + ASD.RCONIP == string.Empty ? ASD.ServerIp : ASD.RCONIP);
+                return false;
+            }
+        }
+
         public static bool SendCommandToAll(string Command)
         {
             try
             {
                 bool FirstRun = true;
-                AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
-                {
+               // AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
+               // {
                     foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
                     {
                         if (!FirstRun) Thread.Sleep(4000);
+                        if (ASLVI.GetServerData().RconConnection == null) ASLVI.GetServerData().RconConnection = new SourceRcon();
                         if (!ConnectToRcon(ASLVI.GetServerData().RconConnection, ASLVI.GetServerData().RCONIP == string.Empty ? ASLVI.GetServerData().ServerIp : ASLVI.GetServerData().RCONIP, ASLVI.GetServerData().RconPort, ASLVI.GetServerData().Pass)) continue;
                         ASLVI.GetServerData().RconConnection.ServerCommand(Command);
                         FirstRun = false;
                     }
-                });
+              //  });
                 return true;
             }
             catch (Exception e)
@@ -81,8 +101,8 @@ namespace AtlasServerManager.Includes
         {
             bool FirstRun = true;
             int FailCount = 0;
-            AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
-            {
+            //AtlasServerManager.GetInstance().Invoke((System.Windows.Forms.MethodInvoker)delegate ()
+           // {
                 foreach (ArkServerListViewItem ASLVI in AtlasServerManager.GetInstance().ServerList.Items)
                 {
                     if (!FirstRun) Thread.Sleep(4000);
@@ -94,7 +114,7 @@ namespace AtlasServerManager.Includes
                     ASLVI.GetServerData().RconConnection.ServerCommand("DoExit");
                     FirstRun = false;
                 }
-            });
+          //  });
             return FailCount != AtlasServerManager.GetInstance().ServerList.Items.Count;
         }
     }
@@ -132,6 +152,18 @@ namespace AtlasServerManager.Includes
                 PacketCount = 0;
                 connected = false;
                 S.Connect(Server);
+
+                RCONPacket SA = new RCONPacket
+                {
+                    RequestId = 1,
+                    String1 = password,
+                    ServerDataSent = RCONPacket.SERVERDATA_sent.SERVERDATA_AUTH
+                };
+
+                SendRCONPacket(SA);
+
+                // This is the first time we've sent, so we can start listening now!
+                StartGetNewPacket();
             }
             catch
             {
@@ -140,29 +172,23 @@ namespace AtlasServerManager.Includes
                 return false;
             }
 
-            RCONPacket SA = new RCONPacket();
-            SA.RequestId = 1;
-            SA.String1 = password;
-            SA.ServerDataSent = RCONPacket.SERVERDATA_sent.SERVERDATA_AUTH;
-
-            SendRCONPacket(SA);
-
-            // This is the first time we've sent, so we can start listening now!
-            StartGetNewPacket();
-
             return true;
         }
 
         public void ServerCommand(string command)
         {
-            if (connected && S != null && S.Connected)
+            try
             {
-                RCONPacket PacketToSend = new RCONPacket();
-                PacketToSend.RequestId = 2;
-                PacketToSend.ServerDataSent = RCONPacket.SERVERDATA_sent.SERVERDATA_EXECCOMMAND;
-                PacketToSend.String1 = command;
-                SendRCONPacket(PacketToSend);
+                if (connected && S != null && S.Connected)
+                {
+                    RCONPacket PacketToSend = new RCONPacket();
+                    PacketToSend.RequestId = 2;
+                    PacketToSend.ServerDataSent = RCONPacket.SERVERDATA_sent.SERVERDATA_EXECCOMMAND;
+                    PacketToSend.String1 = command;
+                    SendRCONPacket(PacketToSend);
+                }
             }
+            catch { }
         }
 
         void SendRCONPacket(RCONPacket p)
@@ -200,16 +226,18 @@ namespace AtlasServerManager.Includes
 
         void StartGetNewPacket()
         {
-            RecState state = new RecState();
-            state.IsPacketLength = true;
-            state.Data = new byte[4];
-            state.PacketCount = PacketCount;
-            PacketCount++;
+            try
+            {
+                RecState state = new RecState
+                {
+                    IsPacketLength = true,
+                    Data = new byte[4],
+                    PacketCount = PacketCount
+                };
+                PacketCount++;
 #if DEBUG
             TempPackets.Add(state);
 #endif
-            try
-            {
                 S.BeginReceive(state.Data, 0, 4, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
             }
             catch
@@ -251,33 +279,19 @@ namespace AtlasServerManager.Includes
 
         void ProcessIncomingData(RecState state)
         {
-            if (state.IsPacketLength)
+            try
             {
-                // First 4 bytes of a new packet.
-                state.PacketLength = BitConverter.ToInt32(state.Data, 0);
+                if (state.IsPacketLength)
+                {
+                    // First 4 bytes of a new packet.
+                    state.PacketLength = BitConverter.ToInt32(state.Data, 0);
 
-                state.IsPacketLength = false;
-                state.BytesSoFar = 0;
-                state.Data = new byte[state.PacketLength];
-                try
-                {
-                    S.BeginReceive(state.Data, 0, state.PacketLength, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
-                }
-                catch
-                {
-                    OnServerOutput("Error: Failed BeginReceive");
-                }
-            }
-            else
-            {
-                // Do something with data...
-
-                if (state.BytesSoFar < state.PacketLength)
-                {
+                    state.IsPacketLength = false;
+                    state.BytesSoFar = 0;
+                    state.Data = new byte[state.PacketLength];
                     try
                     {
-                        // Missing data.
-                        S.BeginReceive(state.Data, state.BytesSoFar, state.PacketLength - state.BytesSoFar, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+                        S.BeginReceive(state.Data, 0, state.PacketLength, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
                     }
                     catch
                     {
@@ -286,57 +300,79 @@ namespace AtlasServerManager.Includes
                 }
                 else
                 {
-                    // Process data.
+                    // Do something with data...
+
+                    if (state.BytesSoFar < state.PacketLength)
+                    {
+                        try
+                        {
+                            // Missing data.
+                            S.BeginReceive(state.Data, state.BytesSoFar, state.PacketLength - state.BytesSoFar, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+                        }
+                        catch
+                        {
+                            OnServerOutput("Error: Failed BeginReceive");
+                        }
+                    }
+                    else
+                    {
+                        // Process data.
 #if DEBUG
                     Console.WriteLine("Complete packet.");
 #endif
 
-                    RCONPacket RetPack = new RCONPacket();
-                    RetPack.ParseFromBytes(state.Data, this);
+                        RCONPacket RetPack = new RCONPacket();
+                        RetPack.ParseFromBytes(state.Data, this);
 
-                    ProcessResponse(RetPack);
+                        ProcessResponse(RetPack);
 
-                    // Wait for new packet.
-                    StartGetNewPacket();
+                        // Wait for new packet.
+                        StartGetNewPacket();
+                    }
                 }
             }
+            catch { }
         }
 
         void ProcessResponse(RCONPacket P)
         {
-            switch (P.ServerDataReceived)
+            try
             {
-                case RCONPacket.SERVERDATA_rec.SERVERDATA_AUTH_RESPONSE:
-                    if (P.RequestId != -1)
-                    {
-                        // Connected.
-                        connected = true;
-                        OnServerOutput(ConnectionSuccessString);
-                        OnConnectionSuccess(true);
-                    }
-                    else
-                    {
-                        // Failed!
-                        OnServerOutput("Error: " + ConnectionFailedString);
-                        OnConnectionSuccess(false);
-                    }
-                    break;
-                case RCONPacket.SERVERDATA_rec.SERVERDATA_RESPONSE_VALUE:
-                    //if (hadjunkpacket)
-                    {
-                        // Real packet!
-                        OnServerOutput("Packet: " + P.String1);
-                    }
-                    // else
-                    {
-                        //  hadjunkpacket = true;
-                        //   OnServerOutput("Info: " + GotJunkPacket);
-                    }
-                    break;
-                default:
-                    OnServerOutput("Error: " + UnknownResponseType);
-                    break;
+                switch (P.ServerDataReceived)
+                {
+                    case RCONPacket.SERVERDATA_rec.SERVERDATA_AUTH_RESPONSE:
+                        if (P.RequestId != -1)
+                        {
+                            // Connected.
+                            connected = true;
+                            OnServerOutput(ConnectionSuccessString);
+                            OnConnectionSuccess(true);
+                        }
+                        else
+                        {
+                            // Failed!
+                            OnServerOutput("Error: " + ConnectionFailedString);
+                            OnConnectionSuccess(false);
+                        }
+                        break;
+                    case RCONPacket.SERVERDATA_rec.SERVERDATA_RESPONSE_VALUE:
+                        //if (hadjunkpacket)
+                        {
+                            // Real packet!
+                            OnServerOutput("Packet: " + P.String1);
+                        }
+                        // else
+                        {
+                            //  hadjunkpacket = true;
+                            //   OnServerOutput("Info: " + GotJunkPacket);
+                        }
+                        break;
+                    default:
+                        OnServerOutput("Error: " + UnknownResponseType);
+                        break;
+                }
             }
+            catch { }
         }
 
         // bool hadjunkpacket;
