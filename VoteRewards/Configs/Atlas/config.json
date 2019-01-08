@@ -1,0 +1,133 @@
+{  
+   "VoteRewards":{  
+      "ServerName":"ServerNameHere",
+      "VoteSitesCommand":"/vote",
+      "CheckCommand":"/claim",
+      "Messages":[  
+         "Checking for votes please wait...",
+         "There are no rewards to claim.",
+         "Below are a list of sites you can vote at",
+         "Simply vote at a site listed above and type /claim to receive a reward",
+		 "You must wait {} Hours & {} Minutes before making your next claim.",
+		 "You must wait {} Seconds before making your next claim."
+      ]
+   },
+   "atlasserverslist.com":{  
+      "VoteKeys":[  
+         "13156"
+      ],
+      "VoteUrls":[  
+         "https://atlasserverslist.com/server-test-server.13156"
+      ],
+      "VoteDelayHours":24,
+      "Items":[  
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
+            "RewardChance":-1,
+            "MinQuantity":1,
+            "MaxQuantity":5,
+            "MinQuality":0,
+            "MaxQuality":0,
+            "MinIsBP":0,
+            "MaxIsBP":5
+         }
+      ],
+      "Dinos":[  
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Giraffe/Giraffe_Character_BP.Giraffe_Character_BP'",
+            "RewardChance":2,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Wolf/Wolf_Character_BP.Wolf_Character_BP'",
+            "RewardChance":5,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Sheep/AtlasSheep_Character_BP.AtlasSheep_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Spider/Spider_Character_BP.Spider_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         }
+      ],
+      "Messages":[  
+         "Something is wrong with the request please try later.",
+         "Congratulations enjoy your reward"
+      ]
+   },
+   "trackyserver.com":{  
+      "VoteKeys":[  
+         "9cc6a95299d2ffd82778ccc6729b84ca"
+      ],
+      "VoteUrls":[  
+         "https://www.trackyserver.com/server/test-server-196163"
+      ],
+      "VoteDelayHours":24,
+      "Items":[  
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
+            "RewardChance":-1,
+            "MinQuantity":1,
+            "MaxQuantity":5,
+            "MinQuality":0,
+            "MaxQuality":0,
+            "MinIsBP":0,
+            "MaxIsBP":5
+         }
+      ],
+      "Dinos":[  
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Giraffe/Giraffe_Character_BP.Giraffe_Character_BP'",
+            "RewardChance":2,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Wolf/Wolf_Character_BP.Wolf_Character_BP'",
+            "RewardChance":5,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Sheep/AtlasSheep_Character_BP.AtlasSheep_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Spider/Spider_Character_BP.Spider_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         }
+      ],
+      "Messages":[  
+         "Something is wrong with the request please try later.",
+         "Congratulations enjoy your reward"
+      ]
+   }
+}
