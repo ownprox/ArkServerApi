@@ -14,7 +14,7 @@
    },
    "ark-servers.net":{  
       "VoteKeys":[  
-         ""
+         "APIKey"
       ],
       "VoteUrls":[  
          ""
@@ -22,19 +22,19 @@
       "VoteDelayHours":24,
       "Items":[  
          {  
-            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
             "RewardChance":-1,
             "MinQuantity":1,
             "MaxQuantity":5,
             "MinQuality":0,
             "MaxQuality":0,
             "MinIsBP":0,
-            "MaxIsBP":5
+            "MaxIsBP":0
          }
       ],
       "Dinos":[  
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Giraffe/Giraffe_Character_BP.Giraffe_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dilo/Dilo_Character_BP.Dilo_Character_BP'",
             "RewardChance":2,
             "MinLevel":2,
             "MaxLevel":40,
@@ -42,7 +42,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Wolf/Wolf_Character_BP.Wolf_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Carno/Carno_Character_BP.Carno_Character_BP'",
             "RewardChance":5,
             "MinLevel":2,
             "MaxLevel":40,
@@ -50,7 +50,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Sheep/AtlasSheep_Character_BP.AtlasSheep_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dodo/Dodo_Character_BP.Dodo_Character_BP'",
             "RewardChance":-1,
             "MinLevel":2,
             "MaxLevel":40,
@@ -58,7 +58,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Spider/Spider_Character_BP.Spider_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Ptero/Ptero_Character_BP.Ptero_Character_BP'",
             "RewardChance":-1,
             "MinLevel":2,
             "MaxLevel":40,
@@ -73,7 +73,7 @@
    },
    "trackyserver.com":{  
       "VoteKeys":[  
-         ""
+         "APIKey"
       ],
       "VoteUrls":[  
          ""
@@ -81,19 +81,19 @@
       "VoteDelayHours":24,
       "Items":[  
          {  
-            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponStoneHatchet.PrimalItem_WeaponStoneHatchet'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
             "RewardChance":-1,
             "MinQuantity":1,
             "MaxQuantity":5,
             "MinQuality":0,
             "MaxQuality":0,
             "MinIsBP":0,
-            "MaxIsBP":5
+            "MaxIsBP":0
          }
       ],
       "Dinos":[  
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Giraffe/Giraffe_Character_BP.Giraffe_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dilo/Dilo_Character_BP.Dilo_Character_BP'",
             "RewardChance":2,
             "MinLevel":2,
             "MaxLevel":40,
@@ -101,7 +101,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Wolf/Wolf_Character_BP.Wolf_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Carno/Carno_Character_BP.Carno_Character_BP'",
             "RewardChance":5,
             "MinLevel":2,
             "MaxLevel":40,
@@ -109,7 +109,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Sheep/AtlasSheep_Character_BP.AtlasSheep_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dodo/Dodo_Character_BP.Dodo_Character_BP'",
             "RewardChance":-1,
             "MinLevel":2,
             "MaxLevel":40,
@@ -117,7 +117,7 @@
             "Neutered":false
          },
          {  
-            "Blueprint":"Blueprint'/Game/Atlas/Creatures/Spider/Spider_Character_BP.Spider_Character_BP'",
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Ptero/Ptero_Character_BP.Ptero_Character_BP'",
             "RewardChance":-1,
             "MinLevel":2,
             "MaxLevel":40,

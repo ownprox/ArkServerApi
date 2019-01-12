@@ -12,21 +12,21 @@
 
 struct VoteSiteConfig
 {
-	std::string Site;
-	std::string Response;
+	const char * const Site;
+	const char * const Response;
 	bool ExactMatch;
+
+	constexpr VoteSiteConfig(const char * const Site, const char * const Response, const bool ExactMatch) : Site(Site), Response(Response), ExactMatch(ExactMatch) {}
 };
-const int TotalVoteSites = 2;
+constexpr int TotalVoteSites = 2;
 #ifdef ATLAS
-const std::vector<VoteSiteConfig> VoteSites{ 
-	VoteSiteConfig{"atlasserverslist.com", "Success", false},
-	VoteSiteConfig{"trackyserver.com", "1", true} };
+constexpr std::array<VoteSiteConfig, 2> VoteSites{
+	VoteSiteConfig("atlasserverslist.com", "Success", false),
+	VoteSiteConfig("trackyserver.com", "1", true) };
 #else
-#include "API\ARK\Ark.h"
-#pragma comment(lib, "ArkApi.lib")
-const std::vector<VoteSiteConfg> VoteSites{
-	VoteSiteConfg{"ark-servers.net", "1", true},
-	VoteSiteConfig{"trackyserver.com", "1", true} };
+constexpr std::array<VoteSiteConfig, 2> VoteSites{
+	VoteSiteConfig("ark-servers.net", "2", true),
+	VoteSiteConfig("trackyserver.com", "1", true) };
 #endif
 
 struct PlayerDataS

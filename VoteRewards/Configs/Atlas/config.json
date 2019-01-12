@@ -14,7 +14,7 @@
    },
    "atlasserverslist.com":{  
       "VoteKeys":[  
-         "13156"
+         "SiteID"
       ],
       "VoteUrls":[  
          "https://atlasserverslist.com/server-test-server.13156"
@@ -73,10 +73,10 @@
    },
    "trackyserver.com":{  
       "VoteKeys":[  
-         "9cc6a95299d2ffd82778ccc6729b84ca"
+         "APIKey"
       ],
       "VoteUrls":[  
-         "https://www.trackyserver.com/server/test-server-196163"
+         ""
       ],
       "VoteDelayHours":24,
       "Items":[  
