@@ -18,15 +18,19 @@ struct VoteSiteConfig
 
 	constexpr VoteSiteConfig(const char * const Site, const char * const Response, const bool ExactMatch) : Site(Site), Response(Response), ExactMatch(ExactMatch) {}
 };
-constexpr int TotalVoteSites = 2;
 #ifdef ATLAS
-constexpr std::array<VoteSiteConfig, 2> VoteSites{
+constexpr int TotalVoteSites = 3;
+constexpr std::array<VoteSiteConfig, TotalVoteSites> VoteSites{
 	VoteSiteConfig("atlasserverslist.com", "Success", false),
-	VoteSiteConfig("trackyserver.com", "1", true) };
+	VoteSiteConfig("trackyserver.com", "1", true),
+	VoteSiteConfig("atlasserverlist.com", "1", true)
+};
 #else
-constexpr std::array<VoteSiteConfig, 2> VoteSites{
-	VoteSiteConfig("ark-servers.net", "2", true),
-	VoteSiteConfig("trackyserver.com", "1", true) };
+constexpr int TotalVoteSites = 3;
+constexpr std::array<VoteSiteConfig, TotalVoteSites> VoteSites{
+	VoteSiteConfig("ark-servers.net", "1", true),
+	VoteSiteConfig("trackyserver.com", "1", true),
+	VoteSiteConfig("toparkservers.com", "1", true)};
 #endif
 
 struct PlayerDataS

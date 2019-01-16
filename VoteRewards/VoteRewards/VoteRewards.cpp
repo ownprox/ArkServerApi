@@ -92,6 +92,12 @@ void AtlasSubmitVoteRequest(const int VoteSiteIndex, const VoteSiteConfig& voteS
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
 				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
 		break;
+	case 2:
+		API::Requests::Get().CreateGetRequest(fmt::format(
+			"https://atlasserverlist.com/rewards?claim&serverkey={}&steamid={}",
+			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+		break;
 	}
 }
 #else
@@ -108,6 +114,12 @@ void ArkSubmitVoteRequest(const int VoteSiteIndex, const VoteSiteConfig& voteSit
 	case 1:
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"http://www.api.trackyserver.com/vote/?action=claim&key={}&steamid={}",
+			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+		break;
+	case 2:
+		API::Requests::Get().CreateGetRequest(fmt::format(
+			"https://toparkservers.com/rewards?claim&serverkey={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
 				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
 		break;
