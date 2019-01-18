@@ -145,7 +145,7 @@ void CheckVoteReward(AShooterPlayerController* player)
 			{
 				const bool IsLast = (VoteSiteIndex == (VoteSites.size() - 1));
 				PlayerData[player->LinkedPlayerIDField()].NextVoteTime[VoteSiteIndex] = nNow + 30;
-				auto VoteKeys = VoteConfig[VoteSiteConfig.Site].value("VoteKeys", nlohmann::json::array());
+				auto VoteKeys = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array()).value("VoteKeys", nlohmann::json::array());
 				for (const auto& VoteKey : VoteKeys)
 				{
 #ifdef ATLAS
@@ -189,7 +189,7 @@ void VoteSitesCMD(AShooterPlayerController* player, FString* message, int mode)
 		ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg("VoteRewards", 2));
 		for (const auto& VoteSiteConfig : VoteSites)
 		{
-			auto VoteUrls = VoteConfig[VoteSiteConfig.Site].value("VoteUrls", nlohmann::json::array());
+			auto VoteUrls = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array()).value("VoteUrls", nlohmann::json::array());
 			for (const auto& VoteUrl : VoteUrls)
 				ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"{}", *FString(ArkApi::Tools::Utf8Decode(VoteUrl).c_str()));
 		}
