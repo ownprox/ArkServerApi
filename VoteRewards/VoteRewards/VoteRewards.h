@@ -2,9 +2,13 @@
 #ifdef ATLAS
 #include "API\Atlas\Atlas.h"
 #pragma comment(lib, "AtlasApi.lib")
+#pragma comment(lib, "AtlasShop.lib")
+#include "../../../2. AtlasServerApi/AtlasShop/AtlasShop/Public/Points.h"
 #else
 #include "API\ARK\Ark.h"
 #pragma comment(lib, "ArkApi.lib")
+#pragma comment(lib, "ArkShop.lib")
+#include "../../../MichsPlugins/ArkShop/ArkShop/Public/Points.h"
 #endif
 #include "VoteRewardsConfig.h"
 #include <random>

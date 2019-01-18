@@ -1,58 +1,74 @@
 #include "VoteRewards.h"
 
-void RewardPlayer(const std::string& VoteSite, AShooterPlayerController* player)
+void RewardPoints(const int64 SteamID, const int Points)
 {
-	int Quantity;
-	float Quality;
-	bool IsBP;
-	std::string sBlueprint;
-	FString fBlueprint;
-#ifndef ATLAS
-	TArray<UPrimalItem*> Out;
-#endif
-	auto Items = VoteConfig[VoteSite]["Items"];
-	for (const auto& Item : Items)
-	{
-		if (Item["RewardChance"] <= 0 || RandomNumber(0, Item["RewardChance"]) == 0)
-		{
-			Quantity = Item["MaxQuantity"] == Item["MinQuantity"] ? Item["MinQuantity"] : RandomNumber(Item["MinQuantity"], Item["MaxQuantity"]);
-
-			if (Quantity > 0)
-			{
-				sBlueprint = Item["Blueprint"];
-				fBlueprint = sBlueprint.c_str();
-
-				Quality = Item["MaxQuality"] == Item["MinQuality"] ? Item["MinQuality"] : RandomNumber(Item["MinQuality"], Item["MaxQuality"]);
-
-				IsBP = Item["MaxIsBP"] == 0 ? false :
-					(Item["MinIsBP"] == Item["MaxIsBP"] ? Item["MinIsBP"]
-						: RandomNumber(Item["MinIsBP"], Item["MaxIsBP"]));
 #ifdef ATLAS
-				player->GiveItem(&fBlueprint, Quantity, Quality, IsBP);
+	AtlasShop::Points::AddPoints(Points, SteamID);
 #else
-				player->GiveItem(&Out, &fBlueprint, Quantity, Quality, IsBP, false, 0);
+	ArkShop::Points::AddPoints(Points, SteamID);
 #endif
+}
+
+void RewardPlayer(const std::string& VoteSite, const int64 SteamID, AShooterPlayerController* player)
+{
+	int Points = VoteConfig[VoteSite].value("MinPointsReward", 0) == VoteConfig[VoteSite].value("MaxPointsReward", 0) ? VoteConfig[VoteSite].value("MinPointsReward", 0) : RandomNumber(VoteConfig[VoteSite].value("MinPointsReward", 0), VoteConfig[VoteSite].value("MaxPointsReward", 0));
+	if (!VoteConfig[VoteSite].value("ChanceofPointsOrItems", false) || RandomNumber(0, 1) == 0)
+	{
+		if(!VoteConfig[VoteSite].value("ChanceofPointsOrItems", false) && Points != 0) RewardPoints(SteamID, Points);
+		int Quantity;
+		float Quality;
+		bool IsBP;
+		std::string sBlueprint;
+		FString fBlueprint;
+#ifndef ATLAS
+		TArray<UPrimalItem*> Out;
+#endif
+		auto Items = VoteConfig[VoteSite]["Items"];
+		for (const auto& Item : Items)
+		{
+			if (Item["RewardChance"] <= 0 || RandomNumber(0, Item["RewardChance"]) == 0)
+			{
+				Quantity = Item["MaxQuantity"] == Item["MinQuantity"] ? Item["MinQuantity"] : RandomNumber(Item["MinQuantity"], Item["MaxQuantity"]);
+
+				if (Quantity > 0)
+				{
+					sBlueprint = Item["Blueprint"];
+					fBlueprint = sBlueprint.c_str();
+
+					Quality = Item["MaxQuality"] == Item["MinQuality"] ? Item["MinQuality"] : RandomNumber(Item["MinQuality"], Item["MaxQuality"]);
+
+					IsBP = Item["MaxIsBP"] == 0 ? false :
+						(Item["MinIsBP"] == Item["MaxIsBP"] ? Item["MinIsBP"]
+							: RandomNumber(Item["MinIsBP"], Item["MaxIsBP"]));
+#ifdef ATLAS
+					player->GiveItem(&fBlueprint, Quantity, Quality, IsBP);
+#else
+					player->GiveItem(&Out, &fBlueprint, Quantity, Quality, IsBP, false, 0);
+#endif
+				}
+			}
+		}
+
+
+		int Level;
+		auto Dinos = VoteConfig[VoteSite]["Dinos"];
+		for (const auto& Dino : Dinos)
+		{
+			if (Dino["RewardChance"] <= 0 || RandomNumber(0, Dino["RewardChance"]) == 0)
+			{
+				sBlueprint = Dino["Blueprint"];
+				fBlueprint = sBlueprint.c_str();
+				Level = Dino["MaxLevel"] == Dino["MinLevel"] ? Dino["MinLevel"] : RandomNumber(Dino["MinLevel"], Dino["MaxLevel"]);
+
+				ArkApi::GetApiUtils().SpawnDino(player, fBlueprint, nullptr, Level, Dino["Tamed"], Dino["Neutered"]);
 			}
 		}
 	}
-
-	int Level;
-	auto Dinos = VoteConfig[VoteSite]["Dinos"];
-	for (const auto& Dino : Dinos)
-	{
-		if (Dino["RewardChance"] <= 0 || RandomNumber(0, Dino["RewardChance"]) == 0)
-		{
-			sBlueprint = Dino["Blueprint"];
-			fBlueprint = sBlueprint.c_str();
-			Level = Dino["MaxLevel"] == Dino["MinLevel"] ? Dino["MinLevel"] : RandomNumber(Dino["MinLevel"], Dino["MaxLevel"]);
-
-			ArkApi::GetApiUtils().SpawnDino(player, fBlueprint, nullptr, Level, Dino["Tamed"], Dino["Neutered"]);
-		}
-	}
+	else if(Points != 0) RewardPoints(SteamID, Points);
 	ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg(VoteSite, 1));
 }
 
-void HttpVoteCallBack(bool Success, std::string Response, const int VoteSiteIndex, const VoteSiteConfig& voteSiteConfig, AShooterPlayerController* player, const bool IsLast)
+void HttpVoteCallBack(bool Success, std::string Response, const int VoteSiteIndex, const VoteSiteConfig& voteSiteConfig, AShooterPlayerController* player, const int64 SteamID, const bool IsLast)
 {
 	if (!player) return;
 
@@ -67,7 +83,7 @@ void HttpVoteCallBack(bool Success, std::string Response, const int VoteSiteInde
 		PlayerData[player->LinkedPlayerIDField()].HasRewarded = true;
 		const long double nNow = ArkApi::GetApiUtils().GetWorld()->GetTimeSeconds();
 		PlayerData[player->LinkedPlayerIDField()].NextVoteTime[VoteSiteIndex] = nNow + ((static_cast<long double>(VoteConfig[voteSiteConfig.Site]["VoteDelayHours"]) * 3600) + 120);
-		RewardPlayer(voteSiteConfig.Site, player);
+		RewardPlayer(voteSiteConfig.Site, SteamID, player);
 	}
 	else if (!PlayerData[player->LinkedPlayerIDField()].HasRewarded && IsLast)
 	{
@@ -84,19 +100,19 @@ void AtlasSubmitVoteRequest(const int VoteSiteIndex, const VoteSiteConfig& voteS
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"https://atlasserverslist.com/api-{}_{}.json",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	case 1:
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"http://www.api.trackyserver.com/vote/?action=claim&key={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	case 2:
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"https://atlasserverlist.com/rewards?claim&serverkey={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	}
 }
@@ -109,19 +125,19 @@ void ArkSubmitVoteRequest(const int VoteSiteIndex, const VoteSiteConfig& voteSit
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"https://ark-servers.net/api/?action=post&object=votes&element=claim&key={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	case 1:
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"http://www.api.trackyserver.com/vote/?action=claim&key={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	case 2:
 		API::Requests::Get().CreateGetRequest(fmt::format(
 			"https://toparkservers.com/rewards?claim&serverkey={}&steamid={}",
 			VoteKey.c_str(), SteamID), std::bind(&HttpVoteCallBack,
-				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, IsLast));
+				std::placeholders::_1, std::placeholders::_2, VoteSiteIndex, voteSiteConfig, player, SteamID, IsLast));
 		break;
 	}
 }
@@ -203,6 +219,24 @@ void ReloadConfigCMD(AShooterPlayerController* player, FString* message, int mod
 		LoadConfig();
 }
 
+void TestRewardCMD(AShooterPlayerController* player, FString* message, int mode)
+{
+	if (player->PlayerStateField() && player->GetPlayerCharacter() && player->bIsAdmin()())
+	{
+		const int64 SteamID = ArkApi::GetApiUtils().GetSteamIDForPlayerID(static_cast<int>(player->LinkedPlayerIDField()));
+		for (const auto& VoteSiteConfig : VoteSites)
+		{
+			const int VoteSiteIndex = GetVoteSiteIndex(VoteSiteConfig.Site);
+			if (VoteSiteIndex != -1)
+			{
+				const bool IsLast = (VoteSiteIndex == (VoteSites.size() - 1));
+				RewardPlayer(VoteSiteConfig.Site, SteamID, player);
+			}
+			else if (player->bIsAdmin()()) ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"Vote Site does not exist: {}", VoteSiteConfig.Site);
+		}
+	}
+}
+
 int Counter = 0;
 void PlayerVoteDataCleanUp()
 {
@@ -232,6 +266,7 @@ void Load()
 	ArkApi::GetCommands().AddChatCommand(GetConfig("CheckCommand"), &CheckVoteCMD);
 	ArkApi::GetCommands().AddChatCommand(GetConfig("VoteSitesCommand"), &VoteSitesCMD);
 	ArkApi::GetCommands().AddChatCommand("/vrreload", &ReloadConfigCMD);
+	ArkApi::GetCommands().AddChatCommand("/vrtest", &TestRewardCMD);
 	ArkApi::GetCommands().AddOnTimerCallback("ClearOldVotes", &PlayerVoteDataCleanUp);
 }
 
@@ -241,6 +276,7 @@ void Unload()
 	ArkApi::GetCommands().RemoveChatCommand(GetConfig("CheckCommand"));
 	ArkApi::GetCommands().RemoveChatCommand(GetConfig("VoteSitesCommand"));
 	ArkApi::GetCommands().RemoveChatCommand("/vrreload");
+	ArkApi::GetCommands().RemoveChatCommand("/vrtest");
 	ArkApi::GetCommands().RemoveOnTimerCallback("ClearOldVotes");
 }
 

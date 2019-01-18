@@ -14,12 +14,15 @@
    },
    "ark-servers.net":{  
       "VoteKeys":[  
-         "APIKey"
+         "KeyHere"
       ],
       "VoteUrls":[  
-         ""
+         "VoteUrlHere"
       ],
       "VoteDelayHours":24,
+	  "ChanceofPointsOrItems": false,
+	  "MinPointsReward": 50,
+	  "MaxPointsReward": 400,
       "Items":[  
          {  
             "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
@@ -68,7 +71,7 @@
       ],
       "Messages":[  
          "Something is wrong with the request please try later.",
-         "Congratulations enjoy your reward"
+         "Congratulations enjoy your reward from ark-servers.net"
       ]
    },
    "trackyserver.com":{  
@@ -76,9 +79,12 @@
          "APIKey"
       ],
       "VoteUrls":[  
-         ""
+         "VoteUrlHere"
       ],
       "VoteDelayHours":24,
+	  "ChanceofPointsOrItems": false,
+	  "MinPointsReward": 50,
+	  "MaxPointsReward": 400,
       "Items":[  
          {  
             "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
@@ -127,7 +133,69 @@
       ],
       "Messages":[  
          "Something is wrong with the request please try later.",
-         "Congratulations enjoy your reward"
+         "Congratulations enjoy your reward from trackyserver.com"
+      ]
+   },
+   "toparkservers.com":{  
+      "VoteKeys":[  
+         "Server Key"
+      ],
+      "VoteUrls":[  
+         "VoteUrlHere"
+      ],
+      "VoteDelayHours":12,
+	  "ChanceofPointsOrItems": false,
+	  "MinPointsReward": 50,
+	  "MaxPointsReward": 400,
+      "Items":[  
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/CoreBlueprints/Weapons/PrimalItem_WeaponSword.PrimalItem_WeaponSword'",
+            "RewardChance":-1,
+            "MinQuantity":1,
+            "MaxQuantity":5,
+            "MinQuality":0,
+            "MaxQuality":0,
+            "MinIsBP":0,
+            "MaxIsBP":0
+         }
+      ],
+      "Dinos":[  
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dilo/Dilo_Character_BP.Dilo_Character_BP'",
+            "RewardChance":2,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Carno/Carno_Character_BP.Carno_Character_BP'",
+            "RewardChance":5,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Dodo/Dodo_Character_BP.Dodo_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         },
+         {  
+            "Blueprint":"Blueprint'/Game/PrimalEarth/Dinos/Ptero/Ptero_Character_BP.Ptero_Character_BP'",
+            "RewardChance":-1,
+            "MinLevel":2,
+            "MaxLevel":40,
+            "Tamed":true,
+            "Neutered":false
+         }
+      ],
+      "Messages":[  
+         "Something is wrong with the request please try later.",
+         "Congratulations enjoy your reward from toparkservers.com"
       ]
    }
 }
