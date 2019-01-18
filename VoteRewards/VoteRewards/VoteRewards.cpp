@@ -1,12 +1,16 @@
 #include "VoteRewards.h"
+#include "VoteRewardsConfig.h"
 
 void RewardPoints(const int64 SteamID, const int Points)
 {
+	if (HasShop)
+	{
 #ifdef ATLAS
-	AtlasShop::Points::AddPoints(Points, SteamID);
+		AtlasShop::Points::AddPoints(Points, SteamID);
 #else
-	ArkShop::Points::AddPoints(Points, SteamID);
+		ArkShop::Points::AddPoints(Points, SteamID);
 #endif
+	}
 }
 
 void RewardPlayer(const std::string& VoteSite, const int64 SteamID, AShooterPlayerController* player)
@@ -151,6 +155,7 @@ void CheckVoteReward(AShooterPlayerController* player)
 	PlayerData[player->LinkedPlayerIDField()].HasRewarded = false;
 	bool VotesChecked = false;
 	long double LowestNextVoteTime = -1;
+	int VoteSiteCount = 0;
 	for (const auto& VoteSiteConfig : VoteSites)
 	{
 		const int VoteSiteIndex = GetVoteSiteIndex(VoteSiteConfig.Site);
@@ -159,17 +164,23 @@ void CheckVoteReward(AShooterPlayerController* player)
 			const long double NextVoteTime = playerData.first->second.NextVoteTime[VoteSiteIndex];
 			if (nNow > NextVoteTime)
 			{
-				const bool IsLast = (VoteSiteIndex == (VoteSites.size() - 1));
+				const bool IsLast = VoteSiteCount == TotalVoteSitesInConfig;
 				PlayerData[player->LinkedPlayerIDField()].NextVoteTime[VoteSiteIndex] = nNow + 30;
-				auto VoteKeys = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array()).value("VoteKeys", nlohmann::json::array());
-				for (const auto& VoteKey : VoteKeys)
+				auto VoteCnf = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array());
+				if (!VoteCnf.empty())
 				{
+					VoteSiteCount++;
+					auto VoteKeys = VoteCnf.value("VoteKeys", nlohmann::json::array());
+					if (!VoteKeys.empty())
+					for (const auto& VoteKey : VoteKeys)
+					{
 #ifdef ATLAS
-					AtlasSubmitVoteRequest(VoteSiteIndex, VoteSiteConfig, VoteKey, SteamID, player, IsLast);
+						AtlasSubmitVoteRequest(VoteSiteIndex, VoteSiteConfig, VoteKey, SteamID, player, IsLast);
 #else
-					ArkSubmitVoteRequest(VoteSiteIndex, VoteSiteConfig, VoteKey, SteamID, player, IsLast);
+						ArkSubmitVoteRequest(VoteSiteIndex, VoteSiteConfig, VoteKey, SteamID, player, IsLast);
 #endif
-					VotesChecked = true;
+						VotesChecked = true;
+					}
 				}
 			}
 			else if (LowestNextVoteTime == -1 || LowestNextVoteTime > NextVoteTime) LowestNextVoteTime = NextVoteTime;
@@ -205,9 +216,14 @@ void VoteSitesCMD(AShooterPlayerController* player, FString* message, int mode)
 		ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg("VoteRewards", 2));
 		for (const auto& VoteSiteConfig : VoteSites)
 		{
-			auto VoteUrls = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array()).value("VoteUrls", nlohmann::json::array());
-			for (const auto& VoteUrl : VoteUrls)
-				ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"{}", *FString(ArkApi::Tools::Utf8Decode(VoteUrl).c_str()));
+			auto VoteCnf = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array());
+			if (!VoteCnf.empty())
+			{
+				auto VoteUrls = VoteCnf.value("VoteUrls", nlohmann::json::array());
+				if (!VoteUrls.empty())
+				for (const auto& VoteUrl : VoteUrls)
+					ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"{}", *FString(ArkApi::Tools::Utf8Decode(VoteUrl).c_str()));
+			}
 		}
 		ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg("VoteRewards", 3));
 	}
@@ -216,7 +232,10 @@ void VoteSitesCMD(AShooterPlayerController* player, FString* message, int mode)
 void ReloadConfigCMD(AShooterPlayerController* player, FString* message, int mode)
 {
 	if (player->PlayerStateField() && player->bIsAdmin()())
+	{
 		LoadConfig();
+		ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"Config Reloaded!");
+	}
 }
 
 void TestRewardCMD(AShooterPlayerController* player, FString* message, int mode)
@@ -229,7 +248,7 @@ void TestRewardCMD(AShooterPlayerController* player, FString* message, int mode)
 			const int VoteSiteIndex = GetVoteSiteIndex(VoteSiteConfig.Site);
 			if (VoteSiteIndex != -1)
 			{
-				const bool IsLast = (VoteSiteIndex == (VoteSites.size() - 1));
+				const bool IsLast = VoteSiteIndex == TotalVoteSitesInConfig;
 				RewardPlayer(VoteSiteConfig.Site, SteamID, player);
 			}
 			else if (player->bIsAdmin()()) ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"Vote Site does not exist: {}", VoteSiteConfig.Site);

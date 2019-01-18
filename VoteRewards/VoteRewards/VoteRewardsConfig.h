@@ -18,13 +18,23 @@ void LoadConfig()
 {
 	try
 	{
-	#ifdef ATLAS
+#ifdef ATLAS
+		HasShop = ArkApi::Tools::IsPluginLoaded("AtlasShop");
 		std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/AtlasApi/Plugins/VoteRewards/config.json");
-	#else
+#else
+		HasShop = ArkApi::Tools::IsPluginLoaded("ArkShop");
 		std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/VoteRewards/config.json");
-	#endif
+#endif
 		file >> VoteConfig;
 		file.close();
+
+		TotalVoteSitesInConfig = 0;
+		for (const auto& VoteSiteConfig : VoteSites)
+		{
+			auto VoteCnf = VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array());
+			if (!VoteCnf.empty()) TotalVoteSitesInConfig++;
+		}
+		TotalVoteSitesInConfig--;
 	}
 	catch (nlohmann::json::exception ex)
 	{

@@ -10,7 +10,6 @@
 #pragma comment(lib, "ArkShop.lib")
 #include "../../../MichsPlugins/ArkShop/ArkShop/Public/Points.h"
 #endif
-#include "VoteRewardsConfig.h"
 #include <random>
 #include "Requests.h"
 
@@ -36,6 +35,9 @@ constexpr std::array<VoteSiteConfig, TotalVoteSites> VoteSites{
 	VoteSiteConfig("trackyserver.com", "1", true),
 	VoteSiteConfig("toparkservers.com", "1", true)};
 #endif
+
+bool HasShop = false;
+int TotalVoteSitesInConfig = 0;
 
 struct PlayerDataS
 {
