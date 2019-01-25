@@ -15,61 +15,70 @@ void RewardPoints(const int64 SteamID, const int Points)
 
 void RewardPlayer(const std::string& VoteSite, const int64 SteamID, AShooterPlayerController* player)
 {
-	int Points = VoteConfig[VoteSite].value("MinPointsReward", 0) == VoteConfig[VoteSite].value("MaxPointsReward", 0) ? VoteConfig[VoteSite].value("MinPointsReward", 0) : RandomNumber(VoteConfig[VoteSite].value("MinPointsReward", 0), VoteConfig[VoteSite].value("MaxPointsReward", 0));
-	if (!VoteConfig[VoteSite].value("ChanceofPointsOrItems", false) || RandomNumber(0, 1) == 0)
+	try
 	{
-		if(!VoteConfig[VoteSite].value("ChanceofPointsOrItems", false) && Points != 0) RewardPoints(SteamID, Points);
-		int Quantity;
-		float Quality;
-		bool IsBP;
-		std::string sBlueprint;
-		FString fBlueprint;
-#ifndef ATLAS
-		TArray<UPrimalItem*> Out;
-#endif
-		auto Items = VoteConfig[VoteSite]["Items"];
-		for (const auto& Item : Items)
+		const auto& Vote = VoteConfig.value(VoteSite, nlohmann::json::array());
+		if (Vote.empty()) return;
+		int Points = Vote.value("MinPointsReward", 0) == Vote.value("MaxPointsReward", 0) ? Vote.value("MinPointsReward", 0) :
+			RandomNumber<int>(Vote.value("MinPointsReward", 0), Vote.value("MaxPointsReward", 0));
+		if (!Vote.value("ChanceofPointsOrItems", false) || RandomNumber(0, 1) == 0)
 		{
-			if (Item["RewardChance"] <= 0 || RandomNumber(0, Item["RewardChance"]) == 0)
-			{
-				Quantity = Item["MaxQuantity"] == Item["MinQuantity"] ? Item["MinQuantity"] : RandomNumber(Item["MinQuantity"], Item["MaxQuantity"]);
-
-				if (Quantity > 0)
-				{
-					sBlueprint = Item["Blueprint"];
-					fBlueprint = sBlueprint.c_str();
-
-					Quality = Item["MaxQuality"] == Item["MinQuality"] ? Item["MinQuality"] : RandomNumber(Item["MinQuality"], Item["MaxQuality"]);
-
-					IsBP = Item["MaxIsBP"] == 0 ? false :
-						(Item["MinIsBP"] == Item["MaxIsBP"] ? Item["MinIsBP"]
-							: RandomNumber(Item["MinIsBP"], Item["MaxIsBP"]));
-#ifdef ATLAS
-					player->GiveItem(&fBlueprint, Quantity, Quality, IsBP);
-#else
-					player->GiveItem(&Out, &fBlueprint, Quantity, Quality, IsBP, false, 0);
+			if (!Vote.value("ChanceofPointsOrItems", false) && Points != 0) RewardPoints(SteamID, Points);
+			int Quantity;
+			float Quality;
+			bool IsBP;
+			std::string sBlueprint;
+			FString fBlueprint;
+#ifndef ATLAS
+			TArray<UPrimalItem*> Out;
 #endif
+			const auto& Items = Vote.value("Items", nlohmann::json::array());
+			if (Items.empty()) return;
+			for (const auto& Item : Items)
+			{
+				if (Item.value("RewardChance", 0) <= 0 || RandomNumber(0, Item.value("RewardChance", 0)) == 0)
+				{
+					Quantity = Item.value("MaxQuantity", 0) == Item.value("MinQuantity", 0) ? Item.value("MinQuantity", 0) : RandomNumber<int>(Item.value("MinQuantity", 0), Item.value("MaxQuantity", 0));
+
+					if (Quantity > 0)
+					{
+						sBlueprint = Item.value("Blueprint", "");
+						fBlueprint = sBlueprint.c_str();
+
+						Quality = Item.value("MaxQuality", 0.f) == Item.value("MinQuality", 0.f) ? Item.value("MinQuality", 0.f) : RandomNumber<float>(Item.value("MinQuality", 0.f), Item.value("MaxQuality", 0.f));
+
+						IsBP = Item.value("MaxIsBP", 0) == 0 ? false : (Item.value("MinIsBP", 0) == Item.value("MaxIsBP", 0) ? (Item.value("MinIsBP", 0) == 1) : RandomNumber<int>(Item.value("MinIsBP", 0), Item.value("MaxIsBP", 0)) == Item.value("MinIsBP", 0));
+#ifdef ATLAS
+						player->GiveItem(&fBlueprint, Quantity, Quality, IsBP);
+#else
+						player->GiveItem(&Out, &fBlueprint, Quantity, Quality, IsBP, false, 0);
+#endif
+					}
+				}
+			}
+
+
+			int Level;
+			const auto& Dinos = Vote.value("Dinos", nlohmann::json::array());
+			for (const auto& Dino : Dinos)
+			{
+				if (Dino["RewardChance"] <= 0 || RandomNumber<int>(0, Dino["RewardChance"]) == 0)
+				{
+					sBlueprint = Dino["Blueprint"];
+					fBlueprint = sBlueprint.c_str();
+					Level = Dino["MaxLevel"] == Dino["MinLevel"] ? Dino["MinLevel"] : RandomNumber<int>(Dino["MinLevel"], Dino["MaxLevel"]);
+
+					ArkApi::GetApiUtils().SpawnDino(player, fBlueprint, nullptr, Level, Dino["Tamed"], Dino["Neutered"]);
 				}
 			}
 		}
-
-
-		int Level;
-		auto Dinos = VoteConfig[VoteSite]["Dinos"];
-		for (const auto& Dino : Dinos)
-		{
-			if (Dino["RewardChance"] <= 0 || RandomNumber(0, Dino["RewardChance"]) == 0)
-			{
-				sBlueprint = Dino["Blueprint"];
-				fBlueprint = sBlueprint.c_str();
-				Level = Dino["MaxLevel"] == Dino["MinLevel"] ? Dino["MinLevel"] : RandomNumber(Dino["MinLevel"], Dino["MaxLevel"]);
-
-				ArkApi::GetApiUtils().SpawnDino(player, fBlueprint, nullptr, Level, Dino["Tamed"], Dino["Neutered"]);
-			}
-		}
+		else if (Points != 0) RewardPoints(SteamID, Points);
+		ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg(VoteSite, 1));
 	}
-	else if(Points != 0) RewardPoints(SteamID, Points);
-	ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), *GetMsg(VoteSite, 1));
+	catch (std::exception exc)
+	{
+		Log::GetLog()->error(exc.what());
+	}
 }
 
 void HttpVoteCallBack(bool Success, std::string Response, const int VoteSiteIndex, const VoteSiteConfig& voteSiteConfig, AShooterPlayerController* player, const int64 SteamID, const bool IsLast)
@@ -248,10 +257,10 @@ void TestRewardCMD(AShooterPlayerController* player, FString* message, int mode)
 			const int VoteSiteIndex = GetVoteSiteIndex(VoteSiteConfig.Site);
 			if (VoteSiteIndex != -1)
 			{
-				const bool IsLast = VoteSiteIndex == TotalVoteSitesInConfig;
-				RewardPlayer(VoteSiteConfig.Site, SteamID, player);
+				if(!VoteConfig.value(VoteSiteConfig.Site, nlohmann::json::array()).empty())
+					RewardPlayer(VoteSiteConfig.Site, SteamID, player);
 			}
-			else if (player->bIsAdmin()()) ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"Vote Site does not exist: {}", VoteSiteConfig.Site);
+			else ArkApi::GetApiUtils().SendChatMessage(player, *GetConfig("ServerName"), L"Vote Site does not exist: {}", VoteSiteConfig.Site);
 		}
 	}
 }

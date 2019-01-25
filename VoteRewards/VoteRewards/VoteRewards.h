@@ -10,7 +10,6 @@
 #pragma comment(lib, "ArkShop.lib")
 #include "../../../MichsPlugins/ArkShop/ArkShop/Public/Points.h"
 #endif
-#include <random>
 #include "Requests.h"
 
 struct VoteSiteConfig
@@ -53,10 +52,8 @@ const int GetVoteSiteIndex(const std::string& VoteSite)
 	return -1;
 }
 
-int RandomNumber(int min, int max)
+template <class T>
+T RandomNumber(T min, T max)
 {
-	std::default_random_engine generator(std::random_device{}());
-	std::uniform_int_distribution<int> distribution(min, max);
-	int rnd = distribution(generator);
-	return rnd;
+	return min + (T)rand() / ((T)RAND_MAX / (T)(max - min));
 }

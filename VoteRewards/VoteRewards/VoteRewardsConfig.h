@@ -6,12 +6,22 @@ nlohmann::json VoteConfig;
 
 FString GetConfig(const std::string& Element)
 {
-	return FString(ArkApi::Tools::Utf8Decode(VoteConfig["VoteRewards"][Element]).c_str());
+	const auto& Vote = VoteConfig.value("VoteRewards", nlohmann::json::array());
+	if (!Vote.empty())
+		return FString(ArkApi::Tools::Utf8Decode(Vote.value(Element, "")).c_str());
+	return L"";
 }
 
 FString GetMsg(const std::string& VoteSite, const int ID)
 {
-	return FString(ArkApi::Tools::Utf8Decode(VoteConfig[VoteSite]["Messages"][ID]).c_str());
+	const auto& Vote = VoteConfig.value(VoteSite, nlohmann::json::array());
+	if (!Vote.empty())
+	{
+		const auto& Msgs = Vote.value("Messages", nlohmann::json::array());
+		if (Msgs.size() > ID)
+			return FString(ArkApi::Tools::Utf8Decode(Msgs[ID]).c_str());
+	}
+	return L"";
 }
 
 void LoadConfig()
