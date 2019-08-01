@@ -6,6 +6,7 @@ enum EventState
 	WaitingForPlayers = 0,
 	TeleportingPlayers,
 	WaitForFight,
+	GiveEquipment,
 	Fighting,
 	Rewarding,
 	Finished

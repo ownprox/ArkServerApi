@@ -12,7 +12,7 @@ class DeathMatch : public Event
 private:
 	bool Notifications;
 	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter, LastEquipmentIndex = -1;
-	FString JoinEventCommand, ServerName, Messages[10];
+	FString JoinEventCommand, ServerName, Messages[11];
 
 	struct Reward
 	{
@@ -29,104 +29,115 @@ public:
 	{
 		this->JoinEventCommand = JoinEventCommand;
 		this->ServerName = ServerName;
-		if (!HasConfigLoaded())
+		try
 		{
-			Equipments.Empty();
-			Rewards.Empty();
-			ClearSpawns();
-
-			const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/DeathMatchEvent/" + Map.ToString() + ".json";
-			std::ifstream file { config_path };
-			if (!file.is_open()) throw std::runtime_error(fmt::format("Can't open {}.json", Map.ToString().c_str()).c_str());
-			nlohmann::json config;
-			file >> config;
-			const std::string eName = config["Deathmatch"]["EventName"];
-			const FString& EventName = ArkApi::Tools::Utf8Decode(eName).c_str();
-
-			PlayersNeededToStart = config["Deathmatch"]["PlayersNeededToStart"];
-
-			JoinMessages = config["Deathmatch"]["JoinMessages"];
-			JoinMessageDelaySeconds = config["Deathmatch"]["JoinMessageDelaySeconds"];
-
-
-			const bool StructureProtection = config["Deathmatch"]["StructureProtection"];
-			const auto StructureProtectionPosition = config["Deathmatch"]["StructureProtectionPosition"];
-			const int StructureProtectionDistacne = config["Deathmatch"]["StructureProtectionDistance"];
-
-			Notifications = config["Deathmatch"]["TopNotifications"];
-			const float MovementSpeedAddon = config["Deathmatch"]["MovementSpeedAddon"];
-			const int ArkShopPointsEntryFee = config["Deathmatch"]["ArkShopPointsEntryFee"];
-
-			ArkShopPointsRewardMin = config["Deathmatch"]["ArkShopPointsRewardMin"];
-			ArkShopPointsRewardMax = config["Deathmatch"]["ArkShopPointsRewardMax"];
-			if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
-			if (ArkShopPointsRewardMin < 0) ArkShopPointsRewardMin = 0;
-
-			const bool KillOnLogg = config["Deathmatch"]["KillOnLoggout"];
-			std::string Data;
-
-			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
-				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
-
-			const auto& Spawns = config["Deathmatch"]["Spawns"];
-			for (const auto& Spawn : Spawns)
+			if (!HasConfigLoaded())
 			{
-				const auto& SpawnPos = Spawn["Position"];
-				AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]));
-			}
-			
-			const auto& RewardsConfig = config["Deathmatch"]["Rewards"];
-			for (const auto& szitem : RewardsConfig)
-			{
-				Data = szitem["Blueprint"];
-				Rewards.Add(Reward(FString(Data.c_str()), (int)szitem["QuantityMin"], (int)szitem["QuantityMax"], (int)szitem["QualityMin"], (int)szitem["QualityMax"], (int)szitem["MinIsBP"], (int)szitem["MaxIsBP"]));
-			}
-			
-			const auto& EquipmentConfig = config["Deathmatch"]["Equipment"];
-			for (const auto& Equipment : EquipmentConfig)
-			{
-				TArray<EventManager::EventItem> Items;
-				EventManager::EventItem Armour[EventManager::EventArmourType::Max];
-				Data = Equipment["HeadBP"];
-				Armour[EventManager::EventArmourType::Head] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["TorsoBP"];
-				Armour[EventManager::EventArmourType::Torso] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["GlovesBP"];
-				Armour[EventManager::EventArmourType::Gloves] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["OffhandBP"];
-				Armour[EventManager::EventArmourType::Offhand] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["LegsBP"];
-				Armour[EventManager::EventArmourType::Legs] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["FeetBP"];
-				Armour[EventManager::EventArmourType::Feet] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				const auto& ItemConfig = Equipment["Items"];
-				for (const auto& Item : ItemConfig)
+				Equipments.Empty();
+				Rewards.Empty();
+				ClearSpawns();
+				const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/DeathMatchEvent/" + Map.ToString() + ".json";
+				std::ifstream file{ config_path };
+				if (!file.is_open())
 				{
-					Data = Item["BP"];
-					Items.Add(EventManager::EventItem(Data.c_str(), Item["Quantity"], Item["Quality"]));
-				}				
-				Equipments.Add(EventManager::EventEquipment(Items, Armour));
-			}
+					Log::GetLog()->error("Can't find {}.json", Map.ToString().c_str());
+					return;
+				}
+				nlohmann::json config;
+				file >> config;
+				const std::string eName = config["Deathmatch"]["EventName"];
+				const FString& EventName = ArkApi::Tools::Utf8Decode(eName).c_str();
+
+				PlayersNeededToStart = config["Deathmatch"]["PlayersNeededToStart"];
+
+				JoinMessages = config["Deathmatch"]["JoinMessages"];
+				JoinMessageDelaySeconds = config["Deathmatch"]["JoinMessageDelaySeconds"];
 
 
-			int j = 0;
-			const auto& Msgs = config["Deathmatch"]["Messages"];
-			for (const auto& Msg : Msgs)
-			{
-				Data = Msg;
-				Messages[j++] = ArkApi::Tools::Utf8Decode(Data).c_str();
+				const bool StructureProtection = config["Deathmatch"]["StructureProtection"];
+				const auto StructureProtectionPosition = config["Deathmatch"]["StructureProtectionPosition"];
+				const int StructureProtectionDistacne = config["Deathmatch"]["StructureProtectionDistance"];
+
+				Notifications = config["Deathmatch"]["TopNotifications"];
+				const float MovementSpeedAddon = config["Deathmatch"]["MovementSpeedAddon"];
+				const int ArkShopPointsEntryFee = config["Deathmatch"]["ArkShopPointsEntryFee"];
+
+				ArkShopPointsRewardMin = config["Deathmatch"]["ArkShopPointsRewardMin"];
+				ArkShopPointsRewardMax = config["Deathmatch"]["ArkShopPointsRewardMax"];
+				if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
+				if (ArkShopPointsRewardMin < 0) ArkShopPointsRewardMin = 0;
+
+				const bool KillOnLogg = config["Deathmatch"]["KillOnLoggout"];
+				std::string Data;
+
+				InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
+					, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
+
+				const auto& Spawns = config["Deathmatch"]["Spawns"];
+				for (const auto& Spawn : Spawns)
+				{
+					const auto& SpawnPos = Spawn["Position"];
+					AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]));
+				}
+
+				const auto& RewardsConfig = config["Deathmatch"]["Rewards"];
+				for (const auto& szitem : RewardsConfig)
+				{
+					Data = szitem["Blueprint"];
+					Rewards.Add(Reward(FString(Data.c_str()), (int)szitem["QuantityMin"], (int)szitem["QuantityMax"], (int)szitem["QualityMin"], (int)szitem["QualityMax"], (int)szitem["MinIsBP"], (int)szitem["MaxIsBP"]));
+				}
+
+				const auto& EquipmentConfig = config["Deathmatch"]["Equipment"];
+				for (const auto& Equipment : EquipmentConfig)
+				{
+					TArray<EventManager::EventItem> Items;
+					EventManager::EventItem Armour[EventManager::EventArmourType::Max];
+					Data = Equipment["HeadBP"];
+					Armour[EventManager::EventArmourType::Head] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					Data = Equipment["TorsoBP"];
+					Armour[EventManager::EventArmourType::Torso] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					Data = Equipment["GlovesBP"];
+					Armour[EventManager::EventArmourType::Gloves] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					Data = Equipment["OffhandBP"];
+					Armour[EventManager::EventArmourType::Offhand] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					Data = Equipment["LegsBP"];
+					Armour[EventManager::EventArmourType::Legs] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					Data = Equipment["FeetBP"];
+					Armour[EventManager::EventArmourType::Feet] = EventManager::EventItem(Data.c_str(), 1, 0);
+
+					const auto& ItemConfig = Equipment["Items"];
+					for (const auto& Item : ItemConfig)
+					{
+						Data = Item["BP"];
+						Items.Add(EventManager::EventItem(Data.c_str(), Item["Quantity"], Item["Quality"]));
+					}
+					Equipments.Add(EventManager::EventEquipment(Items, Armour));
+				}
+
+
+				int j = 0;
+				const auto& Msgs = config["Deathmatch"]["Messages"];
+				for (const auto& Msg : Msgs)
+				{
+					Data = Msg;
+					Messages[j++] = ArkApi::Tools::Utf8Decode(Data).c_str();
+				}
+				file.close();
 			}
-			file.close();
+			Init(JoinMessageDelaySeconds + 1);
+			WaitForDelay = JoinMessageDelaySeconds;
+			WaitCounter = JoinMessages + 1;
 		}
-		Init(JoinMessageDelaySeconds + 1);
-		WaitForDelay = JoinMessageDelaySeconds;
-		WaitCounter = JoinMessages + 1;
+		catch (...)
+		{
+			Log::GetLog()->error("Config Error!!!");
+
+		}
 	}
 	
 	virtual void Update()
@@ -161,19 +172,32 @@ public:
 			}
 			break;
 		case EventState::TeleportingPlayers:
-			EventManager::Get().TeleportEventPlayers(true, true, true, true, false, true, GetSpawns());
-			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
-			if (Equipments.Num() > 0)
+			if(!EventManager::Get().TeleportEventPlayers(true, true, true, true, false, true, GetSpawns()))
 			{
-				EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
+				ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[4], *GetName(), PlayersNeededToStart);
+				SetState(EventState::Finished);
 			}
-			SetState(EventState::WaitForFight);
+			else
+			{
+				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[10]);
+				SetState(EventState::GiveEquipment);
+			}
+			break;
+		case EventState::GiveEquipment:
+			if (WaitForTimer(10))
+			{
+				ResetTimer();
+				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
+				if (Equipments.Num() > 0)
+					EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
+				SetState(EventState::WaitForFight);
+			}
 			break;
 		case EventState::WaitForFight:
 			if(Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 1), 1.f, 1, nullptr, *Messages[8]);
 			if (WaitForTimer(30))
 			{
-				EventManager::Get().CheckPlayersTeledAndEnableInputs();
+				EventManager::Get().EnableInputs();
 				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[6], *GetName());
 				SetState(EventState::Fighting);
 			}
@@ -202,9 +226,8 @@ public:
 							const bool IsBP = (reward.MinIsBP == reward.MaxIsBP && reward.MinIsBP == 0 ? false : (reward.MinIsBP == reward.MaxIsBP ? true
 								: (FMath::RandRange(reward.MinIsBP, reward.MaxIsBP) == reward.MinIsBP)));
 							FString BP = reward.BP;
-							//RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
-							UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(RewardPlayer->CheatManagerField());
-							if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
+							TArray<UPrimalItem*> SpawnedItems;
+							RewardPlayer->GiveItem(&SpawnedItems, &BP, RandomQuantity, (float)RandomQuality, false, IsBP, 0);
 						}
 
 						if (ArkShopPointsRewardMax > 0)

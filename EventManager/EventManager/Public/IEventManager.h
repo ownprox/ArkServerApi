@@ -23,9 +23,11 @@ namespace EventManager
 		AShooterPlayerController* ASPC;
 		bool Delete;
 		EventPlayerStats_s EventPlayerStats;
+		unsigned int DinoID1, DinoID2;
+		int DinoSeat;
 
 		EventPlayer(const long long PlayerID, AShooterPlayerController* ASPC) : PlayerID(PlayerID), ASPC(ASPC), StartPos(ArkApi::GetApiUtils().GetPosition(ASPC))
-			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()), TeledPos(FVector(0.f, 0.f, 0.f)) {}
+			, Kills(0), Team(0), Delete(false), EventPlayerStats(EventPlayerStats_s()), TeledPos(FVector(0.f, 0.f, 0.f)), DinoID1(-1), DinoID2(-1), DinoSeat(-1) {}
 	};
 
 	struct EventTeam
@@ -64,6 +66,13 @@ namespace EventManager
 		}
 	};
 
+	struct Schedule
+	{
+		FString EventName;
+		int EventID, StartDay, StartHour;
+		Schedule(const FString& EventName, int StartDay, int StartHour) : EventName(EventName), StartDay(StartDay), StartHour(StartHour), EventID(-1){}
+	};
+
 	class EM_API IEventManager
 	{
 	public:
@@ -85,6 +94,9 @@ namespace EventManager
 		virtual int GetEventsCount() = 0;
 		virtual bool StartEvent(const int EventID = -1) = 0;
 
+		virtual void AddSchedule(const FString& EventName, int StartDay, int StartHour) = 0;
+		virtual void RemoveSchedules() = 0;
+
 		virtual bool AddPlayer(AShooterPlayerController* player) = 0;
 		virtual bool HasPlayer(const int PlayerID) = 0;
 		virtual bool RemovePlayer(AShooterPlayerController* player) = 0;
@@ -97,15 +109,16 @@ namespace EventManager
 
 		virtual	bool IsEventProtectedStructure(const FVector& StructurePos) = 0;
 		
-		virtual	void TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns) = 0;
+		virtual bool TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns) = 0;
+		virtual void TeleportHome(const EventPlayer& player, const bool WipeInventory, const bool PlayerDied) = 0;
 		virtual void TeleportWinningEventPlayersToStart(const bool WipeInventory) = 0;
-		virtual void CheckPlayersTeledAndEnableInputs() = 0;
+		virtual void EnableInputs() = 0;
 
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
 
 		virtual int GetRandomIndexNonRecurr(int TotalSize) = 0;
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;
-		virtual void ResetPlayerStats(EventPlayer* Player, const bool PlayerDied = true) = 0;
+		virtual void ResetPlayerStats(EventPlayer Player, const bool PlayerDied) = 0;
 
 		template <typename T, typename... Args>
 		void SendChatMessageToAllEventPlayers(const FString& sender_name, const T* msg, Args&&... args)
@@ -123,8 +136,9 @@ namespace EventManager
 
 		virtual bool GetEventQueueNotifications() = 0;
 
-		virtual void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole
-				, const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto) = 0;
+		virtual void InitConfigs(const FString& ServerName, const FString& JoinCommand, int EventStartMinuteMin, int EventStartMinuteMax, bool DebugLogToConsole,
+			const FString& PlayerDeadMsg, const FString& InventoryNotFoundMsg, const FString& MustBeNakedMsg, bool StartEventOnServerStart, bool EventStartAuto) = 0;
+
 		virtual bool ArkShopSpendPoints(int amount, int PlayerID) = 0;
 		virtual int ArkShopGetPoints(int PlayerID) = 0;
 		virtual void ArkShopAddPoints(int amount, int PlayerID) = 0;

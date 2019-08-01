@@ -12,7 +12,7 @@ class TDMEvent : public Event
 private:
 	bool Notifications;
 	int ArkShopPointsRewardMin, ArkShopPointsRewardMax, JoinMessages, JoinMessageDelaySeconds, PlayersNeededToStart, WaitForDelay, WaitCounter, LastEquipmentIndex = -1;
-	FString JoinEventCommand, ServerName, Messages[13];
+	FString JoinEventCommand, ServerName, Messages[14];
 
 	struct Reward
 	{
@@ -37,7 +37,11 @@ public:
 
 			const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/TeamDeathMatchEvent/" + Map.ToString() + ".json";
 			std::ifstream file { config_path };
-			if (!file.is_open()) throw std::runtime_error(fmt::format("Can't open {}.json", Map.ToString().c_str()).c_str());
+			if (!file.is_open())
+			{
+				Log::GetLog()->error("Can't find {}.json", Map.ToString().c_str());
+				return;
+			}
 			nlohmann::json config;
 			file >> config;
 			const std::string eName = config["TDM"]["EventName"];
@@ -65,7 +69,7 @@ public:
 			std::string Data;
 
 			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
-				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee);
+				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
 
 			const auto& SpawnsA = config["TDM"]["TeamASpawns"];
 			for (const auto& Spawn : SpawnsA)
@@ -167,19 +171,33 @@ public:
 			}
 			break;
 		case EventState::TeleportingPlayers:
-			EventManager::Get().TeleportEventPlayers(true, true, true, true, false, true, GetSpawns());
-			EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
-			if (Equipments.Num() > 0)
+			if (!EventManager::Get().TeleportEventPlayers(true, true, true, true, false, true, GetSpawns()))
 			{
-				EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
+				ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, *Messages[4], *GetName(), PlayersNeededToStart);
+				SetState(EventState::Finished);
 			}
-			SetState(EventState::WaitForFight);
+			else
+			{
+				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[13]);
+				SetState(EventState::GiveEquipment);
+			}
+			break;
+		case EventState::GiveEquipment:
+			if (WaitForTimer(10))
+			{
+				ResetTimer();
+				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
+				if (Equipments.Num() > 0)
+					EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
+				SetState(EventState::WaitForFight);
+			}
 			break;
 		case EventState::WaitForFight:
 			if (Notifications) EventManager::Get().SendNotificationToAllEventPlayers(FLinearColor(0, 1, 1), 1.f, 1, nullptr, *Messages[11]);
-			if (WaitForTimer(30))
+			if (WaitForTimer(20))
 			{
-				EventManager::Get().EnableEventPlayersInputs();
+				ResetTimer();
+				EventManager::Get().EnableInputs();
 				const auto& Players = EventManager::Get().GetEventPlayers();
 				for (const auto& player : Players)
 				{
@@ -211,9 +229,8 @@ public:
 						const bool IsBP = (reward.MinIsBP == reward.MaxIsBP && reward.MinIsBP == 0 ? false : (reward.MinIsBP == reward.MaxIsBP ? true
 							: (FMath::RandRange(reward.MinIsBP, reward.MaxIsBP) == reward.MinIsBP)));
 						FString BP = reward.BP;
-						//RewardPlayer->GiveItem(&BP, RandomQuantity, (float)RandomQuality, IsBP);
-						UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(RewardPlayer->CheatManagerField());
-						if (cheatManager) cheatManager->GiveItemToPlayer((int)RewardPlayer->LinkedPlayerIDField(), &BP, RandomQuantity, (float)RandomQuality, IsBP);
+						TArray<UPrimalItem*> SpawnedItems;
+						RewardPlayer->GiveItem(&SpawnedItems, &BP, RandomQuantity, (float)RandomQuality, false, IsBP, 0);
 					}
 
 					if (ArkShopPointsRewardMax > 0) EventManager::Get().ArkShopAddPoints(FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax), (int)RewardPlayer->LinkedPlayerIDField());

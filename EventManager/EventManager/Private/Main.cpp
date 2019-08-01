@@ -8,9 +8,11 @@ DECLARE_HOOK(APrimalCharacter_TakeDamage, float, APrimalCharacter*, float, FDama
 DECLARE_HOOK(APrimalStructure_TakeDamage, float, APrimalStructure*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(AShooterGameMode_Logout, void, AShooterGameMode*, AController*);
+DECLARE_HOOK(AShooterPlayerController_ServerSendChatMessage_Implementation, void, AShooterPlayerController*, FString*, EChatSendMode::Type);
 
 FString EventJoinCommand, EventLeaveCommand, EventAdminStartEventConsoleCommand;
-FString Messages[12];
+FString Messages[13];
+TArray<FString> AllowedCommands;
 
 void EventManagerUpdate()
 {
@@ -69,6 +71,21 @@ void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* E
 	AShooterGameMode_Logout_original(_this, Exiting);
 }
 
+void  Hook_AShooterPlayerController_ServerSendChatMessage_Implementation(AShooterPlayerController* _this, FString* ChatMessage, EChatSendMode::Type SendMode)
+{
+	if (ChatMessage->StartsWith(L"/", ESearchCase::CaseSensitive) && EventManager::Get().IsEventRunning() /*&& !_this->bIsAdmin()()*/ && EventManager::Get().HasPlayer((int)_this->LinkedPlayerIDField()))
+	{
+		TArray<FString> Parsed;
+		ChatMessage->ParseIntoArray(Parsed, L" ", true);
+		if (!AllowedCommands.Contains(Parsed[0]))
+		{
+			ArkApi::GetApiUtils().SendChatMessage(_this, EventManager::Get().GetServerName(), *Messages[12]);
+			return;
+		}
+	}
+	AShooterPlayerController_ServerSendChatMessage_Implementation_original(_this, ChatMessage, SendMode);
+}
+
 void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 {
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
@@ -95,9 +112,7 @@ void JoinEvent(AShooterPlayerController* player, FString* message, int mode)
 					return;
 				}
 				else
-				{
 					EventManager::Get().ArkShopSpendPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
-				}
 			}
 
 			EventManager::Get().AddPlayer(player);
@@ -117,9 +132,7 @@ void LeaveEvent(AShooterPlayerController* player, FString* message, int mode)
 		if (EventManager::Get().RemovePlayer(player))
 		{
 			if (EventManager::Get().GetArkShopEntryFee() != 0)
-			{
 				EventManager::Get().ArkShopAddPoints(EventManager::Get().GetArkShopEntryFee(), (int)player->LinkedPlayerIDField());
-			}
 
 			if (EventManager::Get().GetEventQueueNotifications()) ArkApi::GetApiUtils().SendChatMessageToAll(EventManager::Get().GetServerName(), *Messages[3], *ArkApi::GetApiUtils().GetCharacterName(player), *EventManager::Get().GetCurrentEventName());
 			ArkApi::GetApiUtils().SendChatMessage(player, EventManager::Get().GetServerName(), *Messages[4], *EventManager::Get().GetCurrentEventName());
@@ -193,6 +206,34 @@ void InitConfig()
 
 	const bool LogToConsole = config["EventManager"]["DebugLogToConsole"];
 	const bool StartEventOnServerStart = config["EventManager"]["StartEventOnServerStart"];
+
+	if (AllowedCommands.Num() > 0) AllowedCommands.Empty();
+
+	const auto& AllowedCmds = config["EventManager"].value("AllowedCommands", nlohmann::json::array());
+	for (const auto& AllowedCommand : AllowedCmds)
+	{
+		data = AllowedCommand;
+		AllowedCommands.Add(ArkApi::Tools::Utf8Decode(data).c_str());
+	}
+
+	int StartDay, StartHour;
+	const auto& Schedules = config["EventManager"].value("Schedules", nlohmann::json());
+	for (int i = 0; i < Schedules.size(); i++)
+	{
+		data = Schedules[i]["EventName"];
+
+		StartDay = Schedules[i]["StartDay"];
+		if (StartDay > 6 || StartDay < 0)
+			StartDay = 0;
+
+		StartHour = Schedules[i]["StartHour"];
+		if (StartHour > 23 || StartHour < 0)
+			StartHour = 0;
+
+		EventManager::Get().AddSchedule(ArkApi::Tools::Utf8Decode(data).c_str(), StartDay, StartHour);
+
+		Log::GetLog()->info("Loaded PVP Schedule {} Start Day: {}, Hour: {}", (i + 1), StartDay, StartHour);
+	}
 	int j = 0;
 	const auto& Msgs = config["EventManager"]["Messages"];
 	for (const auto& Msg : Msgs)
@@ -200,7 +241,6 @@ void InitConfig()
 		data = Msg;
 		Messages[j++] = ArkApi::Tools::Utf8Decode(data).c_str();
 	}
-
 	data = config["EventManager"]["ServerName"];
 	EventManager::Get().InitConfigs(ArkApi::Tools::Utf8Decode(data).c_str(), EventJoinCommand, EventStartMinuteMin, EventStartMinuteMax, LogToConsole, Messages[8], Messages[9], Messages[10], StartEventOnServerStart, EventStartAuto);
 	
@@ -224,6 +264,7 @@ void InitEventManager()
 	ArkApi::GetHooks().SetHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage, &APrimalStructure_TakeDamage_original);
 	ArkApi::GetHooks().SetHook("AShooterCharacter.Die", &Hook_AShooterCharacter_Die, &AShooterCharacter_Die_original);
 	ArkApi::GetHooks().SetHook("AShooterGameMode.Logout", &Hook_AShooterGameMode_Logout, &AShooterGameMode_Logout_original);
+	ArkApi::GetHooks().SetHook("AShooterPlayerController.ServerSendChatMessage_Implementation", &Hook_AShooterPlayerController_ServerSendChatMessage_Implementation, &AShooterPlayerController_ServerSendChatMessage_Implementation_original);
 	ArkApi::GetCommands().AddOnTimerCallback("EventManagerUpdate", &EventManagerUpdate);
 	ArkApi::GetCommands().AddChatCommand(EventJoinCommand, &JoinEvent);
 	ArkApi::GetCommands().AddChatCommand(EventLeaveCommand, &LeaveEvent);
@@ -239,6 +280,7 @@ void DestroyEventManager()
 	ArkApi::GetHooks().DisableHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage);
 	ArkApi::GetHooks().DisableHook("AShooterCharacter.Die", &Hook_AShooterCharacter_Die);
 	ArkApi::GetHooks().DisableHook("AShooterGameMode.Logout", &Hook_AShooterGameMode_Logout);
+	ArkApi::GetHooks().DisableHook("AShooterPlayerController.ServerSendChatMessage_Implementation", &Hook_AShooterPlayerController_ServerSendChatMessage_Implementation);
 	ArkApi::GetCommands().RemoveOnTimerCallback("EventManagerUpdate");
 	ArkApi::GetCommands().RemoveChatCommand(EventJoinCommand);
 	ArkApi::GetCommands().RemoveChatCommand(EventLeaveCommand);

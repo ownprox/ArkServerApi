@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29021.104
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AAEventManager", "EventManager\EventManager.vcxproj", "{19177CA6-4863-4678-92FC-0B634C4F706F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AZEventManager", "EventManager\EventManager.vcxproj", "{19177CA6-4863-4678-92FC-0B634C4F706F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeathmatchEvent", "Events\DeathmatchEvent\DeathmatchEvent.vcxproj", "{4A5ECE72-95AF-4664-ADBF-FAF997E56E5D}"
 	ProjectSection(ProjectDependencies) = postProject

@@ -58,15 +58,26 @@ namespace EventManager
 	bool EventManager::StartEvent(const int EventID)
 	{
 		if (CurrentEvent) return false;
-		if (Map.IsEmpty()) ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
+		if (Map.IsEmpty())
+		{
+			ArkApi::GetApiUtils().GetShooterGameMode()->GetMapName(&Map);
+			Map = Map.Replace(L"_P", L"");
+		}
 		if (EventID == -1)
 		{
-			CurrentEvent = Events[FMath::RandRange(0, Events.Num() - 1)];
+			CurrentEvent = Events[CurrentEventID++];
 			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
+			if (CurrentEventID >= Events.Num())
+				CurrentEventID = 0;
 		}
 		else if (EventID < Events.Num())
 		{
 			CurrentEvent = Events[EventID];
+			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
+		}
+		else
+		{
+			CurrentEvent = Events[FMath::RandRange(0, Events.Num() - 1)];
 			CurrentEvent->InitConfig(JoinCommand, ServerName, Map);
 		}
 		if (LogToConsole) Log::GetLog()->info("{} Event Started!", (CurrentEvent->GetName().IsEmpty() ? "" : CurrentEvent->GetName().ToString().c_str()));
@@ -114,16 +125,50 @@ namespace EventManager
 				if (!UseSchedule) NextEventTime = timeGetTime() + FMath::RandRange(MinStartEvent, MaxStartEvent);
 			}
 		}
-		else if (EventStartAuto && !UseSchedule && timeGetTime() > NextEventTime)
+		else if (ScheduleCheckCounter++ >= 20)
+		{
+			ScheduleCheckCounter = 0;
+			time(&rawtime);
+			localtime_s(&timeinfo, &rawtime);
+			timeinfo.tm_min = timeinfo.tm_hour = timeinfo.tm_sec = 0;
+			const time_t Tm = mktime(&timeinfo);
+			const auto Now = std::chrono::system_clock::from_time_t(Tm);
+			const auto RealNow = std::chrono::system_clock::now();
+
+			for (int i = 0; i < Schedules.Num(); i++)
+			{
+				const auto StartTime = Now + std::chrono::hours((Schedules[i].StartDay - timeinfo.tm_wday + 7) % 7 * 24) + std::chrono::
+					minutes(
+					(Schedules[i].StartHour - timeinfo.tm_hour + 24) % 24 * 60);
+				const auto EndTime = StartTime + std::chrono::minutes(2);
+
+				if ((RealNow >= StartTime || StartTime > EndTime) && RealNow < EndTime)
+				{
+					int EventID = -1;
+					if (Schedules[i].EventID == -1)
+					{
+						Schedules[i].EventID = GetEventID(Schedules[i].EventName);
+						if (Schedules[i].EventID == -1)
+						{
+							Log::GetLog()->warn("{} Event Not Found!");
+							return;
+						}
+					}
+					StartEvent(Schedules[i].EventID);
+					return;
+				}
+			}
+		}
+		else if (EventStartAuto && timeGetTime() > NextEventTime)
 		{
 			StartEvent();
 		}
 	}
 
-	void EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns)
+	bool EventManager::TeleportEventPlayers(const bool ApplyFairHp, const bool ApplyFairMovementSpeed, const bool ApplyFairMeleeDamage, const bool DisableInputs, const bool WipeInventoryOrCheckIsNaked, const bool PreventDinos, SpawnsMap& Spawns)
 	{
 		int TeamCount = (int)Spawns.size(), TeamIndex = 0;
-		if (TeamCount < 1) return;
+		if (TeamCount < 1) return false;
 		TArray<int> SpawnIndexs;
 		if (TeamCount > 1)
 		{
@@ -143,49 +188,56 @@ namespace EventManager
 		const float MovementSpeed = CurrentEvent->GetMovementSpeed();
 		FVector Pos;
 		bool RemovePlayers = false;
-		for (auto& itr : Players)
+		for (auto& player : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead() && !itr.ASPC->GetPlayerCharacter()->bIsSleeping()() && !itr.ASPC->GetPlayerCharacter()->IsSitting(false)
-				&& !itr.ASPC->GetPlayerCharacter()->bIsCarriedAsPassenger()() && !itr.ASPC->GetPlayerCharacter()->bIsCarried()() && !itr.ASPC->GetPlayerCharacter()->bIsBeingDragged()() && !itr.ASPC->GetPlayerCharacter()->bIsDragging()()
-				&& !itr.ASPC->GetPlayerCharacter()->bIsDraggingWithGrapHook()() && !itr.ASPC->GetPlayerCharacter()->bIsImmobilized()() && !itr.ASPC->GetPlayerCharacter()->bIsBeingDraggedByDino()()
-				&& (!PreventDinos && itr.ASPC->GetPlayerCharacter()->GetRidingDino() || !itr.ASPC->GetPlayerCharacter()->GetRidingDino()))
+			if (player.ASPC && player.ASPC->PlayerStateField() && player.ASPC->GetPlayerCharacter() && !player.ASPC->GetPlayerCharacter()->bIsSleeping()() && !player.ASPC->GetPlayerCharacter()->IsSitting(false)
+				&& !player.ASPC->GetPlayerCharacter()->bIsCarriedAsPassenger()() && !player.ASPC->GetPlayerCharacter()->bIsCarried()() && !player.ASPC->GetPlayerCharacter()->bIsBeingDragged()() && !player.ASPC->GetPlayerCharacter()->bIsDragging()()
+				&& !player.ASPC->GetPlayerCharacter()->bIsDraggingWithGrapHook()() && !player.ASPC->GetPlayerCharacter()->bIsImmobilized()() && !player.ASPC->GetPlayerCharacter()->bIsBeingDraggedByDino()())
 			{
+				if (PreventDinos && player.ASPC->GetPlayerCharacter()->GetRidingDino())
+				{
+					/*player.DinoID1 = player.ASPC->GetPlayerCharacter()->GetRidingDino()->DinoID1Field();
+					player.DinoID2 = player.ASPC->GetPlayerCharacter()->GetRidingDino()->DinoID2Field();*/
+					player.DinoSeat = player.ASPC->GetPlayerCharacter()->GetRidingDino()->GetSeatIndexForPassenger(player.ASPC->GetPlayerCharacter());
+					player.ASPC->GetPlayerCharacter()->GetRidingDino()->ServerCallStay_Implementation();
+					if (player.DinoSeat >= 0)
+					{
+						player.ASPC->GetPlayerCharacter()->GetRidingDino()->RemovePassenger(player.ASPC->GetPlayerCharacter(), true, false);
+					}
+					else
+					{
+						player.ASPC->GetPlayerCharacter()->GetRidingDino()->ServerClearRider_Implementation(0);
+					}
+				}
+
+				player.ASPC->GetPlayerCharacter()->ClearMountedDino(false);
+
 				if (WipeInventoryOrCheckIsNaked)
 				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
+					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(player.ASPC->CheatManagerField());
+					if (cheatManager) cheatManager->ClearPlayerInventory((int)player.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
 				else
 				{
-					const FString& NakedChkMsg = CheckIfPlayersNaked(itr.ASPC).value_or("");
+					const FString& NakedChkMsg = CheckIfPlayersNaked(player.ASPC).value_or("");
 					if (!NakedChkMsg.IsEmpty())
 					{
-						ArkApi::GetApiUtils().SendChatMessage(itr.ASPC, EventManager::Get().GetServerName(), *NakedChkMsg);
-						itr.Delete = true;
+						ArkApi::GetApiUtils().SendChatMessage(player.ASPC, EventManager::Get().GetServerName(), *NakedChkMsg);
+						if (LogToConsole) Log::GetLog()->info("Removing: {} {} ({})!", ArkApi::GetApiUtils().GetCharacterName(player.ASPC).ToString().c_str(), NakedChkMsg.ToString(), Players.Num());
+						RemovePlayers = player.Delete = true;
 						continue;
 					}
 				}
 
-				if (DisableInputs)
-				{
-					itr.ASPC->GetPlayerCharacter()->bPreventMovement() = true;
-					itr.ASPC->GetPlayerCharacter()->bPreventJump() = true;
-				}
+				player.StartPos = ArkApi::GetApiUtils().GetPosition(player.ASPC);
 
-				itr.StartPos = ArkApi::GetApiUtils().GetPosition(itr.ASPC);
-
-				Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]];
-				SpawnIndexs[TeamIndex]++;
-
-				itr.Team = TeamBased ? TeamIndex + 1 : 0;
-
-				UPrimalCharacterStatusComponent* charStatus = itr.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
+				UPrimalCharacterStatusComponent* charStatus = player.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
 				if (charStatus)
 				{
 					if (ApplyFairHp)
 					{
 						float* health = charStatus->CurrentStatusValuesField()();
-						itr.EventPlayerStats.health = *health;
+						player.EventPlayerStats.health = *health;
 						*health = 100.f;
 					}
 
@@ -195,82 +247,137 @@ namespace EventManager
 					if (ApplyFairMovementSpeed)
 					{
 						float* speed = charStatus->CurrentStatusValuesField()() + 9;
-						itr.EventPlayerStats.speed = *speed;
+						player.EventPlayerStats.speed = *speed;
 						*speed = MovementSpeed;
 					}
 
 					if (ApplyFairMeleeDamage)
 					{
 						float* melee = charStatus->CurrentStatusValuesField()() + 8;
-						itr.EventPlayerStats.melee = *melee;
+						player.EventPlayerStats.melee = *melee;
 						*melee = 100;
 					}
 				}
 
-				itr.ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
-				itr.TeledPos = Pos;
-				if (TeamCount > 1)
-				{
-					EventTeamData[TeamIndex].Alive++;
-					TeamIndex++;
-					if (TeamIndex == TeamCount) TeamIndex = 0;
-				}
-
-				if (SpawnIndexs[TeamIndex] == Spawns[TeamIndex].Num()) SpawnIndexs[TeamIndex] = 0;
 			}
 			else
 			{
-				RemovePlayers = itr.Delete = true;
-				if (LogToConsole) Log::GetLog()->info("Removing: {} is not at their start pos ({})!", ArkApi::GetApiUtils().GetCharacterName(itr.ASPC).ToString().c_str(), Players.Num());
+				if (GetArkShopEntryFee() != 0)
+					ArkShopAddPoints(GetArkShopEntryFee(), (int)player.PlayerID);
+
+				RemovePlayers = player.Delete = true;
+
+				if (LogToConsole) Log::GetLog()->info("Removing: {} dont meet conditions ({})!", ArkApi::GetApiUtils().GetCharacterName(player.ASPC).ToString().c_str(), Players.Num());
 			}
 		}
 
 		if (RemovePlayers)
-		{
 			Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
-			if (LogToConsole) Log::GetLog()->info("Players: {}!", Players.Num());
+
+		if (Players.Num() < CurrentEvent->GetPlayersNeededToStart())
+		{
+			if (GetArkShopEntryFee() != 0)
+			{
+				for (auto& player : Players)
+					ArkShopAddPoints(GetArkShopEntryFee(), player.PlayerID);
+			}
+			return false;
 		}
+
+		for (auto& player : Players)
+		{
+			if (DisableInputs)
+			{
+				player.ASPC->GetPlayerCharacter()->bPreventMovement() = true;
+				player.ASPC->GetPlayerCharacter()->bPreventJump() = true;
+			}
+
+			Pos = Spawns[TeamIndex][SpawnIndexs[TeamIndex]];
+			SpawnIndexs[TeamIndex]++;
+
+			player.Team = TeamBased ? TeamIndex + 1 : 0;
+			player.ASPC->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+			player.TeledPos = Pos;
+
+			if (TeamCount > 1)
+			{
+				EventTeamData[TeamIndex].Alive++;
+				TeamIndex++;
+				if (TeamIndex == TeamCount) TeamIndex = 0;
+			}
+
+			if (SpawnIndexs[TeamIndex] == Spawns[TeamIndex].Num()) SpawnIndexs[TeamIndex] = 0;
+		}
+		return true;
+	}
+
+	void EventManager::TeleportHome(const EventPlayer& player, const bool WipeInventory, const bool PlayerDied)
+	{
+		if (TeamBased && PlayerDied)
+		{
+			const int Team = player.Team - 1;
+			if (Team < EventTeamData.Num()) EventTeamData[Team].Alive--;
+		}
+		if (WipeInventory)
+		{
+			UShooterCheatManager* cheatManager;
+			cheatManager = static_cast<UShooterCheatManager*>(player.ASPC->CheatManagerField());
+			if (cheatManager) cheatManager->ClearPlayerInventory((int)player.ASPC->LinkedPlayerIDField(), true, true, true);
+		}
+		ResetPlayerStats(player, false);
+		player.ASPC->SetPlayerPos(player.StartPos.X, player.StartPos.Y, player.StartPos.Z);
+		/*if (player.DinoID1 != -1)
+		{
+			APrimalDinoCharacter* Dino = APrimalDinoCharacter::FindDinoWithID(ArkApi::GetApiUtils().GetWorld(), player.DinoID1, player.DinoID2);
+			if (Dino)
+			{
+				if (player.DinoSeat >= 0)
+				{
+					if (Dino->IsPassengerSeatAvailable(player.DinoSeat))
+						Dino->AddPassenger(player.ASPC->GetPlayerCharacter(), player.DinoSeat, true, true);
+					else
+					{
+						const int SeatIndex = Dino->GetSeatIndexForPassenger(player.ASPC->GetPlayerCharacter());
+						if(SeatIndex >= 0)
+							Dino->AddPassenger(player.ASPC->GetPlayerCharacter(), SeatIndex, true, true);
+					}
+				}
+				else
+				{
+					player.ASPC->GetPlayerCharacter()->SetRidingDino(Dino);
+				}
+			}
+		}*/
 	}
 
 	void EventManager::TeleportWinningEventPlayersToStart(const bool WipeInventory)
 	{
-		UShooterCheatManager* cheatManager;
-		for (auto& itr : Players)
+		for (auto& player : Players)
 		{
-			if (itr.ASPC && itr.ASPC->GetPlayerCharacter())
-			{
-				if (WipeInventory)
-				{
-					cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)itr.ASPC->LinkedPlayerIDField(), true, true, true);
-				}
-				ResetPlayerStats(&itr, false);
-				itr.ASPC->SetPlayerPos(itr.StartPos.X, itr.StartPos.Y, itr.StartPos.Z);
-			}
+			if (player.ASPC && player.ASPC->GetPlayerCharacter())
+				TeleportHome(player, WipeInventory, false);
 		}
 	}
 
-	void EventManager::CheckPlayersTeledAndEnableInputs()
+	void EventManager::EnableInputs()
 	{
 		bool RemovePlayers = false;
-		for (auto& itr : Players)
+		for (auto& player : Players)
 		{
-			if (itr.ASPC && itr.ASPC->PlayerStateField() && itr.ASPC->GetPlayerCharacter() && !itr.ASPC->GetPlayerCharacter()->IsDead())
+			if (player.ASPC && player.ASPC->PlayerStateField() && player.ASPC->GetPlayerCharacter())
 			{
-				itr.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
-				itr.ASPC->GetPlayerCharacter()->bPreventJump() = false;
-				if (FVector::Distance(ArkApi::GetApiUtils().GetPosition(itr.ASPC), itr.TeledPos) > 100.f)
-				{
-					RemovePlayers = itr.Delete = true;
-					if (LogToConsole) Log::GetLog()->info("Removing: {} is not at their start pos (Players: {})!", ArkApi::GetApiUtils().GetCharacterName(itr.ASPC).ToString().c_str(), Players.Num());
-				}
+				player.ASPC->GetPlayerCharacter()->bPreventMovement() = false;
+				player.ASPC->GetPlayerCharacter()->bPreventJump() = false;
+			}
+			else
+			{
+				RemovePlayers = player.Delete = true;
 			}
 		}
 
 		if (RemovePlayers)
 		{
 			Players.RemoveAll([&](const auto& evplayer) { return evplayer.Delete; });
-			if (LogToConsole) Log::GetLog()->info("Players: {}!", Players.Num());
 		}
 
 		const int PlayersNeeded = (CurrentEvent && CurrentEvent->GetPlayersNeededToStart() || 1);
@@ -335,35 +442,73 @@ namespace EventManager
 		return EquipIndex;
 	}
 
+	void EventManager::UpdateItemColours(const short ItemColour, const TArray<UPrimalItem*>& Items)
+	{
+		for (const auto& item : Items)
+		{
+			if (item && !item->bIsEngram()() && !item->bIsInitialItem()())
+			{
+				for (int i = 0; i < 6; i++)
+				{
+					switch (item->MyItemTypeField())
+					{
+					case EPrimalItemType::Equipment:
+					case EPrimalItemType::Weapon:
+						*(item->bUseItemColorField()() + i) = true;
+						*(item->ItemColorIDField()() + i) = ItemColour;
+						break;
+					}
+				}
+				item->UpdatedItem(false);
+			}
+		}
+	}
+
 	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
 	{
-		UShooterCheatManager* cheatManager;
-		for (auto& itr : Players)
+		TArray<UPrimalItem*> SpawnedItems;
+		bool RemovePlayers = false;
+		for (auto& player : Players)
 		{
-			if (!itr.ASPC || !itr.ASPC->GetPlayerCharacter() || itr.ASPC->GetPlayerCharacter()->IsDead()) continue;
-
-			cheatManager = static_cast<UShooterCheatManager*>(itr.ASPC->CheatManagerField());
-			for (int i = 0; i < (int)EventArmourType::Max; i++)
+			if (!player.ASPC || !player.ASPC->GetPlayerCharacter())
 			{
-				if (Equipment.Armour[i].Quantity != 0)
+				continue;
+			}
+
+			if (FVector::Distance(ArkApi::GetApiUtils().GetPosition(player.ASPC), player.TeledPos) > 4000)
+			{
+				RemovePlayers = player.Delete = true;
+				if (LogToConsole) Log::GetLog()->info("{} removed was not teleported, removed!", ArkApi::GetApiUtils().GetCharacterName(player.ASPC).ToString());
+				continue;
+			}
+
+			for (const auto& Armour : Equipment.Armour)
+			{
+				if (Armour.Quantity != 0)
 				{
-					FString BP = Equipment.Armour[i].BP;
-					if (cheatManager) cheatManager->GiveItemToPlayer((int)itr.ASPC->LinkedPlayerIDField(), &BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
-					//itr.ASPC->GiveItem(&BP, Equipment.Armour[i].Quantity, Equipment.Armour[i].Quality, false);
+					FString BP = Armour.BP;
+					player.ASPC->GiveItem(&SpawnedItems, &BP, Armour.Quantity, Armour.Quality, false, true, 0);
 				}
 			}
 
 			for (const auto& Item : Equipment.Items)
 			{
 				FString BP = Item.BP;
-				if (cheatManager) cheatManager->GiveItemToPlayer((int)itr.ASPC->LinkedPlayerIDField(), &BP, Item.Quantity, Item.Quality, false);
-				//itr.ASPC->GiveItem(&BP, Item.Quantity, Item.Quality, false);
+				player.ASPC->GiveItem(&SpawnedItems, &BP, Item.Quantity, Item.Quality, false, false, 0);
+			}
+
+			UPrimalInventoryComponent* Inv = player.ASPC->GetPlayerCharacter()->MyInventoryComponentField();
+			if (!Inv) continue;
+
+			if (TeamBased)
+			{
+				const short ItemCol = player.Team == 1 ? 59 : 61;
+				UpdateItemColours(ItemCol, Inv->InventoryItemsField());
+				UpdateItemColours(ItemCol, Inv->EquippedItemsField());
 			}
 
 			int SlotIndex = 0;
-			UPrimalInventoryComponent* Inv = itr.ASPC->GetPlayerCharacter()->MyInventoryComponentField();
-			if (!Inv) return;
-			TArray<UPrimalItem *> Items = Inv->InventoryItemsField();
+			const auto& Items = Inv->InventoryItemsField();
 			for (const auto& item : Items)
 			{
 				if (item && !item->IsInBlueprint() && !item->bIsEngram()())
@@ -372,48 +517,59 @@ namespace EventManager
 					{
 					case EPrimalItemType::Weapon:
 						item->AddToSlot(SlotIndex++, true);
-						item->UpdatedItem();
+						item->WeaponClipAmmoField() = item->WeaponTotalAmmoField();
+						if (SlotIndex == 1)
+							item->EquippedItem();
+						item->UpdatedItem(false);
 						break;
 					}
 					if (SlotIndex == 10) break;
 				}
 			}
 		}
+
+		if (RemovePlayers)
+		{
+			Players.RemoveAll([&](const auto& evplayer) 
+			{ 
+				if (evplayer.Delete)
+				{
+					TeleportHome(evplayer, false, true);
+					return true;
+				}
+				return false; 
+			});
+		}
 	}
 
-	void EventManager::ResetPlayerStats(EventPlayer* Player, const bool PlayerDied)
+	void EventManager::ResetPlayerStats(EventPlayer player, const bool PlayerDied)
 	{
-		Player->ASPC->bInputEnabled() = true;
-		if (TeamBased && PlayerDied)
-		{
-			const int Team = Player->Team - 1;
-			if (Team < EventTeamData.Num()) EventTeamData[Team].Alive--;
-		}
+		player.ASPC->bInputEnabled() = true;
 
-		if (Player->ASPC->GetPlayerCharacter() && Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
+		if (player.ASPC->GetPlayerCharacter() && player.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent())
 		{
-			UPrimalCharacterStatusComponent* charStatus = Player->ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
+			UPrimalCharacterStatusComponent* charStatus = player.ASPC->GetPlayerCharacter()->GetCharacterStatusComponent();
 
 			float* health = charStatus->CurrentStatusValuesField()();
-			*health = Player->EventPlayerStats.health == -1.f ? 99.f : (Player->EventPlayerStats.health < 99.f ? 99.f : (Player->EventPlayerStats.health-1)); //for some reason to fix broken legs after event when your health was 100 you had to -1 health maybe find a function later to resync stuff related to injuries for now -1 health works.
+			*health = player.EventPlayerStats.health == -1.f ? 99.f : (player.EventPlayerStats.health < 99.f ? 99.f : (player.EventPlayerStats.health-1)); //for some reason to fix broken legs after event when your health was 100 you had to -1 health maybe find a function later to resync stuff related to injuries for now -1 health works.
 
 			float* torpor = charStatus->CurrentStatusValuesField()() + 2;
 			*torpor = 1;
 
-			if (Player->EventPlayerStats.melee != -1.f)
+			if (player.EventPlayerStats.melee != -1.f)
 			{
 				float* melee = charStatus->CurrentStatusValuesField()() + 8;
-				*melee = Player->EventPlayerStats.melee;
+				*melee = player.EventPlayerStats.melee;
 			}
 
-			if (Player->EventPlayerStats.speed != -1.f)
+			if (player.EventPlayerStats.speed != -1.f)
 			{
 				float* speed = charStatus->CurrentStatusValuesField()() + 9;
-				*speed = Player->EventPlayerStats.speed;
+				*speed = player.EventPlayerStats.speed;
 			}
 
-			Player->ASPC->GetPlayerCharacter()->bIsSleeping() = false;
-			Player->ASPC->GetPlayerCharacter()->bIsDead() = false;
+			player.ASPC->GetPlayerCharacter()->bIsSleeping() = false;
+			player.ASPC->GetPlayerCharacter()->bIsDead() = false;
 			charStatus->ServerSyncReplicatedValues();
 		}
 	}
@@ -423,13 +579,13 @@ namespace EventManager
 		FChatMessage chat_message = FChatMessage();
 		chat_message.SenderName = sender_name;
 		chat_message.Message = msg;
-		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientChatMessage(chat_message);
+		for (const auto& ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientChatMessage(chat_message);
 	}
 
 	void EventManager::SendNotificationToAllEventPlayersInternal(FLinearColor color, float display_scale,
 		float display_time, UTexture2D* icon, FString& msg)
 	{
-		for (EventPlayer ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientServerSOTFNotificationCustom(&msg, color, display_scale, display_time, icon, nullptr);
+		for (const auto& ePlayer : Players) if (ePlayer.ASPC) ePlayer.ASPC->ClientServerSOTFNotificationCustom(&msg, color, display_scale, display_time, icon, nullptr);
 	}
 
 	bool EventManager::GetEventQueueNotifications()
@@ -483,6 +639,23 @@ namespace EventManager
 		return true;
 	}
 
+
+	void SetItemStatValue(UPrimalItem* item, EPrimalItemStat::Type item_stat_type, const float new_value)
+	{
+		*(item->ItemStatValuesField()() + item_stat_type) = 0;
+		const float old_stat_modifier = item->GetItemStatModifier(item_stat_type);
+		*(item->ItemStatValuesField()() + item_stat_type) = 1;
+		*(item->ItemStatValuesField()() + item_stat_type) = static_cast<unsigned short>((new_value - old_stat_modifier) / (item->GetItemStatModifier(item_stat_type) - old_stat_modifier));
+		switch (item_stat_type)
+		{
+		case EPrimalItemStat::MaxDurability:
+			if(item->bUseItemDurability()())
+				item->ItemDurabilityField() = item->GetItemStatModifier(item_stat_type);
+			break;
+		}
+		item->UpdatedItem(false);
+	}
+
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)
 	{
 		if (VictimID != -1)
@@ -492,13 +665,7 @@ namespace EventManager
 
 			if ((Player = FindPlayer(VictimID)))
 			{
-				if (Player->ASPC && Player->ASPC->GetPlayerCharacter())
-				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(Player->ASPC->CheatManagerField());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)Player->ASPC->LinkedPlayerIDField(), true, true, true);
-					ResetPlayerStats(Player);
-					Player->ASPC->SetPlayerPos(Player->StartPos.X, Player->StartPos.Y, Player->StartPos.Z);
-				}
+				if (Player->ASPC && Player->ASPC->GetPlayerCharacter()) TeleportHome(*Player, true, true);
 				Players.RemoveAll([&](EventPlayer& evplayer) { return evplayer.PlayerID == Player->PlayerID; });
 				return true;
 			}
@@ -513,13 +680,7 @@ namespace EventManager
 			if (EventPlayer* EPlayer; (EPlayer = FindPlayer(Player->LinkedPlayerIDField())))
 			{
 				if (CurrentEvent->KillOnLoggout()) Player->ServerSuicide_Implementation();
-				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter())
-				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(EPlayer->ASPC->CheatManagerField());
-					if (cheatManager) cheatManager->ClearPlayerInventory((int)EPlayer->ASPC->LinkedPlayerIDField(), true, true, true);
-					ResetPlayerStats(EPlayer);
-					EPlayer->ASPC->SetPlayerPos(EPlayer->StartPos.X, EPlayer->StartPos.Y, EPlayer->StartPos.Z);
-				}
+				else if (EPlayer->ASPC && EPlayer->ASPC->GetPlayerCharacter()) TeleportHome(*EPlayer, true, true);
 				else Player->ServerSuicide_Implementation();
 				RemovePlayer(Player);
 			}
@@ -528,7 +689,9 @@ namespace EventManager
 
 	bool EventManager::IsEventProtectedStructure(const FVector& StructurePos)
 	{
-		for (Event* Evt : Events) if (Evt->IsEventProtectedStructure(StructurePos)) return true;
+		for (const auto& Evt : Events) 
+			if (Evt->IsEventProtectedStructure(StructurePos)) 
+				return true;
 		return false;
 	}
 
