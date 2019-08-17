@@ -51,9 +51,9 @@ namespace EventManager
 	{
 		FString BP;
 		int Quantity;
-		float Quality;
-		EventItem(const FString BP, const int Quantity, const float Quality) : BP(BP), Quantity(Quantity), Quality(Quality) {}
-		EventItem() : BP(), Quantity(0), Quality(0) {}
+		float Quality, DMG, Armour, Dura, AmmoClip;
+		EventItem(const FString BP, const int Quantity, const float Quality, const float DMG, const float Armour, const float Dura, const float AmmoClip) : BP(BP), Quantity(Quantity), Quality(Quality), DMG(DMG), Armour(Armour), Dura(Dura), AmmoClip(AmmoClip) {}
+		EventItem() : BP(), Quantity(0), Quality(0), DMG(0), Armour(0), Dura(0), AmmoClip(0) {}
 	};
 
 	struct EventEquipment
@@ -115,6 +115,7 @@ namespace EventManager
 		virtual void EnableInputs() = 0;
 
 		virtual std::optional<FString> CheckIfPlayersNaked(AShooterPlayerController* Player) = 0;
+		virtual void SetItemStatValue(UPrimalItem* item, EPrimalItemStat::Type item_stat_type, const float new_value) = 0;
 
 		virtual int GetRandomIndexNonRecurr(int TotalSize) = 0;
 		virtual void GiveEventPlayersEquipment(const EventEquipment& Equipment) = 0;

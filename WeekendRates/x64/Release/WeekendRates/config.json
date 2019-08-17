@@ -1,0 +1,41 @@
+{  
+   "WeekendRates":{  
+      "ServerName":"ServerNameHere",
+      "Notification":true,
+      "Chatbox":true,
+      "WeekendRatesEnabledRGB":[  
+         0,
+         1,
+         0,
+         1
+      ],
+      "WeekendRatesEnabledMessage":"Double Weekend Rates Active (Xp, Taming, Resources)",
+      "WeekendRatesDisabledRGB":[  
+         1,
+         0,
+         0,
+         1
+      ],
+      "WeekendRatesDisabledMessage":"Double Weekend Rates Disabled",
+      "MOTDChangeEnabled":true,
+      "WeekendMOTD":"Double Weekend (Xp, Taming, Resources)",
+      "NormalMOTD":"Welcome to back",
+	  "StartDay":6,
+	  "EndDay":1,
+      "XPMultiplier":4.0,
+      "TamingSpeedMultiplier":2.0,
+      "HarvestAmountMultiplier":4.0,
+      "HarvestHealthMultiplier":1.0,
+      "CraftXPMultiplier":1.0,
+      "FishingLootQualityMultiplier":1.0,
+      "BabyMatureSpeedMultiplier":1.0,
+      "MateBoostEffectMultiplier":1.0,
+      "MatingIntervalMultiplier":1.0,
+      "MatingSpeedMultiplier":1.0,
+      "EggHatchSpeedMultiplier":1.0,
+      "LayEggIntervalMultiplier":1.0,
+      "ResourcesRespawnPeriodMultiplier":1.0,
+      "SupplyCrateLootQualityMultiplier":1.0,
+      "StructureResistanceMultiplier":1.0
+   }
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Permissions.h>
+#include <ArkPermissions.h>
 
 #include "DinoColourCommand.h"
 
@@ -37,9 +37,9 @@ inline void ChangeDinoColour(AShooterPlayerController* player, FString* message,
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Incorrect Syntax: /sdc <Region> <Colour>");
 	}
 
-	if (Colour < 1 || Colour > 56)
+	if (Colour < 1 || Colour > 56 && Colour < 201 || Colour > 226)
 	{
-		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Dino Colour must be 1 - 56");
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "Dino Colour must be 1 - 56 | 201-226");
 		return;
 	}
 	if (Region < 0 || Region > 5)
@@ -58,9 +58,7 @@ inline void ChangeDinoColour(AShooterPlayerController* player, FString* message,
 			AShooterPlayerState* ASPS = static_cast<AShooterPlayerState*>(player->PlayerStateField());
 			if (ASPS && ASPS->MyPlayerDataStructField())
 			{
-				const int teamId = Dino->TargetingTeamField();
-				if (teamId != player->TargetingTeamField() || ASPS->MyTribeDataField() &&
-					teamId != ASPS->MyTribeDataField()->TribeIDField())
+				if (Dino->TargetingTeamField() != player->TargetingTeamField())
 				{
 					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(255, 0, 0), "That is not your dinosaur");
 					return;
@@ -69,7 +67,7 @@ inline void ChangeDinoColour(AShooterPlayerController* player, FString* message,
 				UFunction* Func = Dino->FindFunctionChecked(FName(L"ForceUpdateColorSets", EFindName::FNAME_Find, false));
 				int Args[] = {Region, Colour};
 				if (Func) Dino->ProcessEvent(Func, Args);
-
+					
 				FString DinoName = Dino->TamedNameField();
 				if (DinoName.Len() == 0) Dino->DinoNameTagField().ToString(&DinoName);
 

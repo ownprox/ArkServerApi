@@ -81,27 +81,27 @@ void NotifyDeath(const FString& KillerName, const FString& KillerTribe, const FS
 
 bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (_this && _this->PlayerStateField()() && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (_this && _this->PlayerStateField() && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
-		if (KillerShooterController && KillerShooterController->PlayerStateField()() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || _this->TargetingTeamField()() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()()))
+		if (KillerShooterController && KillerShooterController->PlayerStateField() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || _this->TargetingTeamField() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()))
 		{ 
 			FString KillerDinoName, WeaponName = "Punch";
 			UTexture2D* WeaponIcon = nullptr;
 
-			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()())
+			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField())
 			{
-				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->ItemIconField()();
+				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField()->ItemIconField();
 
-				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
+				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField()->GetItemName(&WeaponName, false, true, nullptr);
 			}
 			
 			if (KillerShooterController->GetPlayerCharacter()->GetRidingDino())
 				KillerDinoName = GetDinoName(KillerShooterController->GetPlayerCharacter()->GetRidingDino());
 
 			float Distance = 0;
-			if(DisplayDistance) Distance = (FVector::Distance((_this->RootComponentField()() ? _this->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField()() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0))) / 220);
-			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, _this->PlayerNameField()(), _this->TribeNameField()(), WeaponName, WeaponIcon, Distance, true);
+			if(DisplayDistance) Distance = (FVector::Distance((_this->RootComponentField() ? _this->RootComponentField()->RelativeLocationField() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()->RelativeLocationField() : FVector(0, 0, 0))) / 220);
+			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField(), KillerDinoName, _this->PlayerNameField(), _this->TribeNameField(), WeaponName, WeaponIcon, Distance, true);
 		}
 	}
 	return AShooterCharacter_Die_original(_this, KillingDamage, DamageEvent, Killer, DamageCauser);
@@ -109,29 +109,29 @@ bool _cdecl Hook_AShooterCharacter_Die(AShooterCharacter* _this, float KillingDa
 
 bool _cdecl Hook_APrimalDinoCharacter_Die(APrimalDinoCharacter* Dino, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	if (Dino && Dino->TargetingTeamField()() > 49999 && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
+	if (Dino && Dino->TargetingTeamField() > 49999 && Killer && !Killer->IsLocalController() && Killer->IsA(AShooterPlayerController::StaticClass()))
 	{
 		AShooterPlayerController* KillerShooterController = static_cast<AShooterPlayerController*>(Killer);
-		if (KillerShooterController && KillerShooterController->PlayerStateField()() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || Dino->TargetingTeamField()() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()()))
+		if (KillerShooterController && KillerShooterController->PlayerStateField() && KillerShooterController->GetPlayerCharacter() && (DisplaySameTribeKills || Dino->TargetingTeamField() != KillerShooterController->GetPlayerCharacter()->TargetingTeamField()))
 		{
 			FString DinoName, KillerDinoName, WeaponName = "Punch";
 			UTexture2D* WeaponIcon = nullptr;
 
 			DinoName = GetDinoName(Dino);
 
-			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()())
+			if (KillerShooterController->GetPlayerCharacter()->CurrentWeaponField() && KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField())
 			{
-				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->ItemIconField()();
+				if (DisplayType != 2) WeaponIcon = KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField()->ItemIconField();
 
-				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()()->AssociatedPrimalItemField()()->GetItemName(&WeaponName, false, true, nullptr);
+				KillerShooterController->GetPlayerCharacter()->CurrentWeaponField()->AssociatedPrimalItemField()->GetItemName(&WeaponName, false, true, nullptr);
 			}
 
 			if (KillerShooterController->GetPlayerCharacter()->GetRidingDino())
 				KillerDinoName = GetDinoName(KillerShooterController->GetPlayerCharacter()->GetRidingDino());
 
 			float Distance = 0;
-			if (DisplayDistance) Distance = (FVector::Distance((Dino->RootComponentField()() ? Dino->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField()() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()()->RelativeLocationField()() : FVector(0, 0, 0))) / 220);
-			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField()(), KillerDinoName, DinoName, Dino->TribeNameField()(), WeaponName, WeaponIcon, Distance, false);
+			if (DisplayDistance) Distance = (FVector::Distance((Dino->RootComponentField() ? Dino->RootComponentField()->RelativeLocationField() : FVector(0, 0, 0)), (KillerShooterController->GetPlayerCharacter()->RootComponentField() ? KillerShooterController->GetPlayerCharacter()->RootComponentField()->RelativeLocationField() : FVector(0, 0, 0))) / 220);
+			NotifyDeath(ArkApi::GetApiUtils().GetCharacterName(KillerShooterController), KillerShooterController->GetPlayerCharacter()->TribeNameField(), KillerDinoName, DinoName, Dino->TribeNameField(), WeaponName, WeaponIcon, Distance, false);
 		}
 	}
 	return APrimalDinoCharacter_Die_original(Dino, KillingDamage, DamageEvent, Killer, DamageCauser);

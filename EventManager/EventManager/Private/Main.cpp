@@ -71,15 +71,15 @@ void _cdecl Hook_AShooterGameMode_Logout(AShooterGameMode* _this, AController* E
 	AShooterGameMode_Logout_original(_this, Exiting);
 }
 
-void  Hook_AShooterPlayerController_ServerSendChatMessage_Implementation(AShooterPlayerController* _this, FString* ChatMessage, EChatSendMode::Type SendMode)
+void Hook_AShooterPlayerController_ServerSendChatMessage_Implementation(AShooterPlayerController* _this, FString* ChatMessage, EChatSendMode::Type SendMode)
 {
-	if (ChatMessage->StartsWith(L"/", ESearchCase::CaseSensitive) && EventManager::Get().IsEventRunning() /*&& !_this->bIsAdmin()()*/ && EventManager::Get().HasPlayer((int)_this->LinkedPlayerIDField()))
+	if (ChatMessage->StartsWith(L"/", ESearchCase::CaseSensitive) && EventManager::Get().IsEventRunning() && !_this->bIsAdmin()() && EventManager::Get().HasPlayer((int)_this->LinkedPlayerIDField()))
 	{
 		TArray<FString> Parsed;
 		ChatMessage->ParseIntoArray(Parsed, L" ", true);
 		if (!AllowedCommands.Contains(Parsed[0]))
 		{
-			ArkApi::GetApiUtils().SendChatMessage(_this, EventManager::Get().GetServerName(), *Messages[12]);
+			ArkApi::GetApiUtils().SendChatMessage(_this, EventManager::Get().GetServerName(), *Messages[12], *Parsed[0]);
 			return;
 		}
 	}

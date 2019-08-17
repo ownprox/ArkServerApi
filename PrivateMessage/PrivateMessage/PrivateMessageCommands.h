@@ -1,7 +1,7 @@
 #pragma once
 void PM(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()()) return;
+	if (!player || !player->PlayerStateField()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr)
 	{
@@ -14,8 +14,8 @@ void PM(AShooterPlayerController* player, FString* message, int mode)
 		}
 		FString Msg = "";
 		for (int i = 2; i < Parsed.Num(); i++)	Msg += (i == 2 ? Parsed[i] : FString(" ") + Parsed[i]);
-		TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(Parsed[1]);
-		if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField()())
+		TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(Parsed[1], ESearchCase::IgnoreCase, false);
+		if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField())
 		{
 			PlayerS* o;
 			if ((o = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(Players[0]))) != NULL)
@@ -24,13 +24,13 @@ void PM(AShooterPlayerController* player, FString* message, int mode)
 				p->LastPmSteamID = o->SteamID;
 				if (ServerMessage)
 				{
-					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
-					ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3]), L"{}{}{}{}{}", PmPrefixStart.c_str(), PmPrefixMiddle.c_str(), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), PmPrefixEnd.c_str(), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(Players[0], FLinearColor(ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3]), L"{}{}{}", PmPrefixStart.c_str(), PmPrefixEnd.c_str(), *Msg);
 				}
 				else
 				{
-					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM:{}] {}", *ArkApi::GetApiUtils().GetCharacterName(Players[0]), *Msg);
-					ArkApi::GetApiUtils().SendChatMessage(Players[0], ArkApi::GetApiUtils().GetCharacterName(player), L"[PM] {}", *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"<RichColor Color=\"{}, {}, {}, {}\">{}{}{}{}{}</>", ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3], PmPrefixStart.c_str(), PmPrefixMiddle.c_str(), *ArkApi::GetApiUtils().GetCharacterName(Players[0]), PmPrefixEnd.c_str(), *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(Players[0], ArkApi::GetApiUtils().GetCharacterName(player), L"<RichColor Color=\"{}, {}, {}, {}\">{}{}{}</>", ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3], PmPrefixStart.c_str(), PmPrefixEnd.c_str(), *Msg);
 				}
 			}
 		}
@@ -40,7 +40,7 @@ void PM(AShooterPlayerController* player, FString* message, int mode)
 
 void Reply(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()()) return;
+	if (!player || !player->PlayerStateField()) return;
 	PlayerS* p;
 	if ((p = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(player))) != nullptr)
 	{
@@ -55,7 +55,7 @@ void Reply(AShooterPlayerController* player, FString* message, int mode)
 		FString Msg = "";
 		for (int i = 1; i < Parsed.Num(); i++)	Msg += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 		AShooterPlayerController* other = nullptr;
-		if ((other = ArkApi::GetApiUtils().FindPlayerFromSteamId(p->LastPmSteamID)) != nullptr && other->PlayerStateField()())
+		if ((other = ArkApi::GetApiUtils().FindPlayerFromSteamId(p->LastPmSteamID)) != nullptr && other->PlayerStateField())
 		{
 			PlayerS* o;
 			if ((o = GetPlayer(ArkApi::GetApiUtils().GetSteamIdFromController(other))) != nullptr)
@@ -64,13 +64,13 @@ void Reply(AShooterPlayerController* player, FString* message, int mode)
 				p->LastPmSteamID = o->SteamID;
 				if(ServerMessage)
 				{
-					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
-					ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(ServerMessageRBG[0], ServerMessageRBG[1], ServerMessageRBG[2]), L"[{}->{}] {}", *ArkApi::GetApiUtils().GetCharacterName(player), *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3]), L"{}{}{}{}{}", PmPrefixStart.c_str(), PmPrefixMiddle.c_str(), *ArkApi::GetApiUtils().GetCharacterName(other), PmPrefixEnd.c_str(), *Msg);
+					ArkApi::GetApiUtils().SendServerMessage(other, FLinearColor(ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3]), L"{}{}{}", PmPrefixStart.c_str(), PmPrefixEnd.c_str(), *Msg);
 				}
 				else
 				{
-					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM:{}] {}", *ArkApi::GetApiUtils().GetCharacterName(other), *Msg);
-					ArkApi::GetApiUtils().SendChatMessage(other, ArkApi::GetApiUtils().GetCharacterName(player), L"[PM] {}", *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(player, ArkApi::GetApiUtils().GetCharacterName(player), L"<RichColor Color=\"{}, {}, {}, {}\">{}{}{}{}{}</>", ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3], PmPrefixStart.c_str(), PmPrefixMiddle.c_str(), *ArkApi::GetApiUtils().GetCharacterName(other), PmPrefixEnd.c_str(), *Msg);
+					ArkApi::GetApiUtils().SendChatMessage(other, ArkApi::GetApiUtils().GetCharacterName(player), L"<RichColor Color=\"{}, {}, {}, {}\">{}{}{}</>", ServerMessageRGB[0], ServerMessageRGB[1], ServerMessageRGB[2], ServerMessageRGB[3], PmPrefixStart.c_str(), PmPrefixEnd.c_str(), *Msg);
 				}
 			}
 		}

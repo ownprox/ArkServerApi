@@ -4,5 +4,8 @@
   ],
   "functions": [
 	"PrimalGameIni_GameModeInitValues"
+  ],
+  "globals": [
+	"GConfig"
   ]
 }

@@ -82,6 +82,7 @@ namespace EventManager
 
 		int GetRandomIndexNonRecurr(int TotalSize);
 		void UpdateItemColours(const short ItemColour, const TArray<UPrimalItem*>& Items);
+		void SetItemStatValue(UPrimalItem* item, EPrimalItemStat::Type item_stat_type, const float new_value);
 		void GiveEventPlayersEquipment(const EventEquipment& Equipment);
 		void ResetPlayerStats(EventPlayer Player, const bool PlayerDied);
 

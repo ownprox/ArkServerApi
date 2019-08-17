@@ -1,0 +1,6 @@
+{
+  "FullName":"Private Message",
+  "Description":"Ability to private message other players",
+  "Version":1.3,
+  "MinApiVersion":2.1
+}

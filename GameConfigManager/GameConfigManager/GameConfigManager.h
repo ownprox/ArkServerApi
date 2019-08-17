@@ -5,8 +5,8 @@
 struct FConfigCacheIniNew
 {
 	//FieldValue<FConfigCacheIniVtbl *> vfptrField() { return { this, "FConfigCacheIni.vfptr" }; }
-	FieldValue<bool> bAreFileOperationsDisabledField() { return { this, "FConfigCacheIni.bAreFileOperationsDisabled" }; }
-	FieldValue<bool> bIsReadyForUseField() { return { this, "FConfigCacheIni.bIsReadyForUse" }; }
+	//FieldValue<bool> bAreFileOperationsDisabledField() { return { this, "FConfigCacheIni.bAreFileOperationsDisabled" }; }
+	//FieldValue<bool> bIsReadyForUseField() { return { this, "FConfigCacheIni.bIsReadyForUse" }; }
 
 	// Functions
 

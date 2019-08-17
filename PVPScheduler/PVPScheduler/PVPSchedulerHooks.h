@@ -2,19 +2,17 @@
 
 DECLARE_HOOK(APrimalCharacter_TakeDamage, float, APrimalCharacter*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(APrimalStructure_TakeDamage, float, APrimalStructure*, float, FDamageEvent*, AController*, AActor*);
-DECLARE_HOOK(APrimalDinoCharacter_TakeDamage, float, APrimalDinoCharacter*, float, FDamageEvent*, AController*,
-	AActor*);
+DECLARE_HOOK(APrimalDinoCharacter_TakeDamage, float, APrimalDinoCharacter*, float, FDamageEvent*, AController*, AActor*);
+DECLARE_HOOK(APrimalStructureExplosive_CanDetonateMe, bool, APrimalStructureExplosive*, AShooterCharacter*, bool);
 
 void PVPCheckTimer();
 
 inline void InitHooks()
 {
-	ArkApi::GetHooks().SetHook("APrimalCharacter.TakeDamage", &Hook_APrimalCharacter_TakeDamage,
-	                           reinterpret_cast<LPVOID*>(&APrimalCharacter_TakeDamage_original));
-	ArkApi::GetHooks().SetHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage,
-	                           reinterpret_cast<LPVOID*>(&APrimalStructure_TakeDamage_original));
-	ArkApi::GetHooks().SetHook("APrimalDinoCharacter.TakeDamage", &Hook_APrimalDinoCharacter_TakeDamage,
-	                           reinterpret_cast<LPVOID*>(&APrimalDinoCharacter_TakeDamage_original));
+	ArkApi::GetHooks().SetHook("APrimalCharacter.TakeDamage", &Hook_APrimalCharacter_TakeDamage, &APrimalCharacter_TakeDamage_original);
+	ArkApi::GetHooks().SetHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage, &APrimalStructure_TakeDamage_original);
+	ArkApi::GetHooks().SetHook("APrimalDinoCharacter.TakeDamage", &Hook_APrimalDinoCharacter_TakeDamage, &APrimalDinoCharacter_TakeDamage_original);
+	ArkApi::GetHooks().SetHook("APrimalStructureExplosive.CanDetonateMe", &Hook_APrimalStructureExplosive_CanDetonateMe, &APrimalStructureExplosive_CanDetonateMe_original);
 	ArkApi::GetCommands().AddOnTimerCallback("PVPCheckTimer", &PVPCheckTimer);
 }
 
@@ -23,20 +21,20 @@ inline void RemoveHooks()
 	ArkApi::GetHooks().DisableHook("APrimalCharacter.TakeDamage", &Hook_APrimalCharacter_TakeDamage);
 	ArkApi::GetHooks().DisableHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage);
 	ArkApi::GetHooks().DisableHook("APrimalDinoCharacter.TakeDamage", &Hook_APrimalDinoCharacter_TakeDamage);
+	ArkApi::GetHooks().DisableHook("APrimalStructureExplosive.CanDetonateMe", &Hook_APrimalStructureExplosive_CanDetonateMe);
 	ArkApi::GetCommands().RemoveOnTimerCallback("PVPCheckTimer");
 }
 
 inline time_t rawtime;
 inline tm timeinfo;
-inline int OneMinCounter;
-inline std::string PVPMessage[2];
+inline int OneMinCounter = 60;
 
 inline void PVPCheckTimer()
 {
 	if (!ArkApi::GetApiUtils().GetShooterGameMode())
 		return;
 
-	if (OneMinCounter++ == 60)
+	if (OneMinCounter++ >= 60)
 	{
 		time(&rawtime);
 		localtime_s(&timeinfo, &rawtime);
@@ -76,9 +74,10 @@ inline void PVPCheckTimer()
 
 					PVPMessage[0] = PVPDays[i].value("PVPEnabledMessage", "");
 					PVPMessage[1] = PVPDays[i].value("PVPDisabledMessage", "");
-					ProtectCharacters = PVPDays[i]["ProtectPlayers"];
-					ProtectDinos = PVPDays[i]["ProtectDinos"];
-					ProtectStructures = PVPDays[i]["ProtectStructures"];
+					ProtectCharacters = PVPDays[i].value("ProtectPlayersPVPOn", false);
+					ProtectDinos = PVPDays[i].value("ProtectDinosPVPOn", false);
+					ProtectStructures = PVPDays[i].value("ProtectStructuresPVPOn", false);
+					ProtectExplosives = PVPDays[i].value("ProtectExplosivesPVPOn", false);
 
 					if (ServerNotify)
 					{
@@ -102,7 +101,12 @@ inline void PVPCheckTimer()
 					ServerName, ArkApi::Tools::Utf8Decode(PVPMessage[1]).c_str());
 			}
 
-			PVPEnabled = ProtectCharacters = ProtectDinos = ProtectStructures = false;
+			ProtectCharacters = PVPConfig["PVPScheduler"].value("ProtectPlayersPVPOff", true);
+			ProtectDinos = PVPConfig["PVPScheduler"].value("ProtectDinosPVPOff", true);
+			ProtectStructures = PVPConfig["PVPScheduler"].value("ProtectStructuresPVPOff", true);
+			ProtectExplosives = PVPConfig["PVPScheduler"].value("ProtectExplosivesPVPOff", true);
+
+			PVPEnabled = false;
 
 			if (LogPvpSwitchAtConsole)
 				Log::GetLog()->info("PVP Schedule Disabled!");
@@ -112,31 +116,53 @@ inline void PVPCheckTimer()
 	}
 }
 
-inline float Hook_APrimalCharacter_TakeDamage(APrimalCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
+long double LastTime;
+
+bool Hook_APrimalStructureExplosive_CanDetonateMe(APrimalStructureExplosive *_this, AShooterCharacter* Character, bool bUsingRemote)
+{
+	if (ProtectExplosives)
+	{
+		const auto& NowTime = ArkApi::GetApiUtils().GetWorld()->GetTimeSeconds();
+		if (NowTime >= LastTime && Character)
+		{
+			AShooterPlayerController* aspc = ArkApi::GetApiUtils().FindControllerFromCharacter(Character);
+			if (aspc)
+			{
+				LastTime = NowTime + 1;
+				ArkApi::GetApiUtils().SendChatMessage(aspc, ServerName, ArkApi::Tools::Utf8Decode(PVPMessage[2]).c_str());
+			}
+		}
+		return false;
+	}
+	return APrimalStructureExplosive_CanDetonateMe_original(_this, Character, bUsingRemote);
+}
+
+float Hook_APrimalCharacter_TakeDamage(APrimalCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
                                               AController* Attacker, AActor* DamageCauser)
 {
-	return ProtectCharacters && Victim && Attacker && Attacker->TargetingTeamField() >= 50000
+	return ProtectCharacters && Victim && Attacker  && Victim->TargetingTeamField() >= 50000 && Attacker->TargetingTeamField() >= 50000
 		       ? 0
 		       : APrimalCharacter_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
 }
 
-inline float Hook_APrimalDinoCharacter_TakeDamage(APrimalDinoCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
+float Hook_APrimalDinoCharacter_TakeDamage(APrimalDinoCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
                                                   AController* Attacker, AActor* DamageCauser)
 {
+
 	if (ProtectDinos && Victim && Victim->TargetingTeamField() >= 50000)
 	{
 		if (Attacker && Attacker->TargetingTeamField() < 50000)
 			return APrimalDinoCharacter_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
-
 		return 0;
 	}
 
 	return APrimalDinoCharacter_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
 }
 
-inline float Hook_APrimalStructure_TakeDamage(APrimalStructure* Victim, float Damage, FDamageEvent* DamageEvent,
+float Hook_APrimalStructure_TakeDamage(APrimalStructure* Victim, float Damage, FDamageEvent* DamageEvent,
                                               AController* Attacker, AActor* DamageCauser)
-{
+{//bImmuneToAutoDemolish
+	//bUseHarvestingComponent 	
 	return ProtectStructures
 		       ? 0
 		       : APrimalStructure_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);

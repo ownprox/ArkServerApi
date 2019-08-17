@@ -34,14 +34,14 @@ inline TArray<APrimalDinoCharacter*> FindDinos(const int team, const FString& Di
 
 	for (AActor* DinoActor : AllDinos)
 	{
-		if (!DinoActor || DinoActor->TargetingTeamField()() != team) continue;
+		if (!DinoActor || DinoActor->TargetingTeamField() != team) continue;
 		Dino = static_cast<APrimalDinoCharacter*>(DinoActor);
-		if (MaxDistance != -1 && FVector::Distance(PlayerPos, Dino->RootComponentField()()->RelativeLocationField()()) < MaxDistance) continue;
-		DinoTag = Dino->TamedNameField()();
+		if (MaxDistance != -1 && FVector::Distance(PlayerPos, Dino->RootComponentField()->RelativeLocationField()) < MaxDistance) continue;
+		DinoTag = Dino->TamedNameField();
 		if (DinoTag == DinoName) FoundDinos.Add(Dino);
 		else
 		{
-			Dino->DinoNameTagField()().ToString(&DinoTag);
+			Dino->DinoNameTagField().ToString(&DinoTag);
 			if (DinoTag == DinoName) FoundDinos.Add(Dino);
 		}
 	}
@@ -51,7 +51,7 @@ inline TArray<APrimalDinoCharacter*> FindDinos(const int team, const FString& Di
 
 inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter())
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter())
 		return;
 
 	TArray<FString> Parsed;
@@ -66,7 +66,7 @@ inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, 
 	for (int i = 1; i < Parsed.Num(); i++)
 		DinoName += i == 1 ? Parsed[i] : FString(" ") + Parsed[i];
 
-	TArray<APrimalDinoCharacter*> FoundDinos = FindDinos(player->TargetingTeamField()(), DinoName, player);
+	TArray<APrimalDinoCharacter*> FoundDinos = FindDinos(player->TargetingTeamField(), DinoName, player);
 	if (FoundDinos.Num() < 1)
 	{
 		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), Messages[2].c_str(), *DinoName);
@@ -79,10 +79,10 @@ inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, 
 
 	for (APrimalDinoCharacter* Dino : FoundDinos)
 	{
-		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
+		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()->RelativeLocationField());
 
-		FString CurrentDinoName = Dino->TamedNameField()();
-		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField()().ToString(&CurrentDinoName);
+		FString CurrentDinoName = Dino->TamedNameField();
+		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField().ToString(&CurrentDinoName);
 
 		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
 	}
@@ -92,10 +92,10 @@ inline void PlayerTrackDino(AShooterPlayerController* player, FString* message, 
 
 inline void AdminPlayerTrackDino(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter())
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter())
 		return;
 
-	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
+	if (!player->GetPlayerCharacter()->bIsServerAdminField())
 	{
 		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[6]);
 		return;
@@ -137,10 +137,10 @@ inline void AdminPlayerTrackDino(AShooterPlayerController* player, FString* mess
 
 	for (APrimalDinoCharacter* Dino : FoundDinos)
 	{
-		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()()->RelativeLocationField()());
+		const FVector2D MapCoords = GetMapCoordsFromLocation(Dino->RootComponentField()->RelativeLocationField());
 
-		FString CurrentDinoName = Dino->TamedNameField()();
-		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField()().ToString(&CurrentDinoName);
+		FString CurrentDinoName = Dino->TamedNameField();
+		if (CurrentDinoName.IsEmpty()) Dino->DinoNameTagField().ToString(&CurrentDinoName);
 		Text += (i++ > 0 ? L"\n" : L"") + FString::Format(Messages[3].c_str(), *CurrentDinoName, MapCoords.X, MapCoords.Y);
 	}
 
@@ -149,8 +149,8 @@ inline void AdminPlayerTrackDino(AShooterPlayerController* player, FString* mess
 
 inline void AdminGetPlayerTeamID(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
-	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
+	if (!player->GetPlayerCharacter()->bIsServerAdminField())
 	{
 		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}", Messages[6]);
 		return;
@@ -169,7 +169,7 @@ inline void AdminGetPlayerTeamID(AShooterPlayerController* player, FString* mess
 		PlayerName += i == 1 ? Parsed[i] : FString(" ") + Parsed[i];
 	TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
 	for(auto player : Players)
-		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}->TeamID: {}", *ArkApi::GetApiUtils().GetCharacterName(player), player->TargetingTeamField()());
+		ArkApi::GetApiUtils().SendChatMessage(player, Messages[0].c_str(), L"{}->TeamID: {}", *ArkApi::GetApiUtils().GetCharacterName(player), player->TargetingTeamField());
 }
 
 inline void InitCommands()

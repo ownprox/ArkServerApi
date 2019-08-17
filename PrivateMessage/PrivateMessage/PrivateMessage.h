@@ -2,7 +2,8 @@
 #include <Windows.h>
 #include "API\ARK\Ark.h"
 bool ServerMessage;
-int ServerMessageRBG[3] = { 0, 0, 0 };
+std::wstring PmPrefixStart, PmPrefixMiddle, PmPrefixEnd;
+float ServerMessageRGB[4] = { 0, 0, 0, 1 };
 
 struct PlayerS
 {

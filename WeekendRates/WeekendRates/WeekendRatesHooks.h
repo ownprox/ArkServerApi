@@ -23,7 +23,7 @@ inline void RemoveHooks()
 inline time_t RawTime;
 inline tm TimeInfo;
 inline int TenMinCounter;
-inline float OldValues[15];
+inline float OldValues[16];
 
 inline bool RatesEnabledManually, HasStarted = false;
 
@@ -126,6 +126,12 @@ inline void EnableRates()
 	if (StructureResistance != 0)
 		GameMode->StructureResistanceMultiplierField() = StructureResistance;
 
+	OldValues[15] = GameMode->StructureDamageMultiplierField();
+	const float StructureDamageMultiplier = static_cast<float>(WeekendConfig["WeekendRates"].value(
+		"StructureDamageMultiplier", 0));
+	if (StructureDamageMultiplier != 0)
+		GameMode->StructureDamageMultiplierField() = StructureDamageMultiplier;
+
 	if (MOTDChangeEnabled) GameMode->SetMessageOfTheDay(&WeekendMOTD);
 
 	if (Notification)
@@ -158,6 +164,7 @@ inline void DisableRates()
 	GameMode->ResourcesRespawnPeriodMultiplierField() = OldValues[12];
 	GameMode->SupplyCrateLootQualityMultiplierField() = OldValues[13];
 	GameMode->StructureResistanceMultiplierField() = OldValues[14];
+	GameMode->StructureDamageMultiplierField() = OldValues[15];
 
 	if (MOTDChangeEnabled) GameMode->SetMessageOfTheDay(&NormalMOTD);
 

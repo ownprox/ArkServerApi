@@ -20,7 +20,7 @@ void TeleportRequest(AShooterPlayerController* player, FString* message, int mod
 		}
 		FString PlayerName = "";
 		for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
-		TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName);
+		TArray<AShooterPlayerController*> Players = ArkApi::GetApiUtils().FindPlayerFromCharacterName(PlayerName, ESearchCase::IgnoreCase, false);
 		if (Players.Num() > 0 && Players[0] != nullptr && Players[0]->PlayerStateField())
 		{
 			if (!Players[0]->GetPlayerCharacter() || Players[0]->GetPlayerCharacter()->IsDead())
@@ -106,7 +106,7 @@ void AdminTP(APlayerController* Player_Controller, FString* message, bool write_
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
-	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(player, OtherPlayer, false);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(player, OtherPlayer, false, -1);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
 
@@ -124,10 +124,9 @@ void AdminTPM(APlayerController* Player_Controller, FString* message, bool write
 	FString PlayerName = "";
 	for (int i = 1; i < Parsed.Num(); i++)	PlayerName += (i == 1 ? Parsed[i] : FString(" ") + Parsed[i]);
 	AShooterPlayerController* OtherPlayer = FindPlayerFromCharacterName(PlayerName);
-	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(OtherPlayer, player, false);
+	if (OtherPlayer != nullptr && OtherPlayer->PlayerStateField()) ArkApi::GetApiUtils().TeleportToPlayer(OtherPlayer, player, false, -1);
 	else ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), Messages[4].c_str(), *Parsed[1]);
 }
-
 
 void AdminTeleTamedToMe(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
@@ -257,6 +256,86 @@ void AdminTPTarget(APlayerController* Player_Controller, FString* message, bool 
 	}
 }
 
+template<typename t>
+void GetAllActorsOfClassLocal(UObject* WorldContextObject, TSubclassOf<AActor> ActorClass, TArray<t*>* OutActors)
+{ 
+	NativeCall<void, UObject*, TSubclassOf<AActor>, TArray<t*>*>(nullptr, "UGameplayStatics.GetAllActorsOfClass", WorldContextObject, ActorClass, OutActors);
+}
+
+void AdminFindOffline(APlayerController* Player_Controller, FString* message, bool write_to_log)
+{
+	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
+	int32 Index;
+	const FString& Msg = *message;
+	if (!Msg.FindChar(' ', Index) 
+		|| (Msg.Len() - (Index + 1)) < 1)
+	{
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"Incorrect Syntax: cheat offline <PlayerName>");
+		return;
+	}
+
+	const FString& SearchName = Msg.Mid(Index + 1, Msg.Len() - (Index + 1));
+	FString Result = FString::Format(L"List of offline players with character name starting with: {}", *SearchName);
+	bool FoundPlayers = false;
+	TArray<AShooterCharacter*> Characters; 
+	GetAllActorsOfClassLocal<AShooterCharacter>(ArkApi::GetApiUtils().GetWorld(), AShooterCharacter::GetPrivateStaticClass(), &Characters);
+	for (const auto& Character : Characters)
+	{
+		if (Character->GetLinkedPlayerDataID() != 0 && Character->PlayerNameField().Contains(SearchName))
+		{
+			Result = FString::Format(L"{}\nID: {}, Name: {}, Steam: {}, Tribe: {}", *Result, Character->GetLinkedPlayerDataID(), *Character->PlayerNameField(),
+																				  *Character->PlatformProfileNameField(), *Character->TribeNameField());
+			FoundPlayers = true;
+		}
+	} 
+
+	Result = FString::Format(L"{}\n{}", *Result, FoundPlayers ? L"To teleport to a offline player use: cheat otp <ID>" : L"No players found by that name.");
+
+	FName Type;
+	player->ClientMessage(&Result, Type, 0);
+	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), L"Press Tab two times to see result!");
+}
+
+void AdminOfflineTP(APlayerController* Player_Controller, FString* message, bool write_to_log)
+{
+	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
+
+	int32 Index;
+	const FString& Msg = *message;
+	if (!Msg.FindChar(' ', Index)
+		|| (Msg.Len() - (Index + 1)) < 1)
+	{
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"Incorrect Syntax: cheat otp <ID>");
+		return;
+	}
+
+	const FString& ID = Msg.Mid(Index + 1, Msg.Len() - (Index + 1));
+	unsigned long long PlayerID = 0;
+	try
+	{
+		PlayerID = std::stoull(ID.ToString());
+	}
+	catch (...)
+	{
+		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"ID is not a integer value.");
+		return;
+	}
+	bool FoundPlayers = false;
+	TArray<AShooterCharacter*> Characters;
+	GetAllActorsOfClassLocal<AShooterCharacter>(ArkApi::GetApiUtils().GetWorld(), AShooterCharacter::GetPrivateStaticClass(), &Characters);
+	for (const auto& Character : Characters)
+	{
+		if (Character->GetLinkedPlayerDataID() == PlayerID)
+		{
+			const FVector& Pos = Character->RootComponentField()->RelativeLocationField();
+			player->SetPlayerPos(Pos.X, Pos.Y, Pos.Z);
+			break;
+		}
+	}
+}
+
 void ReloadConfig(APlayerController* Player_Controller, FString* message, bool write_to_log)
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
@@ -279,6 +358,8 @@ void InitCommands()
 	ArkApi::GetCommands().AddConsoleCommand(TPP, &AdminTPCoord);
 	ArkApi::GetCommands().AddConsoleCommand(TT, &AdminTPTarget);
 	ArkApi::GetCommands().AddConsoleCommand(POS, &AdminPos);
+	ArkApi::GetCommands().AddConsoleCommand("offline", &AdminFindOffline);
+	ArkApi::GetCommands().AddConsoleCommand("otp", &AdminOfflineTP);
 	ArkApi::GetCommands().AddConsoleCommand("treload", &ReloadConfig);
 }
 
@@ -296,5 +377,7 @@ void RemoveCommands()
 	ArkApi::GetCommands().RemoveConsoleCommand(TPP);
 	ArkApi::GetCommands().RemoveConsoleCommand(TT);
 	ArkApi::GetCommands().RemoveConsoleCommand(POS);
+	ArkApi::GetCommands().RemoveConsoleCommand("offline");
+	ArkApi::GetCommands().RemoveConsoleCommand("otp");
 	ArkApi::GetCommands().RemoveConsoleCommand("treload");
 }

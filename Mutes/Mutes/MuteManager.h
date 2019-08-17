@@ -143,3 +143,27 @@ int IsMuted(const uint64 SteamID, const FString& IPAddress, const bool CheckForI
 	}
 	return 0;
 }
+
+void SyncMutes()
+{
+	try
+	{
+		auto& db = GetDB();
+		const long long nNowTime = timeGetTime();
+		db << "SELECT SteamId, IP, MutedTill, IsIPBan FROM Mutes;"
+			>> [&](const uint64 SteamID, const std::string& IP, const long long MutedTill, const int IsIPBan)
+		{
+			if (MutedTill > nNowTime)
+			{
+				const FString& FIP = IP.c_str();
+				if (!IsMuted(SteamID, FIP, IsIPBan == 1))
+					muteData.Add(MuteData(SteamID, (DWORD)MutedTill, FIP, IsIPBan == 1));
+			}
+			else db << "DELETE FROM Mutes WHERE SteamId = ?;" << SteamID;
+		};
+	}
+	catch (const sqlite::sqlite_exception& exception)
+	{
+		Log::GetLog()->error("({} {}) Unexpected DB error {}", __FILE__, __FUNCTION__, exception.what());
+	}
+}

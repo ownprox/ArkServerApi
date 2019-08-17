@@ -3,6 +3,7 @@
 #include <fstream>
 
 std::string Days[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+nlohmann::json PVPConfig;
 
 inline void InitConfig()
 {
@@ -10,7 +11,6 @@ inline void InitConfig()
 	if (!file.is_open())
 		return;
 
-	nlohmann::json PVPConfig;
 	file >> PVPConfig;
 	file.close();
 
@@ -19,6 +19,7 @@ inline void InitConfig()
 	ServerName = FString(ArkApi::Tools::Utf8Decode(TempData).c_str());
 	ServerNotify = PVPConfig["PVPScheduler"]["NotifyServer"];
 	LogPvpSwitchAtConsole = PVPConfig["PVPScheduler"]["LogPvpSwitchAtConsole"];
+	PVPMessage[2] = PVPConfig["PVPScheduler"].value("ProtectExplosiveMessage", "");
 
 	Log::GetLog()->info("Loading PVP Schedule's");
 
@@ -38,4 +39,9 @@ inline void InitConfig()
 		                    Days[(int)PVPDays[i]["StartDay"]], (int)PVPDays[i]["StartHour"], Days[(int)PVPDays[i]["EndDay"]],
 		                    (int)PVPDays[i]["EndHour"]);
 	}
+
+	ProtectCharacters = PVPConfig["PVPScheduler"].value("ProtectPlayersPVPOff", true);
+	ProtectDinos = PVPConfig["PVPScheduler"].value("ProtectDinosPVPOff", true);
+	ProtectStructures = PVPConfig["PVPScheduler"].value("ProtectStructuresPVPOff", true);
+	ProtectExplosives = PVPConfig["PVPScheduler"].value("ProtectExplosivesPVPOff", true);
 }

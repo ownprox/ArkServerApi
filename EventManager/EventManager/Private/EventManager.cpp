@@ -188,6 +188,7 @@ namespace EventManager
 		const float MovementSpeed = CurrentEvent->GetMovementSpeed();
 		FVector Pos;
 		bool RemovePlayers = false;
+		UShooterCheatManager* cheatManager;
 		for (auto& player : Players)
 		{
 			if (player.ASPC && player.ASPC->PlayerStateField() && player.ASPC->GetPlayerCharacter() && !player.ASPC->GetPlayerCharacter()->bIsSleeping()() && !player.ASPC->GetPlayerCharacter()->IsSitting(false)
@@ -211,10 +212,16 @@ namespace EventManager
 				}
 
 				player.ASPC->GetPlayerCharacter()->ClearMountedDino(false);
+				cheatManager = static_cast<UShooterCheatManager*>(player.ASPC->CheatManagerField());
+
+				if (cheatManager)
+				{
+					cheatManager->ClearMyBuffs();
+					cheatManager->ClearCryoSickness();
+				}
 
 				if (WipeInventoryOrCheckIsNaked)
 				{
-					UShooterCheatManager* cheatManager = static_cast<UShooterCheatManager*>(player.ASPC->CheatManagerField());
 					if (cheatManager) cheatManager->ClearPlayerInventory((int)player.ASPC->LinkedPlayerIDField(), true, true, true);
 				}
 				else
@@ -279,7 +286,7 @@ namespace EventManager
 			if (GetArkShopEntryFee() != 0)
 			{
 				for (auto& player : Players)
-					ArkShopAddPoints(GetArkShopEntryFee(), player.PlayerID);
+					ArkShopAddPoints(GetArkShopEntryFee(), (int)player.PlayerID);
 			}
 			return false;
 		}
@@ -387,7 +394,7 @@ namespace EventManager
 
 	std::optional<FString> EventManager::CheckIfPlayersNaked(AShooterPlayerController* Player)
 	{
-		if (!Player || !Player->GetPlayerCharacter() || Player->GetPlayerCharacter()->IsDead()) return PlayerDeadMsg;
+		if (!Player || !Player->GetPlayerCharacter()) return PlayerDeadMsg;
 		UPrimalInventoryComponent* Inv = Player->GetPlayerCharacter()->MyInventoryComponentField();
 		if (!Inv) return InventoryNotFoundMsg;
 		FString FoundItem;
@@ -420,14 +427,13 @@ namespace EventManager
 
 	int EventManager::GetRandomIndexNonRecurr(int TotalSize)
 	{
-		TotalSize = TotalSize - 1;
 		int EquipIndex = 0;
-		if (TotalSize > 1)
+		if (TotalSize > 0)
 		{
 			EquipIndex = (int)FMath::RandRange(0, TotalSize);
 			if (EquipIndex == LastEquipmentIndex)
 			{
-				for (int i = 0; i < 5; i++)
+				for (int i = 0; i < TotalSize+1; i++)
 				{
 					if ((EquipIndex = (int)FMath::RandRange(0, TotalSize)) != LastEquipmentIndex) break;
 				}
@@ -435,8 +441,7 @@ namespace EventManager
 		}
 		else
 		{
-			EquipIndex = LastEquipmentIndex++;
-			if (EquipIndex > TotalSize) EquipIndex = 0;
+			return 0;
 		}
 		LastEquipmentIndex = EquipIndex;
 		return EquipIndex;
@@ -464,21 +469,29 @@ namespace EventManager
 		}
 	}
 
+
+	void EventManager::SetItemStatValue(UPrimalItem* item, EPrimalItemStat::Type item_stat_type, const float new_value)
+	{
+		*(item->ItemStatValuesField()() + item_stat_type) = 1;
+		*(item->ItemStatValuesField()() + item_stat_type) = static_cast<unsigned short>((item->GetItemStatModifier(item_stat_type) * new_value) / 2);
+		switch (item_stat_type)
+		{
+		case EPrimalItemStat::MaxDurability:
+			if (item->bUseItemDurability()())
+				item->ItemDurabilityField() = item->GetItemStatModifier(item_stat_type);
+			break;
+		}
+	}
+
 	void EventManager::GiveEventPlayersEquipment(const EventEquipment& Equipment)
 	{
-		TArray<UPrimalItem*> SpawnedItems;
 		bool RemovePlayers = false;
 		for (auto& player : Players)
 		{
-			if (!player.ASPC || !player.ASPC->GetPlayerCharacter())
-			{
-				continue;
-			}
-
-			if (FVector::Distance(ArkApi::GetApiUtils().GetPosition(player.ASPC), player.TeledPos) > 4000)
+			if (!player.ASPC || !player.ASPC->GetPlayerCharacter() || FVector::Distance(ArkApi::GetApiUtils().GetPosition(player.ASPC), player.TeledPos) > 4000)
 			{
 				RemovePlayers = player.Delete = true;
-				if (LogToConsole) Log::GetLog()->info("{} removed was not teleported, removed!", ArkApi::GetApiUtils().GetCharacterName(player.ASPC).ToString());
+				if (LogToConsole) Log::GetLog()->info("{} removed was not teleported, removed!", (player.ASPC ? ArkApi::GetApiUtils().GetCharacterName(player.ASPC).ToString() : ""));
 				continue;
 			}
 
@@ -487,14 +500,29 @@ namespace EventManager
 				if (Armour.Quantity != 0)
 				{
 					FString BP = Armour.BP;
+					TArray<UPrimalItem*> SpawnedItems;
 					player.ASPC->GiveItem(&SpawnedItems, &BP, Armour.Quantity, Armour.Quality, false, true, 0);
+					if ((Armour.Dura > 0 || Armour.Armour > 0) && SpawnedItems.Num() > 0)
+					{
+						SetItemStatValue(SpawnedItems[0], EPrimalItemStat::Armor, Armour.Armour);
+						SetItemStatValue(SpawnedItems[0], EPrimalItemStat::MaxDurability, Armour.Dura);
+						SpawnedItems[0]->UpdatedItem(false);
+					}
 				}
 			}
 
 			for (const auto& Item : Equipment.Items)
 			{
 				FString BP = Item.BP;
+				TArray<UPrimalItem*> SpawnedItems;
 				player.ASPC->GiveItem(&SpawnedItems, &BP, Item.Quantity, Item.Quality, false, false, 0);
+				if ((Item.Dura > 0 || Item.AmmoClip > 0 || Item.DMG > 0) && SpawnedItems.Num() > 0)
+				{
+					SetItemStatValue(SpawnedItems[0], EPrimalItemStat::MaxDurability, Item.Dura);
+					SetItemStatValue(SpawnedItems[0], EPrimalItemStat::WeaponClipAmmo, Item.AmmoClip);
+					SetItemStatValue(SpawnedItems[0], EPrimalItemStat::WeaponDamagePercent, Item.DMG);
+					SpawnedItems[0]->UpdatedItem(false);
+				}
 			}
 
 			UPrimalInventoryComponent* Inv = player.ASPC->GetPlayerCharacter()->MyInventoryComponentField();
@@ -637,23 +665,6 @@ namespace EventManager
 			}
 		}
 		return true;
-	}
-
-
-	void SetItemStatValue(UPrimalItem* item, EPrimalItemStat::Type item_stat_type, const float new_value)
-	{
-		*(item->ItemStatValuesField()() + item_stat_type) = 0;
-		const float old_stat_modifier = item->GetItemStatModifier(item_stat_type);
-		*(item->ItemStatValuesField()() + item_stat_type) = 1;
-		*(item->ItemStatValuesField()() + item_stat_type) = static_cast<unsigned short>((new_value - old_stat_modifier) / (item->GetItemStatModifier(item_stat_type) - old_stat_modifier));
-		switch (item_stat_type)
-		{
-		case EPrimalItemStat::MaxDurability:
-			if(item->bUseItemDurability()())
-				item->ItemDurabilityField() = item->GetItemStatModifier(item_stat_type);
-			break;
-		}
-		item->UpdatedItem(false);
 	}
 
 	bool EventManager::OnPlayerDied(long long AttackerID, long long VictimID)

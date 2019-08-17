@@ -18,8 +18,9 @@ private:
 	{
 		const FString BP;
 		const int QuantityMin, QuantityMax, QualityMin, QualityMax, MinIsBP, MaxIsBP;
-		Reward(const FString BP, const int QuantityMin, const int QuantityMax, const int QualityMin, const int QualityMax, const int MinIsBP, const int MaxIsBP) : BP(BP), QuantityMin(QuantityMin)
-			, QuantityMax(QuantityMax), QualityMin(QualityMin), QualityMax(QualityMax), MinIsBP(MinIsBP), MaxIsBP(MaxIsBP) {}
+		const float DMG, Armour, Dura, AmmoClip;
+		Reward(const FString BP, const int QuantityMin, const int QuantityMax, const int QualityMin, const int QualityMax, const int MinIsBP, const int MaxIsBP, const float DMG, const float Armour, const float Dura, const float AmmoClip) : BP(BP), QuantityMin(QuantityMin)
+			, QuantityMax(QuantityMax), QualityMin(QualityMin), QualityMax(QualityMax), MinIsBP(MinIsBP), MaxIsBP(MaxIsBP), DMG(DMG), Armour(Armour), Dura(Dura), AmmoClip(AmmoClip) {}
 	};
 
 	TArray<Reward> Rewards;
@@ -27,116 +28,133 @@ private:
 public:
 	virtual void InitConfig(const FString& JoinEventCommand, const FString& ServerName, const FString& Map)
 	{
-		this->JoinEventCommand = JoinEventCommand;
-		this->ServerName = ServerName;
-		if (!HasConfigLoaded())
+		try
 		{
-			Equipments.Empty();
-			Rewards.Empty();
-			ClearSpawns();
-
-			const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/TeamDeathMatchEvent/" + Map.ToString() + ".json";
-			std::ifstream file { config_path };
-			if (!file.is_open())
+			this->JoinEventCommand = JoinEventCommand;
+			this->ServerName = ServerName;
+			if (!HasConfigLoaded())
 			{
-				Log::GetLog()->error("Can't find {}.json", Map.ToString().c_str());
-				return;
-			}
-			nlohmann::json config;
-			file >> config;
-			const std::string eName = config["TDM"]["EventName"];
-			const FString& EventName = ArkApi::Tools::Utf8Decode(eName).c_str();
+				Equipments.Empty();
+				Rewards.Empty();
+				ClearSpawns();
 
-			PlayersNeededToStart = config["TDM"]["PlayersNeededToStart"];
-
-			JoinMessages = config["TDM"]["JoinMessages"];
-			JoinMessageDelaySeconds = config["TDM"]["JoinMessageDelaySeconds"];
-
-			const bool StructureProtection = config["TDM"]["StructureProtection"];
-			const auto StructureProtectionPosition = config["TDM"]["StructureProtectionPosition"];
-			const int StructureProtectionDistacne = config["TDM"]["StructureProtectionDistance"];
-
-			Notifications = config["TDM"]["TopNotifications"];
-			const float MovementSpeedAddon = config["TDM"]["MovementSpeedAddon"];
-			const int ArkShopPointsEntryFee = config["TDM"]["ArkShopPointsEntryFee"];
-
-			ArkShopPointsRewardMin = config["TDM"]["ArkShopPointsRewardMin"];
-			ArkShopPointsRewardMax = config["TDM"]["ArkShopPointsRewardMax"];
-			if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
-			if (ArkShopPointsRewardMin < 0) ArkShopPointsRewardMin = 0;
-
-			const bool KillOnLogg = config["TDM"]["KillOnLoggout"];
-			std::string Data;
-
-			InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
-				, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
-
-			const auto& SpawnsA = config["TDM"]["TeamASpawns"];
-			for (const auto& Spawn : SpawnsA)
-			{
-				const auto& SpawnPos = Spawn["Position"];
-				AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]));
-			}
-
-			const auto& SpawnsB = config["TDM"]["TeamBSpawns"];
-			for (const auto& Spawn : SpawnsB)
-			{
-				const auto& SpawnPos = Spawn["Position"];
-				AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]), 1);
-			}
-			
-			const auto& RewardsConfig = config["TDM"]["Rewards"];
-			for (const auto& szitem : RewardsConfig)
-			{
-				Data = szitem["Blueprint"];
-				Rewards.Add(Reward(FString(Data.c_str()), (int)szitem["QuantityMin"], (int)szitem["QuantityMax"], (int)szitem["QualityMin"], (int)szitem["QualityMax"], (int)szitem["MinIsBP"], (int)szitem["MaxIsBP"]));
-			}
-			
-			const auto& EquipmentConfig = config["TDM"]["Equipment"];
-			for (const auto& Equipment : EquipmentConfig)
-			{
-				TArray<EventManager::EventItem> Items;
-				EventManager::EventItem Armour[EventManager::EventArmourType::Max];
-				Data = Equipment["HeadBP"];
-				Armour[EventManager::EventArmourType::Head] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["TorsoBP"];
-				Armour[EventManager::EventArmourType::Torso] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["GlovesBP"];
-				Armour[EventManager::EventArmourType::Gloves] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["OffhandBP"];
-				Armour[EventManager::EventArmourType::Offhand] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["LegsBP"];
-				Armour[EventManager::EventArmourType::Legs] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				Data = Equipment["FeetBP"];
-				Armour[EventManager::EventArmourType::Feet] = EventManager::EventItem(Data.c_str(), 1, 0);
-
-				const auto& ItemConfig = Equipment["Items"];
-				for (const auto& Item : ItemConfig)
+				const std::string config_path = ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/TeamDeathMatchEvent/" + Map.ToString() + ".json";
+				std::ifstream file{ config_path };
+				if (!file.is_open())
 				{
-					Data = Item["BP"];
-					Items.Add(EventManager::EventItem(Data.c_str(), Item["Quantity"], Item["Quality"]));
-				}				
-				Equipments.Add(EventManager::EventEquipment(Items, Armour));
-			}
+					Log::GetLog()->error("Can't find {}.json", Map.ToString().c_str());
+					return;
+				}
+				nlohmann::json config;
+				file >> config;
+				const std::string eName = config["TDM"]["EventName"];
+				const FString& EventName = ArkApi::Tools::Utf8Decode(eName).c_str();
 
+				PlayersNeededToStart = config["TDM"]["PlayersNeededToStart"];
 
-			int j = 0;
-			const auto& Msgs = config["TDM"]["Messages"];
-			for (const auto& Msg : Msgs)
-			{
-				Data = Msg;
-				Messages[j++] = ArkApi::Tools::Utf8Decode(Data).c_str();
+				JoinMessages = config["TDM"]["JoinMessages"];
+				JoinMessageDelaySeconds = config["TDM"]["JoinMessageDelaySeconds"];
+
+				const bool StructureProtection = config["TDM"]["StructureProtection"];
+				const auto StructureProtectionPosition = config["TDM"]["StructureProtectionPosition"];
+				const int StructureProtectionDistacne = config["TDM"]["StructureProtectionDistance"];
+
+				Notifications = config["TDM"]["TopNotifications"];
+				const float MovementSpeedAddon = config["TDM"]["MovementSpeedAddon"];
+				const int ArkShopPointsEntryFee = config["TDM"]["ArkShopPointsEntryFee"];
+
+				ArkShopPointsRewardMin = config["TDM"]["ArkShopPointsRewardMin"];
+				ArkShopPointsRewardMax = config["TDM"]["ArkShopPointsRewardMax"];
+				if (ArkShopPointsRewardMin > ArkShopPointsRewardMax) ArkShopPointsRewardMax = ArkShopPointsRewardMin;
+				if (ArkShopPointsRewardMin < 0) ArkShopPointsRewardMin = 0;
+
+				const bool KillOnLogg = config["TDM"]["KillOnLoggout"];
+				std::string Data;
+
+				InitDefaults(EventName, false, true, KillOnLogg, StructureProtection
+					, FVector(StructureProtectionPosition[0], StructureProtectionPosition[1], StructureProtectionPosition[2]), StructureProtectionDistacne, MovementSpeedAddon, ArkShopPointsEntryFee, PlayersNeededToStart);
+
+				const auto& SpawnsA = config["TDM"]["TeamASpawns"];
+				for (const auto& Spawn : SpawnsA)
+				{
+					const auto& SpawnPos = Spawn["Position"];
+					AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]));
+				}
+
+				const auto& SpawnsB = config["TDM"]["TeamBSpawns"];
+				for (const auto& Spawn : SpawnsB)
+				{
+					const auto& SpawnPos = Spawn["Position"];
+					AddSpawn(FVector(SpawnPos[0], SpawnPos[1], SpawnPos[2]), 1);
+				}
+
+				const auto& RewardsConfig = config["TDM"]["Rewards"];
+				for (const auto& szitem : RewardsConfig)
+				{
+					Data = szitem["Blueprint"];
+					Rewards.Add(Reward(FString(Data.c_str()), (int)szitem["QuantityMin"], (int)szitem["QuantityMax"], (int)szitem["QualityMin"], (int)szitem["QualityMax"], (int)szitem["MinIsBP"], (int)szitem["MaxIsBP"],
+						szitem.value("ExtraDmgPercent", 0.f), szitem.value("ExtraArmourPercent", 0.f), szitem.value("ExtraDurabilityPercent", 0.f), szitem.value("ExtraAmmoPercent", 0.f)));
+				}
+
+				const auto& EquipmentConfig = config["TDM"]["Equipment"];
+				for (const auto& Equipment : EquipmentConfig)
+				{
+					TArray<EventManager::EventItem> Items;
+					EventManager::EventItem Armour[EventManager::EventArmourType::Max];
+
+					const float ExtraArmour = Equipment.value("ExtraArmourPercent", 0.f), ExtraDura = Equipment.value("ExtraArmourDurabilityPercent", 0.f);
+
+					Data = Equipment["HeadBP"];
+					Armour[EventManager::EventArmourType::Head] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					Data = Equipment["TorsoBP"];
+					Armour[EventManager::EventArmourType::Torso] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					Data = Equipment["GlovesBP"];
+					Armour[EventManager::EventArmourType::Gloves] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					Data = Equipment["OffhandBP"];
+					Armour[EventManager::EventArmourType::Offhand] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					Data = Equipment["LegsBP"];
+					Armour[EventManager::EventArmourType::Legs] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					Data = Equipment["FeetBP"];
+					Armour[EventManager::EventArmourType::Feet] = EventManager::EventItem(Data.c_str(), 1, 0, 0,
+						ExtraArmour, ExtraDura, 0);
+
+					const auto& ItemConfig = Equipment["Items"];
+					for (const auto& Item : ItemConfig)
+					{
+						Data = Item["BP"];
+						Items.Add(EventManager::EventItem(Data.c_str(), Item["Quantity"], Item["Quality"], Equipment.value("ExtraDmgPercent", 0.f), 0.f,
+							Equipment.value("ExtraDurabilityPercent", 0.f), Equipment.value("ExtraAmmoPercent", 0.f)));
+					}
+					Equipments.Add(EventManager::EventEquipment(Items, Armour));
+				}
+
+				int j = 0;
+				const auto& Msgs = config["TDM"]["Messages"];
+				for (const auto& Msg : Msgs)
+				{
+					Data = Msg;
+					Messages[j++] = ArkApi::Tools::Utf8Decode(Data).c_str();
+				}
+				file.close();
 			}
-			file.close();
+			Init(JoinMessageDelaySeconds + 1);
+			WaitForDelay = JoinMessageDelaySeconds;
+			WaitCounter = JoinMessages + 1;
 		}
-		Init(JoinMessageDelaySeconds + 1);
-		WaitForDelay = JoinMessageDelaySeconds;
-		WaitCounter = JoinMessages + 1;
+		catch (...)
+		{
+			Log::GetLog()->error("Config Error!!!");
+		}
 	}
 	
 	virtual void Update()
@@ -188,7 +206,7 @@ public:
 				ResetTimer();
 				EventManager::Get().SendChatMessageToAllEventPlayers(ServerName, *Messages[5], *GetName());
 				if (Equipments.Num() > 0)
-					EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num())]);
+					EventManager::Get().GiveEventPlayersEquipment(Equipments[EventManager::Get().GetRandomIndexNonRecurr(Equipments.Num()-1)]);
 				SetState(EventState::WaitForFight);
 			}
 			break;
@@ -231,9 +249,26 @@ public:
 						FString BP = reward.BP;
 						TArray<UPrimalItem*> SpawnedItems;
 						RewardPlayer->GiveItem(&SpawnedItems, &BP, RandomQuantity, (float)RandomQuality, false, IsBP, 0);
+
+						if ((reward.Dura > 0 || reward.AmmoClip > 0 || reward.DMG > 0 || reward.Dura > 0 || reward.Armour > 0) && SpawnedItems.Num() > 0)
+						{
+							EventManager::Get().SetItemStatValue(SpawnedItems[0], EPrimalItemStat::MaxDurability, reward.Dura);
+							EventManager::Get().SetItemStatValue(SpawnedItems[0], EPrimalItemStat::WeaponClipAmmo, reward.AmmoClip);
+							EventManager::Get().SetItemStatValue(SpawnedItems[0], EPrimalItemStat::WeaponDamagePercent, reward.DMG);
+							EventManager::Get().SetItemStatValue(SpawnedItems[0], EPrimalItemStat::Armor, reward.Armour);
+							EventManager::Get().SetItemStatValue(SpawnedItems[0], EPrimalItemStat::MaxDurability, reward.Dura);
+							SpawnedItems[0]->UpdatedItem(false);
+						}
 					}
 
-					if (ArkShopPointsRewardMax > 0) EventManager::Get().ArkShopAddPoints(FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax), (int)RewardPlayer->LinkedPlayerIDField());
+					if (ArkShopPointsRewardMax > 0)
+					{
+						int Amount = FMath::RandRange(ArkShopPointsRewardMin, ArkShopPointsRewardMax);
+						Log::GetLog()->info("adding {} Points to winner!", Amount);
+						EventManager::Get().ArkShopAddPoints(Amount, (int)RewardPlayer->LinkedPlayerIDField());
+					}
+
+					Log::GetLog()->info("{} won {} event!", ArkApi::GetApiUtils().GetCharacterName(RewardPlayer).ToString(), GetName().ToString());
 
 					ArkApi::GetApiUtils().SendChatMessageToAll(ServerName, (EventManager::Get().GetTeamAliveCount(0) ? *Messages[7] : *Messages[8]), *GetName());
 				}

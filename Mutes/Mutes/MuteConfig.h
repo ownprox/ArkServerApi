@@ -11,6 +11,14 @@ void InitConfig(bool Reload)
 	if (!file.is_open()) return;
 	file >> MuteConfigData;
 	file.close();
+	
+	if (Reload)
+		BadWord.Empty();
+
+	DBPath = MuteConfigData["Mutes"].value("DBOverride", "");
+
+	SyncSeconds = MuteConfigData["Mutes"].value("DBSyncSeconds", 60);
+
 	const auto& BLItemMap = MuteConfigData["Mutes"]["BlackList"];
 	for (const auto& szitem : BLItemMap)
 	{

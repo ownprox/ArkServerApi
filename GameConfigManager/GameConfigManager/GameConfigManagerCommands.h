@@ -12,7 +12,6 @@ void ReloadINI()
 
 	float fval;
 	bool bval;
-	
 	if (GetGConfig()()->GetBool(L"ServerSettings", L"AllowThirdPersonPlayer", &bval, &GGameUserSettingsIni)) SGM->bServerAllowThirdPersonPlayerField() = bval;
 	if (GetGConfig()()->GetBool(L"ServerSettings", L"Hardcore", &bval, &GGameUserSettingsIni)) SGM->bServerHardcoreField() = bval;
 	if (GetGConfig()()->GetBool(L"ServerSettings", L"PVE", &bval, &GGameUserSettingsIni)) SGM->bServerPVEField() = bval;
@@ -153,8 +152,8 @@ void ReloadINI()
 
 void ReloadSettings(AShooterPlayerController* player, FString* message, int mode)
 {
-	if (!player || !player->PlayerStateField()() || !player->GetPlayerCharacter()) return;
-	if (!player->GetPlayerCharacter()->bIsServerAdminField()())
+	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
+	if (!player->GetPlayerCharacter()->bIsServerAdminField())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), L"Please login as a admin.");
 		return;
@@ -172,10 +171,10 @@ void RconReloadSettings(RCONClientConnection* rcon_connection, RCONPacket* rcon_
 
 void ConsoleReloadSettings(APlayerController* player, FString* message, bool mode)
 {
-	if (!player || !player->PlayerStateField()()) return;
+	if (!player || !player->PlayerStateField()) return;
 	AShooterPlayerController* aPlayer = static_cast<AShooterPlayerController*>(player);
 	if (!aPlayer || !aPlayer->GetPlayerCharacter()) return;
-	if (!aPlayer->GetPlayerCharacter()->bIsServerAdminField()())
+	if (!aPlayer->GetPlayerCharacter()->bIsServerAdminField())
 	{
 		ArkApi::GetApiUtils().SendServerMessage(aPlayer, FLinearColor(1, 0, 0), L"Please login as a admin.");
 		return;

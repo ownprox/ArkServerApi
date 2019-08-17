@@ -11,7 +11,10 @@
 #include "../../../MichsPlugins/ArkShop/ArkShop/Public/Points.h"
 #endif
 #include "Requests.h"
+#include <random>
 
+std::default_random_engine intGen;
+std::mt19937 floatGen(std::random_device{}());
 struct VoteSiteConfig
 {
 	const char * const Site;
@@ -45,6 +48,20 @@ struct PlayerDataS
 };
 std::map<int64, PlayerDataS> PlayerData;
 
+struct VoteQueueS
+{
+	int VoteSiteIndex;
+	std::string VoteKey;
+	int64 SteamID;
+	AShooterPlayerController* player;
+	bool IsLast;
+	VoteQueueS(const int VoteSiteIndex, const std::string VoteKey,
+		const int64 SteamID, AShooterPlayerController* player, 	const bool IsLast)
+		: VoteSiteIndex(VoteSiteIndex), VoteKey(VoteKey),
+		SteamID(SteamID), player(player), IsLast(IsLast) {}
+};
+
+std::vector<VoteQueueS> VoteQueue;
 
 const int GetVoteSiteIndex(const std::string& VoteSite)
 {
@@ -52,8 +69,14 @@ const int GetVoteSiteIndex(const std::string& VoteSite)
 	return -1;
 }
 
-template <class T>
-T RandomNumber(T min, T max)
+float RandomNumber(float min, float max)
 {
-	return min + (T)rand() / ((T)RAND_MAX / (T)(max - min));
+	std::uniform_real_distribution<float> distribution(min, max);
+	return distribution(floatGen);
+}
+
+int RandomNumber(int min, int max)
+{
+	std::uniform_int_distribution<int> distribution(min, max);
+	return distribution(intGen);
 }

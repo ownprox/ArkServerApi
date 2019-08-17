@@ -21,6 +21,9 @@
     <ClInclude Include="VoteRewardsConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OldRequests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VoteRewards.cpp">

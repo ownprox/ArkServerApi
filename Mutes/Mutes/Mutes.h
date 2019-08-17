@@ -2,14 +2,16 @@
 #include <Windows.h>
 #include "API\ARK\Ark.h"
 #include "hdr/sqlite_modern_cpp.h"
+std::string DBPath;
 
 sqlite::database& GetDB()
 {
-	static sqlite::database db(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Mutes/Mutes.db");
+	static sqlite::database db((DBPath.empty() ? ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/Mutes/Mutes.db" : DBPath));
 	return db;
 }
 
 FString Messages[5];
+int SyncSeconds = 60;
 
 AShooterPlayerController* FindPlayerFromCharacterName(const FString& character_name)
 {
