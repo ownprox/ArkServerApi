@@ -239,7 +239,7 @@ void AdminTPTarget(APlayerController* Player_Controller, FString* message, bool 
 {
 	AShooterPlayerController* player = static_cast<AShooterPlayerController*>(Player_Controller);
 	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter()) return;
-	AActor* Actor = player->GetPlayerCharacter()->GetAimedActor(ECollisionChannel::ECC_GameTraceChannel1, nullptr, 0.0f, 0.0f, nullptr, nullptr, false, false);
+	AActor* Actor = player->GetPlayerCharacter()->GetAimedActor(ECollisionChannel::ECC_GameTraceChannel1, nullptr, 0.0f, 0.0f, nullptr, nullptr, false, false, false);
 	if (!Actor) return;
 	if (Actor->IsA(APrimalDinoCharacter::GetPrivateStaticClass()))
 	{
