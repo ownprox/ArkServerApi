@@ -49,7 +49,7 @@ inline void ChangeDinoColour(AShooterPlayerController* player, FString* message,
 	}
 
 	AActor* Actor = player->GetPlayerCharacter()->GetAimedActor(ECC_GameTraceChannel2, nullptr, 0.0, 0.0, nullptr, nullptr,
-	                                                            false, false);
+	                                                            false, false, false);
 	if (Actor && Actor->IsA(APrimalDinoCharacter::GetPrivateStaticClass()))
 	{
 		APrimalDinoCharacter* Dino = static_cast<APrimalDinoCharacter*>(Actor);
