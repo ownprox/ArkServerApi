@@ -2,6 +2,7 @@
    "PVPScheduler":{  
 	  "ServerName":"ServerNameHere",
       "NotifyServer":true,
+	   "BlockC4PlacementInNonePVP": true,
       "LogPvpSwitchAtConsole":true,
       "Days":[
          {  
