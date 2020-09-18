@@ -5,6 +5,6 @@
 #include "json.hpp"
 
 nlohmann::json PVPDays;
-bool ServerNotify, PVPEnabled, LogPvpSwitchAtConsole, ProtectCharacters = true, ProtectDinos = true, ProtectStructures = true, ProtectExplosives = true;
+bool ServerNotify, BlockC4PlacementInPVPOff, PVPEnabled, LogPvpSwitchAtConsole, ProtectCharacters = true, ProtectDinos = true, ProtectStructures = true, ProtectExplosives = true;
 FString ServerName;
 inline std::string PVPMessage[3];
