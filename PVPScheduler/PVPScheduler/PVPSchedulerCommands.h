@@ -1,58 +1,48 @@
 #pragma once
-/*
-inline void PVP(AShooterPlayerController* player, FString* message, int mode)
+
+#include <fstream>
+
+std::string Days[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+nlohmann::json PVPConfig;
+
+inline void InitConfig()
 {
-	if (!player || !player->PlayerStateField() || !player->GetPlayerCharacter() || !player->GetPlayerCharacter()->
-	                                                                                          bIsServerAdminField())
+	std::ifstream file(ArkApi::Tools::GetCurrentDir() + "/ArkApi/Plugins/PVPScheduler/config.json");
+	if (!file.is_open())
 		return;
 
-	int EndDaya = 0, EndHoura = 0;
-	if (PVPEnabled)
-	{
-		TArray<FString> Parsed;
-		message->ParseIntoArray(Parsed, L" ", true);
-		if (Parsed.IsValidIndex(2))
-		{
-			try
-			{
-				EndDaya = std::stoi(Parsed[1].ToString().c_str());
-				EndHoura = std::stoi(Parsed[2].ToString().c_str());
-			}
-			catch (...)
-			{
-			}
+	file >> PVPConfig;
+	file.close();
 
-			//EndDay = EndDaya;
-			//EndHour = EndHoura;
-		}
-		else
-		{
-			ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(1, 0, 0), "Incorrect Syntax: /pvp <EndDay> <EndHour>");
-			return;
-		}
+	std::string TempData;
+	TempData = PVPConfig["PVPScheduler"]["ServerName"];
+	ServerName = FString(ArkApi::Tools::Utf8Decode(TempData).c_str());
+	ServerNotify = PVPConfig["PVPScheduler"]["NotifyServer"];
+	BlockC4PlacementInPVPOff = PVPConfig["PVPScheduler"]["BlockC4PlacementInPVPOff"];
+	LogPvpSwitchAtConsole = PVPConfig["PVPScheduler"]["LogPvpSwitchAtConsole"];
+	PVPMessage[2] = PVPConfig["PVPScheduler"].value("ProtectExplosiveMessage", "");
+
+	Log::GetLog()->info("Loading PVP Schedule's");
+
+	PVPDays = PVPConfig["PVPScheduler"]["Days"];
+	for (int i = 0; i < PVPDays.size(); i++)
+	{
+		if (PVPDays[i]["StartDay"] > 6 || PVPDays[i]["StartDay"] < 0)
+			PVPDays[i]["StartDay"] = 0;
+		if (PVPDays[i]["EndDay"] > 6 || PVPDays[i]["EndDay"] < 0)
+			PVPDays[i]["EndDay"] = 0;
+		if (PVPDays[i]["StartHour"] > 23 || PVPDays[i]["StartHour"] < 0)
+			PVPDays[i]["StartHour"] = 0;
+		if (PVPDays[i]["EndHour"] > 23 || PVPDays[i]["EndHour"] < 0)
+			PVPDays[i]["EndHour"] = 0;
+
+		Log::GetLog()->info("Loaded PVP Schedule {} Start Day: {}, Hour: {} - End Day: {}, End Hour {}", (i + 1),
+		                    Days[(int)PVPDays[i]["StartDay"]], (int)PVPDays[i]["StartHour"], Days[(int)PVPDays[i]["EndDay"]],
+		                    (int)PVPDays[i]["EndHour"]);
 	}
 
-	PVPEnabled = !PVPEnabled;
-
-	ArkApi::GetApiUtils().SendServerMessage(player, FLinearColor(0, 1, 0), "PVP: {}",
-	                                        (PVPEnabled ? "Enabled" : "Disabled"));
-}*/
-
-inline void PVPReloadConfig(APlayerController* player, FString*, bool)
-{
-	InitConfig();
-
-	ArkApi::GetApiUtils().SendServerMessage(static_cast<AShooterPlayerController*>(player), FLinearColor(0, 1, 0), "Config Reloaded!");
-}
-
-inline void InitCommands()
-{
-	//ArkApi::GetCommands().AddChatCommand("/pvp", &PVP);
-	ArkApi::GetCommands().AddConsoleCommand("pvpreload", &PVPReloadConfig);
-}
-
-inline void RemoveCommands()
-{
-	//ArkApi::GetCommands().RemoveChatCommand("/pvp");
-	ArkApi::GetCommands().RemoveConsoleCommand("pvpreload");
+	ProtectCharacters = PVPConfig["PVPScheduler"].value("ProtectPlayersPVPOff", true);
+	ProtectDinos = PVPConfig["PVPScheduler"].value("ProtectDinosPVPOff", true);
+	ProtectStructures = PVPConfig["PVPScheduler"].value("ProtectStructuresPVPOff", true);
+	ProtectExplosives = PVPConfig["PVPScheduler"].value("ProtectExplosivesPVPOff", true);
 }
