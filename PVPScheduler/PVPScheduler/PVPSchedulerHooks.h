@@ -4,6 +4,8 @@ DECLARE_HOOK(APrimalCharacter_TakeDamage, float, APrimalCharacter*, float, FDama
 DECLARE_HOOK(APrimalStructure_TakeDamage, float, APrimalStructure*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(APrimalDinoCharacter_TakeDamage, float, APrimalDinoCharacter*, float, FDamageEvent*, AController*, AActor*);
 DECLARE_HOOK(APrimalStructureExplosive_CanDetonateMe, bool, APrimalStructureExplosive*, AShooterCharacter*, bool);
+DECLARE_HOOK(APrimalStructure_IsAllowedToBuild, int, APrimalStructure*, APlayerController*, FVector, FRotator, FPlacementData*, bool, FRotator, bool);
+
 
 void PVPCheckTimer();
 
@@ -12,6 +14,8 @@ inline void InitHooks()
 	ArkApi::GetHooks().SetHook("APrimalCharacter.TakeDamage", &Hook_APrimalCharacter_TakeDamage, &APrimalCharacter_TakeDamage_original);
 	ArkApi::GetHooks().SetHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage, &APrimalStructure_TakeDamage_original);
 	ArkApi::GetHooks().SetHook("APrimalDinoCharacter.TakeDamage", &Hook_APrimalDinoCharacter_TakeDamage, &APrimalDinoCharacter_TakeDamage_original);
+	ArkApi::GetHooks().SetHook("APrimalStructure.IsAllowedToBuild", &Hook_APrimalStructure_IsAllowedToBuild, &APrimalStructure_IsAllowedToBuild_original);
+
 	ArkApi::GetHooks().SetHook("APrimalStructureExplosive.CanDetonateMe", &Hook_APrimalStructureExplosive_CanDetonateMe, &APrimalStructureExplosive_CanDetonateMe_original);
 	ArkApi::GetCommands().AddOnTimerCallback("PVPCheckTimer", &PVPCheckTimer);
 }
@@ -22,6 +26,8 @@ inline void RemoveHooks()
 	ArkApi::GetHooks().DisableHook("APrimalStructure.TakeDamage", &Hook_APrimalStructure_TakeDamage);
 	ArkApi::GetHooks().DisableHook("APrimalDinoCharacter.TakeDamage", &Hook_APrimalDinoCharacter_TakeDamage);
 	ArkApi::GetHooks().DisableHook("APrimalStructureExplosive.CanDetonateMe", &Hook_APrimalStructureExplosive_CanDetonateMe);
+
+	ArkApi::GetHooks().DisableHook("APrimalStructure.IsAllowedToBuild", &Hook_APrimalStructure_IsAllowedToBuild);
 	ArkApi::GetCommands().RemoveOnTimerCallback("PVPCheckTimer");
 }
 
@@ -118,7 +124,54 @@ inline void PVPCheckTimer()
 
 long double LastTime;
 
-bool Hook_APrimalStructureExplosive_CanDetonateMe(APrimalStructureExplosive *_this, AShooterCharacter* Character, bool bUsingRemote)
+FString GetBlueprint(UObjectBase* object)
+{
+	if (object != nullptr && object->ClassField() != nullptr)
+	{
+		FString path_name;
+		object->ClassField()->GetDefaultObject(true)->GetFullName(&path_name, nullptr);
+
+		if (int find_index = 0; path_name.FindChar(' ', find_index))
+		{
+			path_name = "Blueprint'" + path_name.Mid(find_index + 1,
+				path_name.Len() - (find_index + (path_name.EndsWith(
+					"_C", ESearchCase::
+					CaseSensitive)
+					? 3
+					: 1))) + "'";
+			return path_name.Replace(L"Default__", L"", ESearchCase::CaseSensitive);
+		}
+	}
+
+	return FString("");
+}
+
+int  Hook_APrimalStructure_IsAllowedToBuild(APrimalStructure* _this, APlayerController* PC, FVector AtLocation, FRotator AtRotation, FPlacementData* OutPlacementData, bool bDontAdjustForMaxRange, FRotator PlayerViewRotation, bool bFinalPlacement)
+{
+
+
+	if (bFinalPlacement && PC != nullptr)
+	{
+		if (!PVPEnabled && BlockC4PlacementInPVPOff) {
+			
+			const FString path_name = GetBlueprint(_this);
+		if (path_name.ToString() == "Blueprint'/Game/PrimalEarth/Structures/C4Charge.C4Charge'")
+		{
+			ArkApi::GetApiUtils().SendNotification(static_cast<AShooterPlayerController*>(PC), FColorList::Green, 1.3f, 15.0f, nullptr, "C4 is Blocked in PVP OFF");
+
+					return 0;
+		}
+		
+		}
+		
+		
+	}
+
+	return APrimalStructure_IsAllowedToBuild_original(_this, PC, AtLocation, AtRotation, OutPlacementData, bDontAdjustForMaxRange, PlayerViewRotation, bFinalPlacement);
+}
+
+
+bool Hook_APrimalStructureExplosive_CanDetonateMe(APrimalStructureExplosive* _this, AShooterCharacter* Character, bool bUsingRemote)
 {
 	if (ProtectExplosives)
 	{
@@ -138,15 +191,15 @@ bool Hook_APrimalStructureExplosive_CanDetonateMe(APrimalStructureExplosive *_th
 }
 
 float Hook_APrimalCharacter_TakeDamage(APrimalCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
-                                              AController* Attacker, AActor* DamageCauser)
+	AController* Attacker, AActor* DamageCauser)
 {
-	return ProtectCharacters && Victim && Attacker  && Victim->TargetingTeamField() >= 50000 && Attacker->TargetingTeamField() >= 50000
-		       ? 0
-		       : APrimalCharacter_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
+	return ProtectCharacters && Victim && Attacker && Victim->TargetingTeamField() >= 50000 && Attacker->TargetingTeamField() >= 50000
+		? 0
+		: APrimalCharacter_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
 }
 
 float Hook_APrimalDinoCharacter_TakeDamage(APrimalDinoCharacter* Victim, float Damage, FDamageEvent* DamageEvent,
-                                                  AController* Attacker, AActor* DamageCauser)
+	AController* Attacker, AActor* DamageCauser)
 {
 
 	if (ProtectDinos && Victim && Victim->TargetingTeamField() >= 50000)
@@ -160,10 +213,10 @@ float Hook_APrimalDinoCharacter_TakeDamage(APrimalDinoCharacter* Victim, float D
 }
 
 float Hook_APrimalStructure_TakeDamage(APrimalStructure* Victim, float Damage, FDamageEvent* DamageEvent,
-                                              AController* Attacker, AActor* DamageCauser)
+	AController* Attacker, AActor* DamageCauser)
 {//bImmuneToAutoDemolish
 	//bUseHarvestingComponent 	
 	return ProtectStructures
-		       ? 0
-		       : APrimalStructure_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
+		? 0
+		: APrimalStructure_TakeDamage_original(Victim, Damage, DamageEvent, Attacker, DamageCauser);
 }
